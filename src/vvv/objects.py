@@ -174,6 +174,8 @@ def leptons(electrons, muons, clean_against, cfg: ObjectConfig):
                 "mass": ak.zeros_like(objs.pt),
                 "charge": _lepton_charge(objs.charge, is_electron, cfg),
                 "is_electron": ak.full_like(objs.pt, is_electron, dtype=bool),
+                "ecalIso": objs.ecalIso,
+                "hcalIso": objs.hcalIso,
             },
             with_name="PtEtaPhiMCandidate",
             behavior=objs.behavior,
