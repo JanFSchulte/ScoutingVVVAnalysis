@@ -1,0 +1,113 @@
+{
+  "lumi_fb": 11.56,
+  "tag_branch": "Probe_WvsQCD_1",
+  "tag_wp": 0.2,
+  "fit_window": [
+    50,
+    120
+  ],
+  "n_bins": 17,
+  "w_mass_ref": 80.38,
+  "pass": {
+    "data": {
+      "mu": 92.99995539741015,
+      "mu_err": 2.2382095514086915,
+      "sigma": 4.9062527765109945,
+      "sigma_err": 2.261103708577735,
+      "B": 0.831805142900015,
+      "C": -0.01294502731843786,
+      "m0": 50,
+      "chi2": 5.309500587463519,
+      "ndf": 12,
+      "popt": [
+        4.546834960989927,
+        92.99995539741015,
+        4.9062527765109945,
+        0.831805142900015,
+        -0.01294502731843786,
+        50.000000104469784
+      ],
+      "label": "Data (Pass)"
+    },
+    "mc": {
+      "mu": 86.80819223491102,
+      "mu_err": 0.7175784448907983,
+      "sigma": 9.346922376918911,
+      "sigma_err": 0.7586704496167281,
+      "B": 0.5931884887026305,
+      "C": -0.02017002133721704,
+      "m0": 50,
+      "chi2": 16.41035930009328,
+      "ndf": 12,
+      "popt": [
+        8.212233082973349,
+        86.80819223491102,
+        9.346922376918911,
+        0.5931884887026305,
+        -0.02017002133721704,
+        50.00000027623102
+      ],
+      "label": "MC (Pass)"
+    }
+  },
+  "yields": {
+    "data_pass": 41.0,
+    "mc_pass": 72.2456155905309,
+    "data_fail": 203.0,
+    "mc_fail": 266.11922832794926
+  },
+  "JMS": 1.0713269451084022,
+  "JMS_err": 0.027261868721057052,
+  "JMR": 0.5249056939454626,
+  "JMR_err": 0.2456321348664533,
+  "selection": {
+    "ScoutingMuonVtx_pt_1": [
+      30,
+      null
+    ],
+    "ScoutingMuonVtx_trkRelIso_1": [
+      null,
+      0.1
+    ],
+    "ScoutingMuonVtx_nValidStandAloneMuonHits_1": [
+      1,
+      null
+    ],
+    "ScoutingMuonVtx_normchi2_1": [
+      null,
+      10
+    ],
+    "ScoutingMuonVtx_nValidPixelHits_1": [
+      1,
+      null
+    ],
+    "ScoutingMuonVtx_nTrackerLayersWithMeasurement_1": [
+      6,
+      null
+    ],
+    "ScoutingMuonVtx_nStandAloneMuonMatchedStations_1": [
+      2,
+      null
+    ],
+    "ScoutingMuonVtx_trk_dxy_1": [
+      -0.2,
+      0.2
+    ],
+    "ScoutingMuonVtx_trk_dz_1": [
+      -0.5,
+      0.5
+    ],
+    "ScoutingPFJetRecluster2_scoutUParT_probb_max": [
+      0.85,
+      null
+    ],
+    "LeptonicW_pt": [
+      150,
+      null
+    ],
+    "Probe_pt_1": [
+      200,
+      null
+    ]
+  }
+}

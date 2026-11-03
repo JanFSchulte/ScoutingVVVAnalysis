@@ -1,0 +1,15 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vvv"
+version = "0.1.0"
+description = "Scouting VVV analysis on coffea"
+requires-python = ">=3.13"
+
+[project.scripts]
+vvv = "vvv.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vvv"]

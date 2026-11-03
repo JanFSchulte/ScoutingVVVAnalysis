@@ -1,0 +1,39 @@
+[workspace]
+authors = ["Jan-Frederik Schulte <jschulte@cern.ch>"]
+channels = ["conda-forge"]
+name = "vvv-coffea"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+# Versions follow /work/pixi/global so the gateway workers and the session agree.
+[dependencies]
+python = "3.13.*"
+coffea = "2026.9.0.*"
+awkward = "*"
+uproot = "*"
+correctionlib = "*"
+hist = "*"
+mplhep = ">=1.1.2"
+vector = "*"
+numpy = "*"
+numba = "*"
+scipy = "*"
+pyarrow = "*"
+dask = "*"
+distributed = "*"
+dask-gateway = "*"
+dask-histogram = "*"
+bokeh = "3.9.*"
+fsspec-xrootd = "*"
+xrootd = "5.9.2.*"
+xgboost = "*"
+pydantic = ">=2"
+pyyaml = "*"
+typer = "*"
+pytest = "*"
+
+[pypi-dependencies]
+vvv = { path = ".", editable = true }
+
+[tasks]
+test = "pytest -q tests"
