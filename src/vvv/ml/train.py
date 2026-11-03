@@ -226,7 +226,11 @@ def threshold_grid(tail_min_prob=2e-4, tail_n=10, n_thresholds=15):
 
 
 class DecorState:
-    """Bin memberships of the QCD events of one split for the smooth CvM penalty."""
+    """Bin memberships of the QCD events of one split for the smooth CvM penalty.
+
+    The penalty is evaluated in chunks of decor_chunk events (two passes: the per-bin
+    efficiencies, then the per-event gradients), so GPU memory stays bounded at ~10M QCD events.
+    """
 
     def __init__(self, Z, w, is_qcd, cfg, device):
         import torch
@@ -236,6 +240,7 @@ class DecorState:
         # float64 matches legacy numpy; float32 is much faster on T4s (decor_dtype in the config).
         dt = torch.float64 if cfg.get("decor_dtype", "float64") == "float64" else torch.float32
         self.dtype = dt
+        self.chunk = int(cfg.get("decor_chunk", 1_000_000))
         n_bins = cfg["decor_n_bins"]
         self.idx = np.flatnonzero(is_qcd)
         wq = torch.as_tensor(w[self.idx], dtype=dt, device=device)
@@ -254,19 +259,26 @@ class DecorState:
                 m = torch.zeros(len(self.idx), n_bins, dtype=dt, device=device)
             row = m.sum(dim=1, keepdim=True)
             hard = torch.clamp(torch.bucketize(z[:, 0], e[1:-1]), 0, n_bins - 1)
-            hard_m = torch.nn.functional.one_hot(hard, n_bins).to(dt)
-            m = torch.where(row > EPS, m / torch.clamp(row, min=EPS), hard_m)
-            bin_tot = (wq[:, None] * m).sum(dim=0)
+            m = torch.where(row > EPS, m / torch.clamp(row, min=EPS), torch.nn.functional.one_hot(hard, n_bins).to(dt))
+            del row, hard, z
+            bin_tot = wq @ m
             keep = bin_tot > EPS
-            m, bin_tot = m[:, keep], bin_tot[keep]
             self.features.append({
-                "wm_t": (wq[:, None] * m).T.contiguous(),  # (B, n)
-                "m_over_bt": m / bin_tot[None, :],  # (n, B)
-                "rho": bin_tot / self.total_w,
+                "m": m[:, keep].contiguous(),  # (n, B)
+                "bin_tot": bin_tot[keep],
+                "rho": bin_tot[keep] / self.total_w,
             })
+            del m
         self.c = torch.as_tensor(threshold_grid(cfg["decor_tail_min_prob"], cfg["decor_tail_n"], cfg["decor_n_thresholds"]),
                                  dtype=dt, device=device)
         self.score_tau = cfg["decor_score_tau"]
+
+    def _chunks(self, n):
+        return [slice(i, min(i + self.chunk, n)) for i in range(0, n, self.chunk)]
+
+    def _score(self, z, k):
+        others = torch_cat_without(self.torch, z, k)
+        return z[:, k] - self.torch.logsumexp(others, dim=1), others
 
     def __call__(self, margins, with_grad=True):
         """(raw penalty, grad (n_qcd, K), hess (n_qcd, K)) for margins of the QCD events."""
@@ -276,44 +288,57 @@ class DecorState:
         n, K = z.shape
         T = float(len(self.c))
         w, W = self.w, self.total_w
+        chunks = self._chunks(n)
         total = 0.0
         grad = torch.zeros_like(z) if with_grad else None
         hess = torch.zeros_like(z) if with_grad else None
         for k in range(K):
-            others = torch.cat([z[:, :k], z[:, k + 1:]], dim=1)
-            lse = torch.logsumexp(others, dim=1)
-            s = z[:, k] - lse
-            sig = torch.sigmoid((s[:, None] - self.c[None, :]) / self.score_tau)  # (n, T)
-            g = (w[:, None] * sig).sum(dim=0) / W
+            # Pass 1: global and per-bin weighted efficiencies over the threshold grid.
+            g_num = torch.zeros(len(self.c), dtype=dt, device=self.device)
+            local_num = [torch.zeros(len(f["rho"]), len(self.c), dtype=dt, device=self.device) for f in self.features]
+            for sl in chunks:
+                s, _ = self._score(z[sl], k)
+                wsig = w[sl, None] * torch.sigmoid((s[:, None] - self.c[None, :]) / self.score_tau)  # (n_c, T)
+                g_num += wsig.sum(dim=0)
+                for f, acc in zip(self.features, local_num):
+                    acc += f["m"][sl].T @ wsig
+            g = g_num / W
             var = g * (1.0 - g)
             a = 1.0 / torch.clamp(var, min=EFF_NORM_FLOOR)
             a_d = torch.where(var > EFF_NORM_FLOOR, -(1.0 - 2.0 * g) * a * a, torch.zeros_like(a))
-            if with_grad:
-                dsig = sig * (1.0 - sig) / self.score_tau
-                w_dsig = w[:, None] * dsig
-                s_grad = torch.zeros(n, dtype=dt, device=self.device)
-                s_hess = torch.zeros(n, dtype=dt, device=self.device)
-            for f in self.features:
-                local = (f["wm_t"] @ sig) / (f["rho"] * W)[:, None]  # (B, T)
-                delta = local - g[None, :]
+            per_feature = []
+            for f, acc in zip(self.features, local_num):
+                delta = acc / (f["rho"] * W)[:, None] - g[None, :]  # (B, T)
                 wd = f["rho"][:, None] * delta * a[None, :]
                 total += float((wd * delta).sum() / T)
-                if with_grad:
-                    local_term = f["m_over_bt"] @ wd  # (n, T)
-                    global_term = wd.sum(dim=0) / W - a_d * (f["rho"][:, None] * delta * delta).sum(dim=0) / (2.0 * W)
-                    coeff = local_term - global_term[None, :]
-                    s_grad += (2.0 * w_dsig * coeff).sum(dim=1) / T
-                    s_hess += (2.0 * (w_dsig * coeff) ** 2).sum(dim=1) / T
-            if with_grad:
+                global_term = wd.sum(dim=0) / W - a_d * (f["rho"][:, None] * delta * delta).sum(dim=0) / (2.0 * W)
+                per_feature.append((wd / f["bin_tot"][:, None], global_term))
+            if not with_grad:
+                continue
+            # Pass 2: per-event gradient and Gauss-Newton hessian of the score s_k.
+            for sl in chunks:
+                s, others = self._score(z[sl], k)
+                sig = torch.sigmoid((s[:, None] - self.c[None, :]) / self.score_tau)
+                w_dsig = w[sl, None] * sig * (1.0 - sig) / self.score_tau
+                s_grad = torch.zeros(len(s), dtype=dt, device=self.device)
+                s_hess = torch.zeros(len(s), dtype=dt, device=self.device)
+                for f, (wd_bt, global_term) in zip(self.features, per_feature):
+                    wc = w_dsig * (f["m"][sl] @ wd_bt - global_term[None, :])
+                    s_grad += 2.0 * wc.sum(dim=1) / T
+                    s_hess += 2.0 * (wc * wc).sum(dim=1) / T
                 q = torch.softmax(others, dim=1)
-                q = torch.cat([q[:, :k], torch.zeros(n, 1, dtype=q.dtype, device=q.device), q[:, k:]], dim=1)
-                grad -= s_grad[:, None] * q
-                grad[:, k] += s_grad
-                hess += s_hess[:, None] * q * q
-                hess[:, k] += s_hess
+                q = torch.cat([q[:, :k], torch.zeros(len(s), 1, dtype=dt, device=self.device), q[:, k:]], dim=1)
+                grad[sl] -= s_grad[:, None] * q
+                grad[sl, k] += s_grad
+                hess[sl] += s_hess[:, None] * q * q
+                hess[sl, k] += s_hess
         if not with_grad:
             return total, None, None
         return total, grad.double().cpu().numpy(), torch.clamp(hess, min=HESS_FLOOR).double().cpu().numpy()
+
+
+def torch_cat_without(torch, z, k):
+    return torch.cat([z[:, :k], z[:, k + 1:]], dim=1)
 
 
 # --- training ---------------------------------------------------------------------
