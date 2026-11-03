@@ -13,6 +13,7 @@ import time
 import awkward as ak
 import numpy as np
 import uproot
+from coffea.lumi_tools import LumiMask
 from coffea.nanoevents import NanoEventsFactory
 
 from vvv.config import DEFAULT
@@ -57,7 +58,8 @@ def main():
     for path in args.inputs:
         events = NanoEventsFactory.from_root({path: "Events"}, schemaclass=VVVScoutingSchema, mode="virtual").events()
         n_in += len(events)
-        events = events[ak.to_numpy(preselection(events, DEFAULT))]
+        lumi_mask = None if args.mc else LumiMask(str(DEFAULT.lumi_mask))
+        events = events[ak.to_numpy(preselection(events, DEFAULT, lumi_mask))]
         out, info = sel(events, is_mc=args.mc, configurations=configurations)
         print(f"{path}: {len(events)} preselected, rho ok {info['rho_ok'].mean():.5f}, "
               f"consensus {info['n_rho_consensus']}")

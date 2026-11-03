@@ -46,7 +46,10 @@ MC is normalised to `--lumi` (default 255.8 fb^-1, the projection target). Data
 in an SR box inside the 50-150 GeV mass window is dropped unless `--unblind`.
 `--gateway` runs on the user's Dask Gateway cluster (create it with
 `pixi_project` set to this directory). `--redirector /eos/purdue` reads Purdue
-EOS files through the session mount, for local tests only.
+EOS files through the session mount, for local tests only. The data files are
+not at Purdue: read them with `--redirector root://cms-xrd-global.cern.ch/`
+(XCache timed out on them on 2026-11-03). `--max-files N` limits a test run;
+`--maxchunks` alone still preprocesses every file of the sample.
 
 ## Validation against legacy
 
@@ -58,7 +61,7 @@ EOS files through the session mount, for local tests only.
 | Metadata: event count, genweight mean, pileup weights and means | legacy sample.json, pileup CSV (all 23 WWW files) | identical; pileup weights to 5e-11 |
 | Per-event pileup weight, genWeight | legacy trees | 2e-7 (float32), exact |
 | Classifier scores, production k-fold boosters | legacy `model_io.predict_model_proba` on legacy trees | 1e-7; 6 of 22k events differ by up to 2e-3 (a float32 ulp in HT/aplanarity crosses a split) |
-| Data | not yet validated | needs a grid proxy (the data files are not at Purdue) |
+| Data: categories and all variables | legacy batch `data_2024_0` (2 files of 2024G, 66,729 golden events) | 100% event-by-event agreement; variables within tolerance (`sync_*.py` without `--mc`) |
 
 ## Legacy behaviours reproduced on purpose
 

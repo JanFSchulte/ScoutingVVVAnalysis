@@ -102,7 +102,8 @@ def run(
     workers: int = 8,
     gateway: bool = False,
     chunksize: int = 200_000,
-    maxchunks: int = typer.Option(None, help="limit chunks per file (testing)"),
+    maxchunks: int = typer.Option(None, help="limit the number of chunks (testing)"),
+    max_files: int = typer.Option(None, help="use only the first N files per sample (testing)"),
     redirector: str = XCACHE,
     unblind: bool = False,
 ):
@@ -127,7 +128,9 @@ def run(
     regions = {cat: load_signal_regions(p) for cat, p in (item.split("=", 1) for item in signal_regions)}
     proc = AnalysisProcessor(DEFAULT, catalogue, meta, lumi, models=models, signal_regions=regions,
                              skim_dir=skim_dir, blind=not unblind)
-    fileset = {name: {"files": {f: "Events" for f in _load_filelist(name, redirector)}} for name in samples}
+    fileset = {
+        name: {"files": {f: "Events" for f in _load_filelist(name, redirector)[:max_files]}} for name in samples
+    }
     runner = processor.Runner(executor=_executor(workers, gateway), schema=VVVScoutingSchema,
                               chunksize=chunksize, maxchunks=maxchunks, skipbadfiles=True)
     out = runner(fileset, proc, treename="Events")

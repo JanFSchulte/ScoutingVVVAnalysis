@@ -7,7 +7,7 @@ The guiding rule is **validate against legacy at every stage**. The legacy chain
 ## Status (2026-11-03)
 
 - Phase 0: done. Pixi project, schema, samples.yaml, file lists (from legacy snapshots), legacy reference = batch `www_0` of `dataset_hybrid_leptonic_jec_c`.
-- Phases 1-2: done for MC. Categories and corrections agree event by event with legacy for nominal and all 8 jet variations. The smearing turned out bit-reproducible, so MC is synced exactly, not only statistically. Data sync is pending a grid proxy.
+- Phases 1-2: done for MC. Categories and corrections agree event by event with legacy for nominal and all 8 jet variations. The smearing turned out bit-reproducible, so MC is synced exactly, not only statistically. Data (2 files of 2024G) is synced exactly too.
 - Phase 3: variables done and synced. Parquet skims are written (nominal by default).
 - Phase 5: the histogram processor is implemented and plumbing-tested. Still open:
   - the adapter from histograms to the legacy `combine.C` inputs (`*_syst_yields.json`, `qcd_abcd_yields.root` mass-fit directory);

@@ -10,6 +10,7 @@ Usage: python scripts/sync_variables.py LEGACY.root INPUT.root [INPUT.root ...] 
 import argparse
 
 import awkward as ak
+from coffea.lumi_tools import LumiMask
 import numpy as np
 import uproot
 from coffea.nanoevents import NanoEventsFactory
@@ -40,7 +41,8 @@ def main():
     values = {cat: {} for cat in CATEGORIES}
     for path in args.inputs:
         events = NanoEventsFactory.from_root({path: "Events"}, schemaclass=VVVScoutingSchema, mode="virtual").events()
-        events = events[ak.to_numpy(preselection(events, DEFAULT))]
+        lumi_mask = None if args.mc else LumiMask(str(DEFAULT.lumi_mask))
+        events = events[ak.to_numpy(preselection(events, DEFAULT, lumi_mask))]
         obj = sel(events, is_mc=args.mc)[0]["nominal"]
         keys.append(key(events.run, events.luminosityBlock, events.event))
         cats.append(category_index(obj["categories"]))
