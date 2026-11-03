@@ -23,6 +23,7 @@ dask = "*"
 distributed = "*"
 dask-gateway = "*"
 dask-histogram = "*"
+prometheus_client = "*"  # required by the AF Dask Gateway monitoring
 bokeh = "3.9.*"
 fsspec-xrootd = "*"
 xrootd = "5.9.2.*"

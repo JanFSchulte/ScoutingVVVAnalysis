@@ -30,24 +30,36 @@ class MetadataProcessor(processor.ProcessorABC):
         return accumulator
 
 
-def runs_sums(files, timeout=60):
-    """Sums of the Runs tree over files; theory sums are genEventSumw-weighted means."""
+def runs_file_sums(path, timeout=60):
+    """Runs-tree sums of one file; theory sums are genEventSumw-weighted (combine with runs_sums)."""
+    runs = uproot.open(path, timeout=timeout)["Runs"].arrays(library="np")
+    sumw = runs["genEventSumw"]
+    out = {"genEventSumw": float(sumw.sum()), "genEventCount": int(runs["genEventCount"].sum()), "weighted": {}}
+    for name in ("LHEScaleSumw", "LHEPdfSumw", "PSSumw"):
+        if name not in runs:
+            continue
+        acc = None
+        for w, values in zip(sumw, runs[name]):
+            term = w * np.asarray(values, dtype=np.float64)
+            if acc is not None and len(acc) != len(term):
+                raise ValueError(f"{path}: {name} length {len(term)} != {len(acc)}")
+            acc = term if acc is None else acc + term
+        out["weighted"][name] = acc
+    return out
+
+
+def runs_sums(files, timeout=60, map_fn=map):
+    """Sums of the Runs tree over files (map_fn spreads the per-file reads, e.g. over Dask)."""
     total = {"genEventSumw": 0.0, "genEventCount": 0, "n_files": 0}
     weighted = {}
-    for path in files:
-        runs = uproot.open(path, timeout=timeout)["Runs"].arrays(library="np")
-        sumw = runs["genEventSumw"]
-        total["genEventSumw"] += float(sumw.sum())
-        total["genEventCount"] += int(runs["genEventCount"].sum())
+    for path, one in zip(files, map_fn(lambda f: runs_file_sums(f, timeout), files)):
+        total["genEventSumw"] += one["genEventSumw"]
+        total["genEventCount"] += one["genEventCount"]
         total["n_files"] += 1
-        for name in ("LHEScaleSumw", "LHEPdfSumw", "PSSumw"):
-            if name not in runs:
-                continue
-            for w, values in zip(sumw, runs[name]):
-                acc = weighted.setdefault(name, np.zeros(len(values)))
-                if len(acc) != len(values):
-                    raise ValueError(f"{path}: {name} length {len(values)} != {len(acc)}")
-                acc += w * np.asarray(values, dtype=np.float64)
+        for name, acc in one["weighted"].items():
+            if name in weighted and len(weighted[name]) != len(acc):
+                raise ValueError(f"{path}: {name} length {len(acc)} != {len(weighted[name])}")
+            weighted[name] = acc if name not in weighted else weighted[name] + acc
     for name, acc in weighted.items():
         total[name] = (acc / total["genEventSumw"]).tolist()
     return total

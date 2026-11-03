@@ -45,10 +45,11 @@ signal-region assignment and the mass-fit histograms:
 MC is normalised to `--lumi` (default 255.8 fb^-1, the projection target). Data
 in an SR box inside the 50-150 GeV mass window is dropped unless `--unblind`.
 `--gateway` runs on the user's Dask Gateway cluster (create it with
-`pixi_project` set to this directory). `--redirector /eos/purdue` reads Purdue
-EOS files through the session mount, for local tests only. The data files are
-not at Purdue: read them with `--redirector root://cms-xrd-global.cern.ch/`
-(XCache timed out on them on 2026-11-03). `--max-files N` limits a test run;
+`pixi_project` set to this directory). The default `--redirector auto` reads
+`/store/user/jschulte/` from Purdue EOS (`root://eos.cms.rcac.purdue.edu/`) and every
+other file through `root://cms-xrd-global.cern.ch/`, as the legacy conversion does;
+XCache timed out on these user files on 2026-11-03. `--redirector /eos/purdue` reads
+Purdue EOS files through the session mount, for local tests only. `--max-files N` limits a test run;
 `--maxchunks` alone still preprocesses every file of the sample.
 
 ## Training (XGBoost on GPU via Ray)

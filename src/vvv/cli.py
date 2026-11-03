@@ -13,34 +13,61 @@ LEGACY_ROOT = Path(__file__).resolve().parents[3] / "CMSSW_16_1_0_pre4" / "src" 
 FILELIST_DIR = Path(__file__).resolve().parents[2] / "data" / "filelists"
 METADATA_DIR = Path(__file__).resolve().parents[2] / "metadata"
 XCACHE = "root://xcache.cms.rcac.purdue.edu/"
+GLOBAL = "root://cms-xrd-global.cern.ch/"
+# "auto" (legacy input_xrootd_prefixes): Purdue EOS for the files stored there, else the global
+# redirector. XCache times out on these user files.
+AUTO_REDIRECTORS = {"/store/user/jschulte/": "root://eos.cms.rcac.purdue.edu/"}
 
 
 def _work_dir():
     return Path("/work/users") / os.environ.get("NB_USER", os.environ.get("USER", "")) / "vvv"
 
 
-def _executor(workers: int, gateway: bool):
-    from coffea import processor
-
-    if not gateway:
-        if workers <= 1:
-            return processor.IterativeExecutor()
-        return processor.FuturesExecutor(workers=workers)
+def _gateway_client():
     from dask_gateway import Gateway
 
     gw = Gateway()
     clusters = gw.list_clusters()
     if not clusters:
         raise typer.BadParameter("no running Dask Gateway cluster; create one first (one per user)")
-    client = gw.connect(clusters[0].name).get_client()
-    return processor.DaskExecutor(client=client)
+    return gw.connect(clusters[0].name).get_client()
+
+
+def _executor(workers: int, gateway: bool, client=None):
+    from coffea import processor
+
+    if not gateway:
+        if workers <= 1:
+            return processor.IterativeExecutor()
+        return processor.FuturesExecutor(workers=workers)
+    return processor.DaskExecutor(client=client or _gateway_client())
+
+
+def _map_fn(workers: int, client=None):
+    """map() over files: on the Dask cluster, else a local thread pool (I/O bound)."""
+    if client is not None:
+        return lambda fn, items: client.gather(client.map(fn, list(items), pure=False, retries=3))
+    from concurrent.futures import ThreadPoolExecutor
+
+    def fn_map(fn, items):
+        with ThreadPoolExecutor(max(workers, 1)) as pool:
+            return list(pool.map(fn, items))
+    return fn_map
 
 
 def _load_filelist(sample: str, redirector: str | None):
     files = json.loads((FILELIST_DIR / f"{sample}.json").read_text())["files"]
-    if redirector:
-        files = [redirector + f[f.index("/store/"):] for f in files]
-    return files
+    if not redirector:
+        return files
+    out = []
+    for f in files:
+        lfn = f[f.index("/store/"):]
+        if redirector == "auto":
+            prefix = next((r for p, r in AUTO_REDIRECTORS.items() if lfn.startswith(p)), GLOBAL)
+        else:
+            prefix = redirector
+        out.append(prefix + lfn)
+    return out
 
 
 @app.command("import-samples")
@@ -73,7 +100,7 @@ def metadata(
     samples: list[str] = typer.Argument(..., help="sample names"),
     workers: int = 8,
     gateway: bool = False,
-    redirector: str = XCACHE,
+    redirector: str = typer.Option("auto", help='"auto" (EOS / global), or a prefix such as ' + XCACHE),
     metadata_dir: Path = METADATA_DIR,
     max_files: int = typer.Option(None, help="first N files only (tests; normalisation is then partial)"),
 ):
@@ -84,11 +111,16 @@ def metadata(
     from vvv.schema import VVVScoutingSchema
 
     metadata_dir.mkdir(parents=True, exist_ok=True)
-    runner = processor.Runner(executor=_executor(workers, gateway), schema=VVVScoutingSchema, chunksize=500_000)
-    for name in samples:
-        files = _load_filelist(name, redirector)[:max_files]
-        out = runner({name: {"files": {f: "Events" for f in files}}}, MetadataProcessor(), treename="Events")
-        record = summarise(name, out[name], runs_sums(files))
+    client = _gateway_client() if gateway else None
+    runner = processor.Runner(executor=_executor(workers, gateway, client), schema=VVVScoutingSchema, chunksize=500_000)
+    # Every file must be read: a skipped file would bias the normalisation, so no skipbadfiles here.
+    filesets = {name: _load_filelist(name, redirector)[:max_files] for name in samples}
+    out = runner({name: {"files": {f: "Events" for f in files}} for name, files in filesets.items()},
+                 MetadataProcessor(), treename="Events")
+    for name, files in filesets.items():
+        record = summarise(name, out[name], runs_sums(files, map_fn=_map_fn(workers, client)))
+        if record["runs"]["genEventCount"] != record["n_events"]:
+            typer.echo(f"WARNING {name}: Runs genEventCount {record['runs']['genEventCount']} != {record['n_events']} events read")
         (metadata_dir / f"{name}.json").write_text(json.dumps(record, indent=1))
         typer.echo(f"{name}: {record['n_events']} events, sumw {record['runs']['genEventSumw']:.6g}")
 
@@ -108,7 +140,7 @@ def run(
     chunksize: int = 200_000,
     maxchunks: int = typer.Option(None, help="limit the number of chunks (testing)"),
     max_files: int = typer.Option(None, help="use only the first N files per sample (testing)"),
-    redirector: str = XCACHE,
+    redirector: str = typer.Option("auto", help='"auto" (EOS / global), or a prefix such as ' + XCACHE),
     metadata_dir: Path = METADATA_DIR,
     unblind: bool = False,
 ):
