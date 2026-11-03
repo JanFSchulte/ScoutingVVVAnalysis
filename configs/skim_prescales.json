@@ -1,0 +1,1393 @@
+{
+ "target": 2500000.0,
+ "counts": {
+  "GluGluZH-Zto2L-Hto2Wto2L2Nu": {
+   "boosted3": 22127,
+   "boosted2_resolved": 55192,
+   "boosted2_unresolved": 122511,
+   "boosted2_leptonic_1lep": 206210,
+   "boosted2_leptonic_2lep": 84009
+  },
+  "GluGluZH-Zto2L-Hto2Wto4Q": {
+   "boosted3": 50794,
+   "boosted2_resolved": 213519,
+   "boosted2_unresolved": 247664,
+   "boosted2_leptonic_1lep": 291740,
+   "boosted2_leptonic_2lep": 92638
+  },
+  "GluGluZH-Zto2L-Hto2WtoLNu2Q": {
+   "boosted3": 34190,
+   "boosted2_resolved": 117257,
+   "boosted2_unresolved": 173874,
+   "boosted2_leptonic_1lep": 259893,
+   "boosted2_leptonic_2lep": 75387
+  },
+  "GluGluZH-Zto2Q-Hto2Wto2L2Nu": {
+   "boosted3": 32450,
+   "boosted2_resolved": 138365,
+   "boosted2_unresolved": 216497,
+   "boosted2_leptonic_1lep": 157680,
+   "boosted2_leptonic_2lep": 28725
+  },
+  "GluGluZH-Zto2Q-Hto2Wto4Q": {
+   "boosted3": 75750,
+   "boosted2_resolved": 467044,
+   "boosted2_unresolved": 422152,
+   "boosted2_leptonic_1lep": 18049,
+   "boosted2_leptonic_2lep": 281
+  },
+  "GluGluZH-Zto2Q-Hto2WtoLNu2Q": {
+   "boosted3": 50571,
+   "boosted2_resolved": 267502,
+   "boosted2_unresolved": 296698,
+   "boosted2_leptonic_1lep": 142951,
+   "boosted2_leptonic_2lep": 1021
+  },
+  "WminusH-Wto2Q-Hto2Wto2L2Nu": {
+   "boosted3": 3391,
+   "boosted2_resolved": 14499,
+   "boosted2_unresolved": 51651,
+   "boosted2_leptonic_1lep": 15170,
+   "boosted2_leptonic_2lep": 2193
+  },
+  "WminusH-Wto2Q-Hto2Wto4Q": {
+   "boosted3": 7450,
+   "boosted2_resolved": 47900,
+   "boosted2_unresolved": 116084,
+   "boosted2_leptonic_1lep": 1480,
+   "boosted2_leptonic_2lep": 8
+  },
+  "WminusH-Wto2Q-Hto2WtoLNu2Q": {
+   "boosted3": 5241,
+   "boosted2_resolved": 27316,
+   "boosted2_unresolved": 78056,
+   "boosted2_leptonic_1lep": 14639,
+   "boosted2_leptonic_2lep": 63
+  },
+  "WminusH-WtoLNu-Hto2Wto2L2Nu": {
+   "boosted3": 1682,
+   "boosted2_resolved": 5673,
+   "boosted2_unresolved": 23718,
+   "boosted2_leptonic_1lep": 13501,
+   "boosted2_leptonic_2lep": 2355
+  },
+  "WminusH-WtoLNu-Hto2Wto4Q": {
+   "boosted3": 3529,
+   "boosted2_resolved": 19462,
+   "boosted2_unresolved": 51239,
+   "boosted2_leptonic_1lep": 13917,
+   "boosted2_leptonic_2lep": 50
+  },
+  "WminusH-WtoLNu-Hto2WtoLNu2Q": {
+   "boosted3": 2364,
+   "boosted2_resolved": 10845,
+   "boosted2_unresolved": 35000,
+   "boosted2_leptonic_1lep": 15878,
+   "boosted2_leptonic_2lep": 577
+  },
+  "WplusH-Wto2Q-Hto2Wto2L2Nu": {
+   "boosted3": 4300,
+   "boosted2_resolved": 16497,
+   "boosted2_unresolved": 61930,
+   "boosted2_leptonic_1lep": 16980,
+   "boosted2_leptonic_2lep": 2448
+  },
+  "WplusH-Wto2Q-Hto2Wto4Q": {
+   "boosted3": 8997,
+   "boosted2_resolved": 52719,
+   "boosted2_unresolved": 134074,
+   "boosted2_leptonic_1lep": 1562,
+   "boosted2_leptonic_2lep": 7
+  },
+  "WplusH-Wto2Q-Hto2WtoLNu2Q": {
+   "boosted3": 6413,
+   "boosted2_resolved": 30973,
+   "boosted2_unresolved": 90861,
+   "boosted2_leptonic_1lep": 15504,
+   "boosted2_leptonic_2lep": 72
+  },
+  "WplusH-WtoLNu-Hto2Wto2L2Nu": {
+   "boosted3": 1975,
+   "boosted2_resolved": 6229,
+   "boosted2_unresolved": 26378,
+   "boosted2_leptonic_1lep": 14540,
+   "boosted2_leptonic_2lep": 2467
+  },
+  "WplusH-WtoLNu-Hto2Wto4Q": {
+   "boosted3": 4168,
+   "boosted2_resolved": 20764,
+   "boosted2_unresolved": 58856,
+   "boosted2_leptonic_1lep": 16778,
+   "boosted2_leptonic_2lep": 62
+  },
+  "WplusH-WtoLNu-Hto2WtoLNu2Q": {
+   "boosted3": 2914,
+   "boosted2_resolved": 12037,
+   "boosted2_unresolved": 40594,
+   "boosted2_leptonic_1lep": 17755,
+   "boosted2_leptonic_2lep": 653
+  },
+  "ZH-Zto2L-Hto2Wto2L2Nu": {
+   "boosted3": 5297,
+   "boosted2_resolved": 15448,
+   "boosted2_unresolved": 63092,
+   "boosted2_leptonic_1lep": 51631,
+   "boosted2_leptonic_2lep": 17367
+  },
+  "ZH-Zto2L-Hto2Wto4Q": {
+   "boosted3": 11548,
+   "boosted2_resolved": 50180,
+   "boosted2_unresolved": 147307,
+   "boosted2_leptonic_1lep": 91505,
+   "boosted2_leptonic_2lep": 14083
+  },
+  "ZH-Zto2L-Hto2WtoLNu2Q": {
+   "boosted3": 8243,
+   "boosted2_resolved": 30076,
+   "boosted2_unresolved": 102211,
+   "boosted2_leptonic_1lep": 70312,
+   "boosted2_leptonic_2lep": 14287
+  },
+  "ZH-Zto2Q-Hto2Wto2L2Nu": {
+   "boosted3": 7775,
+   "boosted2_resolved": 33106,
+   "boosted2_unresolved": 106119,
+   "boosted2_leptonic_1lep": 32911,
+   "boosted2_leptonic_2lep": 4774
+  },
+  "ZH-Zto2Q-Hto2Wto4Q": {
+   "boosted3": 16095,
+   "boosted2_resolved": 103199,
+   "boosted2_unresolved": 221508,
+   "boosted2_leptonic_1lep": 4321,
+   "boosted2_leptonic_2lep": 55
+  },
+  "ZH-Zto2Q-Hto2WtoLNu2Q": {
+   "boosted3": 11835,
+   "boosted2_resolved": 61227,
+   "boosted2_unresolved": 156450,
+   "boosted2_leptonic_1lep": 31151,
+   "boosted2_leptonic_2lep": 249
+  },
+  "www": {
+   "boosted3": 44231,
+   "boosted2_resolved": 188040,
+   "boosted2_unresolved": 157204,
+   "boosted2_leptonic_1lep": 99128,
+   "boosted2_leptonic_2lep": 2248
+  },
+  "wwz": {
+   "boosted3": 273672,
+   "boosted2_resolved": 1080519,
+   "boosted2_unresolved": 1027499,
+   "boosted2_leptonic_1lep": 472127,
+   "boosted2_leptonic_2lep": 37364
+  },
+  "wzz": {
+   "boosted3": 239580,
+   "boosted2_resolved": 984897,
+   "boosted2_unresolved": 719340,
+   "boosted2_leptonic_1lep": 362578,
+   "boosted2_leptonic_2lep": 56796
+  },
+  "zzz": {
+   "boosted3": 81137,
+   "boosted2_resolved": 447683,
+   "boosted2_unresolved": 469963,
+   "boosted2_leptonic_1lep": 136406,
+   "boosted2_leptonic_2lep": 34529
+  },
+  "WWto2L2Nu_powheg": {
+   "boosted3": 72770,
+   "boosted2_resolved": 289710,
+   "boosted2_unresolved": 1314376,
+   "boosted2_leptonic_1lep": 849108,
+   "boosted2_leptonic_2lep": 29358
+  },
+  "WWto4Q_powheg": {
+   "boosted3": 213425,
+   "boosted2_resolved": 1473669,
+   "boosted2_unresolved": 2459811,
+   "boosted2_leptonic_1lep": 43973,
+   "boosted2_leptonic_2lep": 203
+  },
+  "WWtoLNu2Q_powheg": {
+   "boosted3": 187034,
+   "boosted2_resolved": 978137,
+   "boosted2_unresolved": 2546879,
+   "boosted2_leptonic_1lep": 1141461,
+   "boosted2_leptonic_2lep": 2835
+  },
+  "WZto2L2Q_powheg": {
+   "boosted3": 253546,
+   "boosted2_resolved": 1057658,
+   "boosted2_unresolved": 1968087,
+   "boosted2_leptonic_1lep": 1790416,
+   "boosted2_leptonic_2lep": 412551
+  },
+  "WZto2Nu2Q_powheg": {
+   "boosted3": 11400,
+   "boosted2_resolved": 55994,
+   "boosted2_unresolved": 214368,
+   "boosted2_leptonic_1lep": 1842,
+   "boosted2_leptonic_2lep": 8
+  },
+  "WZto3LNu_powheg": {
+   "boosted3": 92269,
+   "boosted2_resolved": 277590,
+   "boosted2_unresolved": 913987,
+   "boosted2_leptonic_1lep": 1111316,
+   "boosted2_leptonic_2lep": 214397
+  },
+  "WZto4Q": {
+   "boosted3": 18558,
+   "boosted2_resolved": 127690,
+   "boosted2_unresolved": 158238,
+   "boosted2_leptonic_1lep": 5211,
+   "boosted2_leptonic_2lep": 43
+  },
+  "WZtoL3Nu_powheg": {
+   "boosted3": 2929,
+   "boosted2_resolved": 12902,
+   "boosted2_unresolved": 65098,
+   "boosted2_leptonic_1lep": 13635,
+   "boosted2_leptonic_2lep": 27
+  },
+  "WZtoLNu2Q_powheg": {
+   "boosted3": 135759,
+   "boosted2_resolved": 677291,
+   "boosted2_unresolved": 1437674,
+   "boosted2_leptonic_1lep": 813363,
+   "boosted2_leptonic_2lep": 2756
+  },
+  "ZZto2L2Nu_powheg": {
+   "boosted3": 19229,
+   "boosted2_resolved": 89017,
+   "boosted2_unresolved": 451129,
+   "boosted2_leptonic_1lep": 244021,
+   "boosted2_leptonic_2lep": 16250
+  },
+  "ZZto2L2Q_powheg": {
+   "boosted3": 50986,
+   "boosted2_resolved": 264586,
+   "boosted2_unresolved": 657683,
+   "boosted2_leptonic_1lep": 507103,
+   "boosted2_leptonic_2lep": 86424
+  },
+  "ZZto2Nu2Q_powheg": {
+   "boosted3": 7992,
+   "boosted2_resolved": 54588,
+   "boosted2_unresolved": 225944,
+   "boosted2_leptonic_1lep": 2437,
+   "boosted2_leptonic_2lep": 27
+  },
+  "ZZto4L_powheg": {
+   "boosted3": 23095,
+   "boosted2_resolved": 76357,
+   "boosted2_unresolved": 296309,
+   "boosted2_leptonic_1lep": 333580,
+   "boosted2_leptonic_2lep": 109684
+  },
+  "ZZto4Q": {
+   "boosted3": 5943,
+   "boosted2_resolved": 53168,
+   "boosted2_unresolved": 91963,
+   "boosted2_leptonic_1lep": 2678,
+   "boosted2_leptonic_2lep": 26
+  },
+  "dy_h100to400_m120": {
+   "boosted3": 28891,
+   "boosted2_resolved": 127337,
+   "boosted2_unresolved": 466674,
+   "boosted2_leptonic_1lep": 568543,
+   "boosted2_leptonic_2lep": 4981
+  },
+  "dy_h100to400_m4to50": {
+   "boosted3": 645,
+   "boosted2_resolved": 45177,
+   "boosted2_unresolved": 619566,
+   "boosted2_leptonic_1lep": 33150,
+   "boosted2_leptonic_2lep": 4734
+  },
+  "dy_h100to400_m50to120": {
+   "boosted3": 4216,
+   "boosted2_resolved": 240514,
+   "boosted2_unresolved": 1868749,
+   "boosted2_leptonic_1lep": 1611769,
+   "boosted2_leptonic_2lep": 41827
+  },
+  "dy_h1500to2500_m120": {
+   "boosted3": 218612,
+   "boosted2_resolved": 138337,
+   "boosted2_unresolved": 114755,
+   "boosted2_leptonic_1lep": 364415,
+   "boosted2_leptonic_2lep": 150188
+  },
+  "dy_h1500to2500_m4to50": {
+   "boosted3": 442271,
+   "boosted2_resolved": 378748,
+   "boosted2_unresolved": 617987,
+   "boosted2_leptonic_1lep": 268429,
+   "boosted2_leptonic_2lep": 68403
+  },
+  "dy_h1500to2500_m50to120": {
+   "boosted3": 406258,
+   "boosted2_resolved": 283503,
+   "boosted2_unresolved": 321713,
+   "boosted2_leptonic_1lep": 578445,
+   "boosted2_leptonic_2lep": 284189
+  },
+  "dy_h2500_m120": {
+   "boosted3": 186926,
+   "boosted2_resolved": 159714,
+   "boosted2_unresolved": 118148,
+   "boosted2_leptonic_1lep": 362646,
+   "boosted2_leptonic_2lep": 151868
+  },
+  "dy_h2500_m4to50": {
+   "boosted3": 254764,
+   "boosted2_resolved": 238913,
+   "boosted2_unresolved": 319187,
+   "boosted2_leptonic_1lep": 175664,
+   "boosted2_leptonic_2lep": 48413
+  },
+  "dy_h2500_m50to120": {
+   "boosted3": 191966,
+   "boosted2_resolved": 165126,
+   "boosted2_unresolved": 168303,
+   "boosted2_leptonic_1lep": 299198,
+   "boosted2_leptonic_2lep": 151755
+  },
+  "dy_h400to800_m120": {
+   "boosted3": 82272,
+   "boosted2_resolved": 197383,
+   "boosted2_unresolved": 269531,
+   "boosted2_leptonic_1lep": 523828,
+   "boosted2_leptonic_2lep": 101986
+  },
+  "dy_h400to800_m4to50": {
+   "boosted3": 79139,
+   "boosted2_resolved": 871152,
+   "boosted2_unresolved": 3537837,
+   "boosted2_leptonic_1lep": 678904,
+   "boosted2_leptonic_2lep": 145681
+  },
+  "dy_h400to800_m50to120": {
+   "boosted3": 198657,
+   "boosted2_resolved": 1123647,
+   "boosted2_unresolved": 2123484,
+   "boosted2_leptonic_1lep": 2197113,
+   "boosted2_leptonic_2lep": 833906
+  },
+  "dy_h40to70_m120": {
+   "boosted3": 149,
+   "boosted2_resolved": 6107,
+   "boosted2_unresolved": 82648,
+   "boosted2_leptonic_1lep": 1280,
+   "boosted2_leptonic_2lep": 127
+  },
+  "dy_h40to70_m4to50": {
+   "boosted3": 56,
+   "boosted2_resolved": 963,
+   "boosted2_unresolved": 4255,
+   "boosted2_leptonic_1lep": 625,
+   "boosted2_leptonic_2lep": 100
+  },
+  "dy_h40to70_m50to120": {
+   "boosted3": 51,
+   "boosted2_resolved": 1109,
+   "boosted2_unresolved": 2278,
+   "boosted2_leptonic_1lep": 2713,
+   "boosted2_leptonic_2lep": 1283
+  },
+  "dy_h70to100_m120": {
+   "boosted3": 194,
+   "boosted2_resolved": 14956,
+   "boosted2_unresolved": 102186,
+   "boosted2_leptonic_1lep": 1870,
+   "boosted2_leptonic_2lep": 154
+  },
+  "dy_h70to100_m4to50": {
+   "boosted3": 111,
+   "boosted2_resolved": 1959,
+   "boosted2_unresolved": 5100,
+   "boosted2_leptonic_1lep": 1160,
+   "boosted2_leptonic_2lep": 176
+  },
+  "dy_h70to100_m50to120": {
+   "boosted3": 56,
+   "boosted2_resolved": 1387,
+   "boosted2_unresolved": 2165,
+   "boosted2_leptonic_1lep": 2853,
+   "boosted2_leptonic_2lep": 1221
+  },
+  "dy_h800to1500_m120": {
+   "boosted3": 147495,
+   "boosted2_resolved": 155505,
+   "boosted2_unresolved": 137748,
+   "boosted2_leptonic_1lep": 355338,
+   "boosted2_leptonic_2lep": 125128
+  },
+  "dy_h800to1500_m4to50": {
+   "boosted3": 209134,
+   "boosted2_resolved": 456743,
+   "boosted2_unresolved": 795125,
+   "boosted2_leptonic_1lep": 244815,
+   "boosted2_leptonic_2lep": 56487
+  },
+  "dy_h800to1500_m50to120": {
+   "boosted3": 345445,
+   "boosted2_resolved": 481065,
+   "boosted2_unresolved": 530974,
+   "boosted2_leptonic_1lep": 830364,
+   "boosted2_leptonic_2lep": 389821
+  },
+  "qcd_ht1000to1200": {
+   "boosted3": 12962551,
+   "boosted2_resolved": 30135528,
+   "boosted2_unresolved": 54764555,
+   "boosted2_leptonic_1lep": 848187,
+   "boosted2_leptonic_2lep": 11066
+  },
+  "qcd_ht1200to1500": {
+   "boosted3": 19872002,
+   "boosted2_resolved": 29693678,
+   "boosted2_unresolved": 54828548,
+   "boosted2_leptonic_1lep": 907212,
+   "boosted2_leptonic_2lep": 12245
+  },
+  "qcd_ht1500to2000": {
+   "boosted3": 6302161,
+   "boosted2_resolved": 6805210,
+   "boosted2_unresolved": 12751088,
+   "boosted2_leptonic_1lep": 224066,
+   "boosted2_leptonic_2lep": 3073
+  },
+  "qcd_ht2000": {
+   "boosted3": 22482846,
+   "boosted2_resolved": 22111899,
+   "boosted2_unresolved": 39604645,
+   "boosted2_leptonic_1lep": 763993,
+   "boosted2_leptonic_2lep": 10939
+  },
+  "qcd_ht200to400": {
+   "boosted3": 178,
+   "boosted2_resolved": 12040,
+   "boosted2_unresolved": 344245,
+   "boosted2_leptonic_1lep": 671,
+   "boosted2_leptonic_2lep": 2
+  },
+  "qcd_ht400to600": {
+   "boosted3": 24811,
+   "boosted2_resolved": 3252005,
+   "boosted2_unresolved": 29541191,
+   "boosted2_leptonic_1lep": 110351,
+   "boosted2_leptonic_2lep": 525
+  },
+  "qcd_ht600to800": {
+   "boosted3": 1629065,
+   "boosted2_resolved": 26773180,
+   "boosted2_unresolved": 69460223,
+   "boosted2_leptonic_1lep": 644411,
+   "boosted2_leptonic_2lep": 6200
+  },
+  "qcd_ht800to1000": {
+   "boosted3": 2231303,
+   "boosted2_resolved": 10213205,
+   "boosted2_unresolved": 19220766,
+   "boosted2_leptonic_1lep": 261644,
+   "boosted2_leptonic_2lep": 3222
+  },
+  "tbarwplus_had": {
+   "boosted3": 155975,
+   "boosted2_resolved": 924605,
+   "boosted2_unresolved": 729461,
+   "boosted2_leptonic_1lep": 91319,
+   "boosted2_leptonic_2lep": 1881
+  },
+  "tbarwplus_lnu2q": {
+   "boosted3": 95521,
+   "boosted2_resolved": 461543,
+   "boosted2_unresolved": 540280,
+   "boosted2_leptonic_1lep": 403546,
+   "boosted2_leptonic_2lep": 6927
+  },
+  "ttbar_2l2nu": {
+   "boosted3": 120860,
+   "boosted2_resolved": 597639,
+   "boosted2_unresolved": 802915,
+   "boosted2_leptonic_1lep": 1024241,
+   "boosted2_leptonic_2lep": 101756
+  },
+  "ttbar_had": {
+   "boosted3": 2965416,
+   "boosted2_resolved": 25604813,
+   "boosted2_unresolved": 12261290,
+   "boosted2_leptonic_1lep": 2508202,
+   "boosted2_leptonic_2lep": 52366
+  },
+  "ttbar_semilep": {
+   "boosted3": 1712767,
+   "boosted2_resolved": 11544417,
+   "boosted2_unresolved": 9243409,
+   "boosted2_leptonic_1lep": 8363410,
+   "boosted2_leptonic_2lep": 174295
+  },
+  "twminus_had": {
+   "boosted3": 155858,
+   "boosted2_resolved": 924900,
+   "boosted2_unresolved": 735014,
+   "boosted2_leptonic_1lep": 91269,
+   "boosted2_leptonic_2lep": 1835
+  },
+  "twminus_lnu2q": {
+   "boosted3": 93075,
+   "boosted2_resolved": 451548,
+   "boosted2_unresolved": 533251,
+   "boosted2_leptonic_1lep": 396752,
+   "boosted2_leptonic_2lep": 6785
+  },
+  "wjets_h100to400": {
+   "boosted3": 305,
+   "boosted2_resolved": 16002,
+   "boosted2_unresolved": 167245,
+   "boosted2_leptonic_1lep": 738,
+   "boosted2_leptonic_2lep": 5
+  },
+  "wjets_h1500to2500": {
+   "boosted3": 15501619,
+   "boosted2_resolved": 14689644,
+   "boosted2_unresolved": 17480330,
+   "boosted2_leptonic_1lep": 583884,
+   "boosted2_leptonic_2lep": 5830
+  },
+  "wjets_h2500": {
+   "boosted3": 17327294,
+   "boosted2_resolved": 15731340,
+   "boosted2_unresolved": 16811901,
+   "boosted2_leptonic_1lep": 671122,
+   "boosted2_leptonic_2lep": 7586
+  },
+  "wjets_h400to800": {
+   "boosted3": 1206131,
+   "boosted2_resolved": 34629540,
+   "boosted2_unresolved": 103130206,
+   "boosted2_leptonic_1lep": 1023541,
+   "boosted2_leptonic_2lep": 4768
+  },
+  "wjets_h800to1500": {
+   "boosted3": 6325397,
+   "boosted2_resolved": 19877172,
+   "boosted2_unresolved": 23765242,
+   "boosted2_leptonic_1lep": 606510,
+   "boosted2_leptonic_2lep": 4694
+  },
+  "wlnu_h100to400_m0to120": {
+   "boosted3": 3530,
+   "boosted2_resolved": 266581,
+   "boosted2_unresolved": 3000184,
+   "boosted2_leptonic_1lep": 179296,
+   "boosted2_leptonic_2lep": 177
+  },
+  "wlnu_h100to400_m120": {
+   "boosted3": 930,
+   "boosted2_resolved": 53974,
+   "boosted2_unresolved": 584047,
+   "boosted2_leptonic_1lep": 13423,
+   "boosted2_leptonic_2lep": 18
+  },
+  "wlnu_h1500to2500_m0to120": {
+   "boosted3": 3065145,
+   "boosted2_resolved": 2650556,
+   "boosted2_unresolved": 4278013,
+   "boosted2_leptonic_1lep": 5083661,
+   "boosted2_leptonic_2lep": 18144
+  },
+  "wlnu_h1500to2500_m120": {
+   "boosted3": 3684351,
+   "boosted2_resolved": 2572946,
+   "boosted2_unresolved": 3488673,
+   "boosted2_leptonic_1lep": 5166063,
+   "boosted2_leptonic_2lep": 18674
+  },
+  "wlnu_h2500_m0to120": {
+   "boosted3": 2673222,
+   "boosted2_resolved": 2499770,
+   "boosted2_unresolved": 3610610,
+   "boosted2_leptonic_1lep": 4464965,
+   "boosted2_leptonic_2lep": 17982
+  },
+  "wlnu_h2500_m120": {
+   "boosted3": 3147524,
+   "boosted2_resolved": 2601482,
+   "boosted2_unresolved": 3095685,
+   "boosted2_leptonic_1lep": 4659985,
+   "boosted2_leptonic_2lep": 19036
+  },
+  "wlnu_h400to800_m0to120": {
+   "boosted3": 1127862,
+   "boosted2_resolved": 9512014,
+   "boosted2_unresolved": 28393312,
+   "boosted2_leptonic_1lep": 17749099,
+   "boosted2_leptonic_2lep": 28770
+  },
+  "wlnu_h400to800_m120": {
+   "boosted3": 292683,
+   "boosted2_resolved": 1546278,
+   "boosted2_unresolved": 3574547,
+   "boosted2_leptonic_1lep": 1887299,
+   "boosted2_leptonic_2lep": 3482
+  },
+  "wlnu_h40to100_m0to120": {
+   "boosted3": 130,
+   "boosted2_resolved": 2809,
+   "boosted2_unresolved": 6712,
+   "boosted2_leptonic_1lep": 5202,
+   "boosted2_leptonic_2lep": 20
+  },
+  "wlnu_h800to1500_m0to120": {
+   "boosted3": 1517060,
+   "boosted2_resolved": 3049442,
+   "boosted2_unresolved": 4895149,
+   "boosted2_leptonic_1lep": 4942583,
+   "boosted2_leptonic_2lep": 14582
+  },
+  "wlnu_h800to1500_m120": {
+   "boosted3": 1714911,
+   "boosted2_resolved": 2396212,
+   "boosted2_unresolved": 3371661,
+   "boosted2_leptonic_1lep": 3867941,
+   "boosted2_leptonic_2lep": 11515
+  },
+  "zjets_h100to400": {
+   "boosted3": 331,
+   "boosted2_resolved": 14883,
+   "boosted2_unresolved": 155679,
+   "boosted2_leptonic_1lep": 1091,
+   "boosted2_leptonic_2lep": 12
+  },
+  "zjets_h1500to2500": {
+   "boosted3": 23000319,
+   "boosted2_resolved": 22019504,
+   "boosted2_unresolved": 20808513,
+   "boosted2_leptonic_1lep": 1292315,
+   "boosted2_leptonic_2lep": 25879
+  },
+  "zjets_h2500": {
+   "boosted3": 15549666,
+   "boosted2_resolved": 13867380,
+   "boosted2_unresolved": 11738337,
+   "boosted2_leptonic_1lep": 865909,
+   "boosted2_leptonic_2lep": 18690
+  },
+  "zjets_h400to800": {
+   "boosted3": 351304,
+   "boosted2_resolved": 13618564,
+   "boosted2_unresolved": 39040192,
+   "boosted2_leptonic_1lep": 665240,
+   "boosted2_leptonic_2lep": 7641
+  },
+  "zjets_h800to1500": {
+   "boosted3": 5804427,
+   "boosted2_resolved": 21160626,
+   "boosted2_unresolved": 20728350,
+   "boosted2_leptonic_1lep": 966354,
+   "boosted2_leptonic_2lep": 17327
+  }
+ },
+ "prescale": {
+  "GluGluZH-Zto2L-Hto2Wto2L2Nu": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "GluGluZH-Zto2L-Hto2Wto4Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "GluGluZH-Zto2L-Hto2WtoLNu2Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "GluGluZH-Zto2Q-Hto2Wto2L2Nu": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "GluGluZH-Zto2Q-Hto2Wto4Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "GluGluZH-Zto2Q-Hto2WtoLNu2Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WminusH-Wto2Q-Hto2Wto2L2Nu": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WminusH-Wto2Q-Hto2Wto4Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WminusH-Wto2Q-Hto2WtoLNu2Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WminusH-WtoLNu-Hto2Wto2L2Nu": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WminusH-WtoLNu-Hto2Wto4Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WminusH-WtoLNu-Hto2WtoLNu2Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WplusH-Wto2Q-Hto2Wto2L2Nu": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WplusH-Wto2Q-Hto2Wto4Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WplusH-Wto2Q-Hto2WtoLNu2Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WplusH-WtoLNu-Hto2Wto2L2Nu": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WplusH-WtoLNu-Hto2Wto4Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WplusH-WtoLNu-Hto2WtoLNu2Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "ZH-Zto2L-Hto2Wto2L2Nu": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "ZH-Zto2L-Hto2Wto4Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "ZH-Zto2L-Hto2WtoLNu2Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "ZH-Zto2Q-Hto2Wto2L2Nu": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "ZH-Zto2Q-Hto2Wto4Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "ZH-Zto2Q-Hto2WtoLNu2Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "www": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wwz": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wzz": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "zzz": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WWto2L2Nu_powheg": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WWto4Q_powheg": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WWtoLNu2Q_powheg": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 2,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WZto2L2Q_powheg": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WZto2Nu2Q_powheg": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WZto3LNu_powheg": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WZto4Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WZtoL3Nu_powheg": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WZtoLNu2Q_powheg": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "ZZto2L2Nu_powheg": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "ZZto2L2Q_powheg": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "ZZto2Nu2Q_powheg": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "ZZto4L_powheg": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "ZZto4Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h100to400_m120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h100to400_m4to50": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h100to400_m50to120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h1500to2500_m120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h1500to2500_m4to50": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h1500to2500_m50to120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h2500_m120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h2500_m4to50": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h2500_m50to120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h400to800_m120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h400to800_m4to50": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 2,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h400to800_m50to120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h40to70_m120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h40to70_m4to50": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h40to70_m50to120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h70to100_m120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h70to100_m4to50": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h70to100_m50to120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h800to1500_m120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h800to1500_m4to50": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h800to1500_m50to120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "qcd_ht1000to1200": {
+   "boosted3": 6,
+   "boosted2_resolved": 13,
+   "boosted2_unresolved": 22,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "qcd_ht1200to1500": {
+   "boosted3": 8,
+   "boosted2_resolved": 12,
+   "boosted2_unresolved": 22,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "qcd_ht1500to2000": {
+   "boosted3": 3,
+   "boosted2_resolved": 3,
+   "boosted2_unresolved": 6,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "qcd_ht2000": {
+   "boosted3": 9,
+   "boosted2_resolved": 9,
+   "boosted2_unresolved": 16,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "qcd_ht200to400": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "qcd_ht400to600": {
+   "boosted3": 1,
+   "boosted2_resolved": 2,
+   "boosted2_unresolved": 12,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "qcd_ht600to800": {
+   "boosted3": 1,
+   "boosted2_resolved": 11,
+   "boosted2_unresolved": 28,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "qcd_ht800to1000": {
+   "boosted3": 1,
+   "boosted2_resolved": 5,
+   "boosted2_unresolved": 8,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "tbarwplus_had": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "tbarwplus_lnu2q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "ttbar_2l2nu": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "ttbar_had": {
+   "boosted3": 2,
+   "boosted2_resolved": 11,
+   "boosted2_unresolved": 5,
+   "boosted2_leptonic_1lep": 2,
+   "boosted2_leptonic_2lep": 1
+  },
+  "ttbar_semilep": {
+   "boosted3": 1,
+   "boosted2_resolved": 5,
+   "boosted2_unresolved": 4,
+   "boosted2_leptonic_1lep": 4,
+   "boosted2_leptonic_2lep": 1
+  },
+  "twminus_had": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "twminus_lnu2q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wjets_h100to400": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wjets_h1500to2500": {
+   "boosted3": 7,
+   "boosted2_resolved": 6,
+   "boosted2_unresolved": 7,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wjets_h2500": {
+   "boosted3": 7,
+   "boosted2_resolved": 7,
+   "boosted2_unresolved": 7,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wjets_h400to800": {
+   "boosted3": 1,
+   "boosted2_resolved": 14,
+   "boosted2_unresolved": 42,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wjets_h800to1500": {
+   "boosted3": 3,
+   "boosted2_resolved": 8,
+   "boosted2_unresolved": 10,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h100to400_m0to120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 2,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h100to400_m120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h1500to2500_m0to120": {
+   "boosted3": 2,
+   "boosted2_resolved": 2,
+   "boosted2_unresolved": 2,
+   "boosted2_leptonic_1lep": 3,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h1500to2500_m120": {
+   "boosted3": 2,
+   "boosted2_resolved": 2,
+   "boosted2_unresolved": 2,
+   "boosted2_leptonic_1lep": 3,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h2500_m0to120": {
+   "boosted3": 2,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 2,
+   "boosted2_leptonic_1lep": 2,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h2500_m120": {
+   "boosted3": 2,
+   "boosted2_resolved": 2,
+   "boosted2_unresolved": 2,
+   "boosted2_leptonic_1lep": 2,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h400to800_m0to120": {
+   "boosted3": 1,
+   "boosted2_resolved": 4,
+   "boosted2_unresolved": 12,
+   "boosted2_leptonic_1lep": 8,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h400to800_m120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 2,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h40to100_m0to120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h800to1500_m0to120": {
+   "boosted3": 1,
+   "boosted2_resolved": 2,
+   "boosted2_unresolved": 2,
+   "boosted2_leptonic_1lep": 2,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h800to1500_m120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 2,
+   "boosted2_leptonic_1lep": 2,
+   "boosted2_leptonic_2lep": 1
+  },
+  "zjets_h100to400": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "zjets_h1500to2500": {
+   "boosted3": 10,
+   "boosted2_resolved": 9,
+   "boosted2_unresolved": 9,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "zjets_h2500": {
+   "boosted3": 7,
+   "boosted2_resolved": 6,
+   "boosted2_unresolved": 5,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "zjets_h400to800": {
+   "boosted3": 1,
+   "boosted2_resolved": 6,
+   "boosted2_unresolved": 16,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "zjets_h800to1500": {
+   "boosted3": 3,
+   "boosted2_resolved": 9,
+   "boosted2_unresolved": 9,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  }
+ }
+}

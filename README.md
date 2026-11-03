@@ -51,6 +51,46 @@ not at Purdue: read them with `--redirector root://cms-xrd-global.cern.ch/`
 (XCache timed out on them on 2026-11-03). `--max-files N` limits a test run;
 `--maxchunks` alone still preprocesses every file of the sample.
 
+## Training (XGBoost on GPU via Ray)
+
+The k-fold, mass-decorrelated multiclass BDTs (port of legacy `selections/BDT/train.py`)
+train on the AF Ray cluster, one GPU task per (category, fold). They run in the AF global
+environment, which has Ray, a CUDA build of XGBoost and torch; submit from a session
+without a GPU.
+
+```bash
+# 1. Training skims: nominal only, prescaled to ~2.5M events per (sample, category)
+pixi run python scripts/make_skim_prescales.py configs/skim_prescales.json
+pixi run vvv metadata <samples...> --gateway
+pixi run vvv run <samples...> --gateway --skim-dir /work/users/$USER/vvv/skims \
+    --skim-prescale configs/skim_prescales.json
+# 2. Training config from the legacy production k-fold configs
+pixi run python scripts/make_training_config.py configs/training/production.json \
+    --skim-dir /work/users/$USER/vvv/skims --output-dir /work/users/$USER/vvv/models/production
+# 3. Submit (resubmitting the same config resumes; finished folds are skipped)
+/work/pixi/global/.pixi/envs/default/bin/python scripts/submit_training.py configs/training/production.json --workers 8
+/work/pixi/global/.pixi/envs/default/bin/python scripts/submit_training.py --logs <job id>
+```
+
+The models land in the legacy layout (`<output_dir>/<category>/fold<r>/<category>_model.json`,
+`branch.json`, `selection.json`, plus `training_log.json`), so `vvv run --model-dir
+<category>=<output_dir>` uses them directly. Events are assigned to folds by `event % 5`, for
+MC and data alike.
+
+What follows legacy exactly: features, thresholds, preprocessing, the weight chain
+(sample normalisation, sign-preserving |w|, class balancing after cuts, cap at 20 x the class
+mean), the stage-1 learning-rate schedule and early stopping (checks every 5 rounds), and the
+stage-2 smooth Cramer-von Mises penalty on all six class log-odds against msoftdrop_1,
+log(sphere_mass) and mass_fraction_1 for QCD, with its decor_scale calibration.
+Deliberate differences:
+- folds by event number instead of contiguous entry blocks;
+- random instead of contiguous per-sample subsampling;
+- GPU `hist` tree building (legacy XGBoost 1.7.5 ignored `device="cuda"` and ran on CPU).
+
+On a T4, one stage-2 objective evaluation for 3M QCD events takes 4.5 s in float64, about
+2 h for 1500 rounds (legacy: 12-72 h per fold on 32 CPUs). `decor_dtype: "float32"` is 4x
+faster but moves the penalty by 14% at that size (`scripts/bench_decor.py`).
+
 ## Validation against legacy
 
 | What | Reference | Result |

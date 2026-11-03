@@ -57,6 +57,15 @@ def member_hist(mass_axis, n_members):
     )
 
 
+def _prescale_mask(event, prescale):
+    """Keep 1 in prescale events by a hash of the event number, independent of event % K folds."""
+    if prescale <= 1:
+        return np.ones(len(event), dtype=bool)
+    from vvv.corrections.jets import _splitmix64
+
+    return (_splitmix64(np.asarray(event, dtype=np.uint64)) % np.uint64(prescale)) == 0
+
+
 class AnalysisProcessor(processor.ProcessorABC):
     def __init__(
         self,
@@ -69,6 +78,8 @@ class AnalysisProcessor(processor.ProcessorABC):
         mass_axis=None,
         skim_dir=None,
         skim_variations=False,
+        skim_prescale=None,
+        skim_theory=False,
         blind=True,
         blind_window=(50.0, 150.0),
     ):
@@ -86,6 +97,9 @@ class AnalysisProcessor(processor.ProcessorABC):
         self.mass_axis = mass_axis or hist.axis.Regular(23, 20.0, 250.0, name="mass", label=r"$m_{SD}^{j1}$ [GeV]")
         self.skim_dir = Path(skim_dir) if skim_dir else None
         self.skim_variations = skim_variations
+        # {sample: {category: P}}: keep 1 in P events (hash of the event number), weight x P.
+        self.skim_prescale = skim_prescale or {}
+        self.skim_theory = skim_theory
         self.blind = blind
         self.blind_window = blind_window
         self._selection = None
@@ -130,7 +144,9 @@ class AnalysisProcessor(processor.ProcessorABC):
         w_nominal = weights.nominal(events) * (self.lumi_fb if sample.is_mc else 1.0)
         w_variations = weights.variations(events)
 
-        configurations = ("nominal",) + (self.cfg.jet_variations if sample.is_mc else ())
+        # Jet variations matter only for histograms (or explicitly skimmed variations).
+        vary = sample.is_mc and (bool(self.model_dirs) or self.skim_variations)
+        configurations = ("nominal",) + (self.cfg.jet_variations if vary else ())
         selected, info = self.selection(events, sample.is_mc, configurations)
         out["rho_failures"][dataset] = int((~info["rho_ok"]).sum())
         out["rho_consensus"][dataset] = int(info["n_rho_consensus"])
@@ -150,9 +166,15 @@ class AnalysisProcessor(processor.ProcessorABC):
                 }
                 w = w_nominal[mask]
                 if self.skim_dir is not None and (config_name == "nominal" or self.skim_variations):
+                    prescale = int(self.skim_prescale.get(dataset, {}).get(category, 1))
+                    keep = _prescale_mask(event_number[mask], prescale)
+                    variations = {}
+                    if config_name == "nominal":
+                        variations = {k: v[mask][keep] for k, v in w_variations.items()
+                                      if self.skim_theory or k not in THEORY_SETS}
                     self._write_skim(dataset, category, config_name, chunk_id,
-                                     {**{k: v[mask] for k, v in ids.items()}, **columns}, w,
-                                     {k: v[mask] for k, v in w_variations.items()} if config_name == "nominal" else {})
+                                     {k: v[keep] for k, v in {**{k: v[mask] for k, v in ids.items()}, **columns}.items()},
+                                     w[keep] * prescale, variations)
                 if category in self.model_dirs:
                     self._fill(out, dataset, sample, category, config_name, columns, event_number[mask], w,
                                {k: v[mask] for k, v in w_variations.items()} if config_name == "nominal" else {})

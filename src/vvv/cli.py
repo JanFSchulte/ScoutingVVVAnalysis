@@ -74,6 +74,8 @@ def metadata(
     workers: int = 8,
     gateway: bool = False,
     redirector: str = XCACHE,
+    metadata_dir: Path = METADATA_DIR,
+    max_files: int = typer.Option(None, help="first N files only (tests; normalisation is then partial)"),
 ):
     """Sums of weights, theory sums and pileup profile per MC sample -> metadata/<sample>.json."""
     from coffea import processor
@@ -81,13 +83,13 @@ def metadata(
     from vvv.processors.metadata import MetadataProcessor, runs_sums, summarise
     from vvv.schema import VVVScoutingSchema
 
-    METADATA_DIR.mkdir(exist_ok=True)
+    metadata_dir.mkdir(parents=True, exist_ok=True)
     runner = processor.Runner(executor=_executor(workers, gateway), schema=VVVScoutingSchema, chunksize=500_000)
     for name in samples:
-        files = _load_filelist(name, redirector)
+        files = _load_filelist(name, redirector)[:max_files]
         out = runner({name: {"files": {f: "Events" for f in files}}}, MetadataProcessor(), treename="Events")
         record = summarise(name, out[name], runs_sums(files))
-        (METADATA_DIR / f"{name}.json").write_text(json.dumps(record, indent=1))
+        (metadata_dir / f"{name}.json").write_text(json.dumps(record, indent=1))
         typer.echo(f"{name}: {record['n_events']} events, sumw {record['runs']['genEventSumw']:.6g}")
 
 
@@ -96,6 +98,8 @@ def run(
     samples: list[str] = typer.Argument(..., help="sample names"),
     output: Path = typer.Option(None, help="output pickle (default /work/users/$USER/vvv/hists/<first>.pkl)"),
     skim_dir: Path = typer.Option(None, help="write Parquet skims here (e.g. /work/users/$USER/vvv/skims)"),
+    skim_prescale: Path = typer.Option(None, help="JSON {sample: {category: P}} from scripts/make_skim_prescales.py"),
+    skim_theory: bool = typer.Option(False, help="also write the theory-weight columns to the skims"),
     model_dir: list[str] = typer.Option([], help="CATEGORY=DIR of a legacy-format K-fold training"),
     signal_regions: list[str] = typer.Option([], help="CATEGORY=signal_region.csv"),
     lumi: float = typer.Option(255.8, help="fb^-1 for MC normalisation"),
@@ -105,6 +109,7 @@ def run(
     maxchunks: int = typer.Option(None, help="limit the number of chunks (testing)"),
     max_files: int = typer.Option(None, help="use only the first N files per sample (testing)"),
     redirector: str = XCACHE,
+    metadata_dir: Path = METADATA_DIR,
     unblind: bool = False,
 ):
     """Process samples: skims and/or mass-fit histograms for nominal and all variations."""
@@ -120,14 +125,16 @@ def run(
     meta = {}
     for name in samples:
         if catalogue[name].is_mc:
-            path = METADATA_DIR / f"{name}.json"
+            path = metadata_dir / f"{name}.json"
             if not path.exists():
                 raise typer.BadParameter(f"{name}: run `vvv metadata {name}` first")
             meta[name] = json.loads(path.read_text())
     models = dict(item.split("=", 1) for item in model_dir)
     regions = {cat: load_signal_regions(p) for cat, p in (item.split("=", 1) for item in signal_regions)}
     proc = AnalysisProcessor(DEFAULT, catalogue, meta, lumi, models=models, signal_regions=regions,
-                             skim_dir=skim_dir, blind=not unblind)
+                             skim_dir=skim_dir, blind=not unblind,
+                             skim_prescale=json.loads(skim_prescale.read_text())["prescale"] if skim_prescale else None,
+                             skim_theory=skim_theory)
     fileset = {
         name: {"files": {f: "Events" for f in _load_filelist(name, redirector)[:max_files]}} for name in samples
     }
