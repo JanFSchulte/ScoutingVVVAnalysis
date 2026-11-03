@@ -1,5 +1,6 @@
 {
- "target": 2500000.0,
+ "margin": 1.5,
+ "class_factors": {},
  "counts": {
   "GluGluZH-Zto2L-Hto2Wto2L2Nu": {
    "boosted3": 22127,
@@ -457,11 +458,11 @@
    "boosted2_leptonic_2lep": 12245
   },
   "qcd_ht1500to2000": {
-   "boosted3": 6302161,
-   "boosted2_resolved": 6805210,
-   "boosted2_unresolved": 12751088,
-   "boosted2_leptonic_1lep": 224066,
-   "boosted2_leptonic_2lep": 3073
+   "boosted3": 14694123,
+   "boosted2_resolved": 15866185,
+   "boosted2_unresolved": 29718332,
+   "boosted2_leptonic_1lep": 521821,
+   "boosted2_leptonic_2lep": 7193
   },
   "qcd_ht2000": {
    "boosted3": 22482846,
@@ -492,11 +493,11 @@
    "boosted2_leptonic_2lep": 6200
   },
   "qcd_ht800to1000": {
-   "boosted3": 2231303,
-   "boosted2_resolved": 10213205,
-   "boosted2_unresolved": 19220766,
-   "boosted2_leptonic_1lep": 261644,
-   "boosted2_leptonic_2lep": 3222
+   "boosted3": 5616028,
+   "boosted2_resolved": 25720368,
+   "boosted2_unresolved": 48400705,
+   "boosted2_leptonic_1lep": 658086,
+   "boosted2_leptonic_2lep": 7994
   },
   "tbarwplus_had": {
    "boosted3": 155975,
@@ -696,126 +697,35 @@
   }
  },
  "prescale": {
-  "GluGluZH-Zto2L-Hto2Wto2L2Nu": {
+  "www": {
    "boosted3": 1,
    "boosted2_resolved": 1,
    "boosted2_unresolved": 1,
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
-  "GluGluZH-Zto2L-Hto2Wto4Q": {
+  "wwz": {
    "boosted3": 1,
    "boosted2_resolved": 1,
    "boosted2_unresolved": 1,
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
-  "GluGluZH-Zto2L-Hto2WtoLNu2Q": {
+  "wzz": {
    "boosted3": 1,
    "boosted2_resolved": 1,
    "boosted2_unresolved": 1,
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
-  "GluGluZH-Zto2Q-Hto2Wto2L2Nu": {
+  "zzz": {
    "boosted3": 1,
    "boosted2_resolved": 1,
    "boosted2_unresolved": 1,
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
-  "GluGluZH-Zto2Q-Hto2Wto4Q": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "GluGluZH-Zto2Q-Hto2WtoLNu2Q": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "WminusH-Wto2Q-Hto2Wto2L2Nu": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "WminusH-Wto2Q-Hto2Wto4Q": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "WminusH-Wto2Q-Hto2WtoLNu2Q": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "WminusH-WtoLNu-Hto2Wto2L2Nu": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "WminusH-WtoLNu-Hto2Wto4Q": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "WminusH-WtoLNu-Hto2WtoLNu2Q": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "WplusH-Wto2Q-Hto2Wto2L2Nu": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "WplusH-Wto2Q-Hto2Wto4Q": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "WplusH-Wto2Q-Hto2WtoLNu2Q": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "WplusH-WtoLNu-Hto2Wto2L2Nu": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "WplusH-WtoLNu-Hto2Wto4Q": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "WplusH-WtoLNu-Hto2WtoLNu2Q": {
+  "ZH-Zto2Q-Hto2Wto4Q": {
    "boosted3": 1,
    "boosted2_resolved": 1,
    "boosted2_unresolved": 1,
@@ -850,13 +760,6 @@
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
-  "ZH-Zto2Q-Hto2Wto4Q": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
   "ZH-Zto2Q-Hto2WtoLNu2Q": {
    "boosted3": 1,
    "boosted2_resolved": 1,
@@ -864,28 +767,175 @@
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
-  "www": {
+  "GluGluZH-Zto2Q-Hto2Wto4Q": {
    "boosted3": 1,
    "boosted2_resolved": 1,
    "boosted2_unresolved": 1,
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
-  "wwz": {
+  "GluGluZH-Zto2L-Hto2Wto2L2Nu": {
    "boosted3": 1,
    "boosted2_resolved": 1,
    "boosted2_unresolved": 1,
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
-  "wzz": {
+  "GluGluZH-Zto2L-Hto2Wto4Q": {
    "boosted3": 1,
    "boosted2_resolved": 1,
    "boosted2_unresolved": 1,
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
-  "zzz": {
+  "GluGluZH-Zto2L-Hto2WtoLNu2Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "GluGluZH-Zto2Q-Hto2Wto2L2Nu": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "GluGluZH-Zto2Q-Hto2WtoLNu2Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WminusH-Wto2Q-Hto2Wto4Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WminusH-Wto2Q-Hto2Wto2L2Nu": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WminusH-Wto2Q-Hto2WtoLNu2Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WminusH-WtoLNu-Hto2Wto2L2Nu": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WminusH-WtoLNu-Hto2Wto4Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WminusH-WtoLNu-Hto2WtoLNu2Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WplusH-Wto2Q-Hto2Wto4Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WplusH-Wto2Q-Hto2Wto2L2Nu": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WplusH-Wto2Q-Hto2WtoLNu2Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WplusH-WtoLNu-Hto2Wto2L2Nu": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WplusH-WtoLNu-Hto2Wto4Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "WplusH-WtoLNu-Hto2WtoLNu2Q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "ttbar_had": {
+   "boosted3": 1,
+   "boosted2_resolved": 5,
+   "boosted2_unresolved": 3,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "ttbar_semilep": {
+   "boosted3": 1,
+   "boosted2_resolved": 3,
+   "boosted2_unresolved": 2,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "ttbar_2l2nu": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "tbarwplus_had": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "twminus_had": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "twminus_lnu2q": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "tbarwplus_lnu2q": {
    "boosted3": 1,
    "boosted2_resolved": 1,
    "boosted2_unresolved": 1,
@@ -909,7 +959,7 @@
   "WWtoLNu2Q_powheg": {
    "boosted3": 1,
    "boosted2_resolved": 1,
-   "boosted2_unresolved": 2,
+   "boosted2_unresolved": 1,
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
@@ -990,21 +1040,147 @@
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
-  "dy_h100to400_m120": {
+  "wjets_h100to400": {
    "boosted3": 1,
    "boosted2_resolved": 1,
    "boosted2_unresolved": 1,
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
-  "dy_h100to400_m4to50": {
+  "wjets_h400to800": {
+   "boosted3": 1,
+   "boosted2_resolved": 9,
+   "boosted2_unresolved": 27,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wjets_h800to1500": {
+   "boosted3": 1,
+   "boosted2_resolved": 5,
+   "boosted2_unresolved": 6,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wjets_h1500to2500": {
+   "boosted3": 4,
+   "boosted2_resolved": 3,
+   "boosted2_unresolved": 4,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wjets_h2500": {
+   "boosted3": 4,
+   "boosted2_resolved": 4,
+   "boosted2_unresolved": 4,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "zjets_h100to400": {
    "boosted3": 1,
    "boosted2_resolved": 1,
    "boosted2_unresolved": 1,
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
-  "dy_h100to400_m50to120": {
+  "zjets_h400to800": {
+   "boosted3": 1,
+   "boosted2_resolved": 3,
+   "boosted2_unresolved": 10,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "zjets_h800to1500": {
+   "boosted3": 1,
+   "boosted2_resolved": 5,
+   "boosted2_unresolved": 5,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "zjets_h1500to2500": {
+   "boosted3": 6,
+   "boosted2_resolved": 5,
+   "boosted2_unresolved": 5,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "zjets_h2500": {
+   "boosted3": 4,
+   "boosted2_resolved": 3,
+   "boosted2_unresolved": 3,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h100to400_m0to120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h100to400_m120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h1500to2500_m0to120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h1500to2500_m120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h2500_m0to120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h2500_m120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h400to800_m0to120": {
+   "boosted3": 1,
+   "boosted2_resolved": 2,
+   "boosted2_unresolved": 7,
+   "boosted2_leptonic_1lep": 4,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h400to800_m120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h40to100_m0to120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h800to1500_m0to120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "wlnu_h800to1500_m120": {
    "boosted3": 1,
    "boosted2_resolved": 1,
    "boosted2_unresolved": 1,
@@ -1060,62 +1236,6 @@
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
-  "dy_h400to800_m4to50": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 2,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "dy_h400to800_m50to120": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "dy_h40to70_m120": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "dy_h40to70_m4to50": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "dy_h40to70_m50to120": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "dy_h70to100_m120": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "dy_h70to100_m4to50": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "dy_h70to100_m50to120": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
   "dy_h800to1500_m120": {
    "boosted3": 1,
    "boosted2_resolved": 1,
@@ -1137,31 +1257,80 @@
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
-  "qcd_ht1000to1200": {
-   "boosted3": 6,
-   "boosted2_resolved": 13,
-   "boosted2_unresolved": 22,
+  "dy_h40to70_m4to50": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
-  "qcd_ht1200to1500": {
-   "boosted3": 8,
-   "boosted2_resolved": 12,
-   "boosted2_unresolved": 22,
+  "dy_h40to70_m50to120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
-  "qcd_ht1500to2000": {
-   "boosted3": 3,
-   "boosted2_resolved": 3,
-   "boosted2_unresolved": 6,
+  "dy_h40to70_m120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
-  "qcd_ht2000": {
-   "boosted3": 9,
-   "boosted2_resolved": 9,
-   "boosted2_unresolved": 16,
+  "dy_h70to100_m4to50": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h70to100_m50to120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h70to100_m120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h100to400_m4to50": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h100to400_m50to120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h100to400_m120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h400to800_m4to50": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "dy_h400to800_m50to120": {
+   "boosted3": 1,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 1,
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
@@ -1169,225 +1338,218 @@
    "boosted3": 1,
    "boosted2_resolved": 1,
    "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
+   "boosted2_leptonic_1lep": 1
   },
   "qcd_ht400to600": {
    "boosted3": 1,
-   "boosted2_resolved": 2,
-   "boosted2_unresolved": 12,
+   "boosted2_resolved": 1,
+   "boosted2_unresolved": 7,
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
   "qcd_ht600to800": {
    "boosted3": 1,
-   "boosted2_resolved": 11,
-   "boosted2_unresolved": 28,
+   "boosted2_resolved": 7,
+   "boosted2_unresolved": 18,
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
   "qcd_ht800to1000": {
    "boosted3": 1,
-   "boosted2_resolved": 5,
-   "boosted2_unresolved": 8,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "tbarwplus_had": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "tbarwplus_lnu2q": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "ttbar_2l2nu": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "ttbar_had": {
-   "boosted3": 2,
-   "boosted2_resolved": 11,
-   "boosted2_unresolved": 5,
-   "boosted2_leptonic_1lep": 2,
-   "boosted2_leptonic_2lep": 1
-  },
-  "ttbar_semilep": {
-   "boosted3": 1,
-   "boosted2_resolved": 5,
-   "boosted2_unresolved": 4,
-   "boosted2_leptonic_1lep": 4,
-   "boosted2_leptonic_2lep": 1
-  },
-  "twminus_had": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "twminus_lnu2q": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "wjets_h100to400": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "wjets_h1500to2500": {
-   "boosted3": 7,
    "boosted2_resolved": 6,
-   "boosted2_unresolved": 7,
+   "boosted2_unresolved": 12,
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
-  "wjets_h2500": {
-   "boosted3": 7,
-   "boosted2_resolved": 7,
-   "boosted2_unresolved": 7,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "wjets_h400to800": {
-   "boosted3": 1,
-   "boosted2_resolved": 14,
-   "boosted2_unresolved": 42,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "wjets_h800to1500": {
+  "qcd_ht1000to1200": {
    "boosted3": 3,
    "boosted2_resolved": 8,
+   "boosted2_unresolved": 14,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "qcd_ht1200to1500": {
+   "boosted3": 5,
+   "boosted2_resolved": 7,
+   "boosted2_unresolved": 14,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "qcd_ht1500to2000": {
+   "boosted3": 3,
+   "boosted2_resolved": 4,
+   "boosted2_unresolved": 7,
+   "boosted2_leptonic_1lep": 1,
+   "boosted2_leptonic_2lep": 1
+  },
+  "qcd_ht2000": {
+   "boosted3": 5,
+   "boosted2_resolved": 5,
    "boosted2_unresolved": 10,
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
+  }
+ },
+ "summary": {
+  "boosted3": {
+   "VVV": {
+    "available": 638620,
+    "kept": 638620,
+    "train_used": 383172
+   },
+   "VH": {
+    "available": 379099,
+    "kept": 379099,
+    "train_used": 227459
+   },
+   "Top": {
+    "available": 5299472,
+    "kept": 5299472,
+    "train_used": 2999999
+   },
+   "VV": {
+    "available": 1094935,
+    "kept": 1094935,
+    "train_used": 656961
+   },
+   "VJets": {
+    "available": 105091449,
+    "kept": 49640582,
+    "train_used": 3000000
+   },
+   "QCD": {
+    "available": 77281604,
+    "kept": 24959942,
+    "train_used": 3000000
+   }
   },
-  "wlnu_h100to400_m0to120": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 2,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
+  "boosted2_resolved": {
+   "VVV": {
+    "available": 2701139,
+    "kept": 2701139,
+    "train_used": 1620683
+   },
+   "VH": {
+    "available": 1817029,
+    "kept": 1817029,
+    "train_used": 1090217
+   },
+   "Top": {
+    "available": 40509465,
+    "kept": 12329336,
+    "train_used": 3000000
+   },
+   "VV": {
+    "available": 5488357,
+    "kept": 5488357,
+    "train_used": 3158812
+   },
+   "VJets": {
+    "available": 187866064,
+    "kept": 61966838,
+    "train_used": 15266156
+   },
+   "QCD": {
+    "available": 153564883,
+    "kept": 27773334,
+    "train_used": 5257224
+   }
   },
-  "wlnu_h100to400_m120": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
+  "boosted2_unresolved": {
+   "VVV": {
+    "available": 2374006,
+    "kept": 2374006,
+    "train_used": 1424403
+   },
+   "VH": {
+    "available": 3044524,
+    "kept": 3044524,
+    "train_used": 1826714
+   },
+   "Top": {
+    "available": 24845620,
+    "kept": 12049722,
+    "train_used": 3000000
+   },
+   "VV": {
+    "available": 12801546,
+    "kept": 12801546,
+    "train_used": 5594831
+   },
+   "VJets": {
+    "available": 324333001,
+    "kept": 78970544,
+    "train_used": 18355215
+   },
+   "QCD": {
+    "available": 326662444,
+    "kept": 28490727,
+    "train_used": 5456547
+   }
   },
-  "wlnu_h1500to2500_m0to120": {
-   "boosted3": 2,
-   "boosted2_resolved": 2,
-   "boosted2_unresolved": 2,
-   "boosted2_leptonic_1lep": 3,
-   "boosted2_leptonic_2lep": 1
+  "boosted2_leptonic_1lep": {
+   "VVV": {
+    "available": 1070239,
+    "kept": 1070239,
+    "train_used": 642143
+   },
+   "VH": {
+    "available": 1516058,
+    "kept": 1516058,
+    "train_used": 909634
+   },
+   "Top": {
+    "available": 12878739,
+    "kept": 12878739,
+    "train_used": 2999999
+   },
+   "VV": {
+    "available": 6860144,
+    "kept": 6860144,
+    "train_used": 3791836
+   },
+   "VJets": {
+    "available": 63799343,
+    "kept": 50487518,
+    "train_used": 14775930
+   },
+   "QCD": {
+    "available": 4454732,
+    "kept": 4454732,
+    "train_used": 2672839
+   }
   },
-  "wlnu_h1500to2500_m120": {
-   "boosted3": 2,
-   "boosted2_resolved": 2,
-   "boosted2_unresolved": 2,
-   "boosted2_leptonic_1lep": 3,
-   "boosted2_leptonic_2lep": 1
-  },
-  "wlnu_h2500_m0to120": {
-   "boosted3": 2,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 2,
-   "boosted2_leptonic_1lep": 2,
-   "boosted2_leptonic_2lep": 1
-  },
-  "wlnu_h2500_m120": {
-   "boosted3": 2,
-   "boosted2_resolved": 2,
-   "boosted2_unresolved": 2,
-   "boosted2_leptonic_1lep": 2,
-   "boosted2_leptonic_2lep": 1
-  },
-  "wlnu_h400to800_m0to120": {
-   "boosted3": 1,
-   "boosted2_resolved": 4,
-   "boosted2_unresolved": 12,
-   "boosted2_leptonic_1lep": 8,
-   "boosted2_leptonic_2lep": 1
-  },
-  "wlnu_h400to800_m120": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 2,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "wlnu_h40to100_m0to120": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "wlnu_h800to1500_m0to120": {
-   "boosted3": 1,
-   "boosted2_resolved": 2,
-   "boosted2_unresolved": 2,
-   "boosted2_leptonic_1lep": 2,
-   "boosted2_leptonic_2lep": 1
-  },
-  "wlnu_h800to1500_m120": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 2,
-   "boosted2_leptonic_1lep": 2,
-   "boosted2_leptonic_2lep": 1
-  },
-  "zjets_h100to400": {
-   "boosted3": 1,
-   "boosted2_resolved": 1,
-   "boosted2_unresolved": 1,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "zjets_h1500to2500": {
-   "boosted3": 10,
-   "boosted2_resolved": 9,
-   "boosted2_unresolved": 9,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "zjets_h2500": {
-   "boosted3": 7,
-   "boosted2_resolved": 6,
-   "boosted2_unresolved": 5,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "zjets_h400to800": {
-   "boosted3": 1,
-   "boosted2_resolved": 6,
-   "boosted2_unresolved": 16,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
-  },
-  "zjets_h800to1500": {
-   "boosted3": 3,
-   "boosted2_resolved": 9,
-   "boosted2_unresolved": 9,
-   "boosted2_leptonic_1lep": 1,
-   "boosted2_leptonic_2lep": 1
+  "boosted2_leptonic_2lep": {
+   "VVV": {
+    "available": 130937,
+    "kept": 130937,
+    "train_used": 78562
+   },
+   "VH": {
+    "available": 343831,
+    "kept": 343831,
+    "train_used": 206298
+   },
+   "Top": {
+    "available": 345845,
+    "kept": 345845,
+    "train_used": 207507
+   },
+   "VV": {
+    "available": 874589,
+    "kept": 874589,
+    "train_used": 524753
+   },
+   "VJets": {
+    "available": 2787260,
+    "kept": 2787260,
+    "train_used": 1672356
+   },
+   "QCD": {
+    "available": 56162,
+    "kept": 56162,
+    "train_used": 33697
+   }
   }
  }
 }
