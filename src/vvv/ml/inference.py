@@ -63,7 +63,9 @@ def standardize(columns, features, clip_ranges, log_transform):
     log_set = set(log_transform)
     out = np.empty((len(next(iter(columns.values()))), len(features)), dtype=np.float64)
     for j, name in enumerate(features):
-        arr = np.asarray(columns[name], dtype=np.float64).copy()
+        # Legacy features are float32 branches; rounding through float32 keeps the
+        # booster's split comparisons identical.
+        arr = np.asarray(columns[name], dtype=np.float32).astype(np.float64)
         valid = ~(arr < SENTINEL)
         lo, hi = clip_ranges.get(name, (None, None))
         if lo is not None:
@@ -105,9 +107,14 @@ class CategoryModel:
             booster = xgb.Booster()
             booster.load_model(str(fold / f"{tree}_model.json"))
             boosters.append(booster)
+        # The boosters' own feature lists are authoritative: legacy drops the mass-decorrelation
+        # branches (msoftdrop_1, sphere_mass, mass_fraction_1) from branch.json at training.
+        features = boosters[0].feature_names or [b["name"] for b in branch]
+        if any(b.feature_names != boosters[0].feature_names for b in boosters):
+            raise ValueError(f"{base}: folds were trained on different features")
         return cls(
             tree=tree,
-            features=[b["name"] for b in branch],
+            features=list(features),
             clip_ranges={k: tuple(v) for k, v in selection.get("clip_ranges", {}).items()},
             log_transform=list(selection.get("log_transform", [])),
             thresholds=selection.get("thresholds", {}),

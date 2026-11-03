@@ -145,7 +145,7 @@ class AnalysisProcessor(processor.ProcessorABC):
                 if not mask.any():
                     continue
                 columns = {
-                    k: ak.to_numpy(v)[mask] for k, v in category_variables(obj, category, self.cfg).items()
+                    k: ak.to_numpy(v)[mask] for k, v in category_variables(obj, category, self.cfg.objects).items()
                 }
                 w = w_nominal[mask]
                 if self.skim_dir is not None and (config_name == "nominal" or self.skim_variations):
