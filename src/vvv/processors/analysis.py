@@ -28,7 +28,7 @@ from vvv.config import AnalysisConfig
 from vvv.ml.inference import CategoryModel, region_index, threshold_mask
 from vvv.objects import CATEGORIES
 from vvv.selection import EventSelection, preselection
-from vvv.variables import category_variables
+from vvv.variables import category_variables, passthrough
 from vvv.weights import N_ALPHAS, N_PDF, N_PS, N_SCALE, SampleWeights
 
 MASS_BRANCH = "ScoutingFatPFJetRecluster_msoftdrop_1"
@@ -135,6 +135,7 @@ class AnalysisProcessor(processor.ProcessorABC):
         out["rho_failures"][dataset] = int((~info["rho_ok"]).sum())
         out["rho_consensus"][dataset] = int(info["n_rho_consensus"])
         event_number = ak.to_numpy(events.event)
+        ids = passthrough(events, sample.is_mc)
         chunk_id = uuid.uuid4().hex[:12]
 
         for config_name, obj in selected.items():
@@ -149,7 +150,8 @@ class AnalysisProcessor(processor.ProcessorABC):
                 }
                 w = w_nominal[mask]
                 if self.skim_dir is not None and (config_name == "nominal" or self.skim_variations):
-                    self._write_skim(dataset, category, config_name, chunk_id, columns, w,
+                    self._write_skim(dataset, category, config_name, chunk_id,
+                                     {**{k: v[mask] for k, v in ids.items()}, **columns}, w,
                                      {k: v[mask] for k, v in w_variations.items()} if config_name == "nominal" else {})
                 if category in self.model_dirs:
                     self._fill(out, dataset, sample, category, config_name, columns, event_number[mask], w,

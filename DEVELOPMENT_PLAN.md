@@ -4,6 +4,16 @@ This plan covers how to build what `specification.md` specifies.
 
 The guiding rule is **validate against legacy at every stage**. The legacy chain (`convert_branch.C` and its JSON expression engine, about 15.6k unique lines of C++ and 31k lines of Python) is the reference. Each phase ends with an event-by-event or yield-level sync test, matched on (run, lumi, event). The port never becomes "the analysis" before it reproduces the legacy numbers. Differences that are *intended* fixes go in a changelog, not into tolerance knobs.
 
+## Status (2026-11-03)
+
+- Phase 0: done. Pixi project, schema, samples.yaml, file lists (from legacy snapshots), legacy reference = batch `www_0` of `dataset_hybrid_leptonic_jec_c`.
+- Phases 1-2: done for MC. Categories and corrections agree event by event with legacy for nominal and all 8 jet variations. The smearing turned out bit-reproducible, so MC is synced exactly, not only statistically. Data sync is pending a grid proxy.
+- Phase 3: variables done and synced. Parquet skims are written (nominal by default).
+- Phase 5: the histogram processor is implemented and plumbing-tested. Still open:
+  - the adapter from histograms to the legacy `combine.C` inputs (`*_syst_yields.json`, `qcd_abcd_yields.root` mass-fit directory);
+  - a full-statistics run on Dask Gateway.
+- Training (Phase 4, deferred) has a blocker: the production k-fold models were trained on `dataset_hybrid_leptonic_jec` (before the 2026-11-02 cleaning) with contiguous-block folds. Scores for the `_jec_c` selection therefore need a retraining. The event-number fold scheme can be introduced with that retraining.
+
 ## Decisions (2026-11-03)
 
 - Lumi for SR/limits: 255.8 fb^-1 projection.
