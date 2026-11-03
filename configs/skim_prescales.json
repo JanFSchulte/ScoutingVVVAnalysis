@@ -458,11 +458,11 @@
    "boosted2_leptonic_2lep": 12245
   },
   "qcd_ht1500to2000": {
-   "boosted3": 14694123,
-   "boosted2_resolved": 15866185,
-   "boosted2_unresolved": 29718332,
-   "boosted2_leptonic_1lep": 521821,
-   "boosted2_leptonic_2lep": 7193
+   "boosted3": 27314909,
+   "boosted2_resolved": 29512869,
+   "boosted2_unresolved": 55259495,
+   "boosted2_leptonic_1lep": 972091,
+   "boosted2_leptonic_2lep": 13242
   },
   "qcd_ht2000": {
    "boosted3": 22482846,
@@ -493,11 +493,11 @@
    "boosted2_leptonic_2lep": 6200
   },
   "qcd_ht800to1000": {
-   "boosted3": 5616028,
-   "boosted2_resolved": 25720368,
-   "boosted2_unresolved": 48400705,
-   "boosted2_leptonic_1lep": 658086,
-   "boosted2_leptonic_2lep": 7994
+   "boosted3": 7778554,
+   "boosted2_resolved": 35626746,
+   "boosted2_unresolved": 67038162,
+   "boosted2_leptonic_1lep": 911941,
+   "boosted2_leptonic_2lep": 11042
   },
   "tbarwplus_had": {
    "boosted3": 155975,
@@ -1356,8 +1356,8 @@
   },
   "qcd_ht800to1000": {
    "boosted3": 1,
-   "boosted2_resolved": 6,
-   "boosted2_unresolved": 12,
+   "boosted2_resolved": 9,
+   "boosted2_unresolved": 17,
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
@@ -1376,9 +1376,9 @@
    "boosted2_leptonic_2lep": 1
   },
   "qcd_ht1500to2000": {
-   "boosted3": 3,
-   "boosted2_resolved": 4,
-   "boosted2_unresolved": 7,
+   "boosted3": 7,
+   "boosted2_resolved": 7,
+   "boosted2_unresolved": 14,
    "boosted2_leptonic_1lep": 1,
    "boosted2_leptonic_2lep": 1
   },
@@ -1418,9 +1418,9 @@
     "train_used": 3000000
    },
    "QCD": {
-    "available": 77281604,
-    "kept": 24959942,
-    "train_used": 3000000
+    "available": 92064916,
+    "kept": 26126557,
+    "train_used": 5999999
    }
   },
   "boosted2_resolved": {
@@ -1450,9 +1450,9 @@
     "train_used": 15266156
    },
    "QCD": {
-    "available": 153564883,
-    "kept": 27773334,
-    "train_used": 5257224
+    "available": 177117945,
+    "kept": 27694711,
+    "train_used": 10507224
    }
   },
   "boosted2_unresolved": {
@@ -1482,9 +1482,9 @@
     "train_used": 18355215
    },
    "QCD": {
-    "available": 326662444,
-    "kept": 28490727,
-    "train_used": 5456547
+    "available": 370841064,
+    "kept": 28102387,
+    "train_used": 10706547
    }
   },
   "boosted2_leptonic_1lep": {
@@ -1514,9 +1514,9 @@
     "train_used": 14775930
    },
    "QCD": {
-    "available": 4454732,
-    "kept": 4454732,
-    "train_used": 2672839
+    "available": 5158857,
+    "kept": 5158857,
+    "train_used": 3095314
    }
   },
   "boosted2_leptonic_2lep": {
@@ -1546,9 +1546,9 @@
     "train_used": 1672356
    },
    "QCD": {
-    "available": 56162,
-    "kept": 56162,
-    "train_used": 33697
+    "available": 65259,
+    "kept": 65259,
+    "train_used": 39155
    }
   }
  }

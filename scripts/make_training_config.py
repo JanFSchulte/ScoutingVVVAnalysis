@@ -1,6 +1,9 @@
 """Training config (JSON) from the legacy production k-fold configs.
 
-Usage: python scripts/make_training_config.py OUT.json --skim-dir DIR --output-dir DIR
+Usage: python scripts/make_training_config.py OUT.json --skim-dir DIR --output-dir DIR [--class-scale QCD=2]
+
+--class-scale CLS=F trains on F x more events of a class than legacy: its class budget and,
+where it has none, its per-sample cap (entries_per_sample_by_class) are scaled by F.
 """
 
 import argparse
@@ -32,7 +35,9 @@ def main():
     p.add_argument("out")
     p.add_argument("--skim-dir", required=True)
     p.add_argument("--output-dir", required=True)
+    p.add_argument("--class-scale", action="append", default=[], help="CLS=F trains on F x more of a class")
     args = p.parse_args()
+    scales = {c: float(f) for c, f in (x.split("=") for x in args.class_scale)}
 
     cfg, class_groups = None, None
     categories = {}
@@ -53,6 +58,11 @@ def main():
         cc["thresholds"] = selection.get("thresholds", {})
         budget = legacy["train_events_per_class"]
         cc["train_events_per_class"] = budget if isinstance(budget, dict) else {c: budget for c in class_groups}
+        for cls, f in scales.items():
+            if cls in cc["train_events_per_class"]:
+                cc["train_events_per_class"][cls] = int(cc["train_events_per_class"][cls] * f)
+            else:
+                cc.setdefault("entries_per_sample_by_class", {})[cls] = int(cfg["entries_per_sample"] * f)
         members = {s for v in legacy["class_groups"].values() for s in v}
         cc["exclude_samples"] = sorted({s for v in class_groups.values() for s in v} - members)
         categories[tree] = cc
@@ -63,6 +73,7 @@ def main():
         "class_groups": class_groups,
         "categories": categories,
         "source": {tree: str(LEGACY / study) for tree, study in PRODUCTION.items()},
+        "class_scale": scales,
     })
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     Path(args.out).write_text(json.dumps(cfg, indent=1))

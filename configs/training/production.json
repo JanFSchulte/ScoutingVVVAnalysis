@@ -328,7 +328,7 @@
     "Top": 3000000,
     "VV": 3000000,
     "VJets": 3000000,
-    "QCD": 3000000
+    "QCD": 6000000
    },
    "exclude_samples": []
   },
@@ -533,6 +533,9 @@
    "train_events_per_class": {
     "Top": 3000000
    },
+   "entries_per_sample_by_class": {
+    "QCD": 1500000
+   },
    "exclude_samples": []
   },
   "boosted2_unresolved": {
@@ -721,6 +724,9 @@
    },
    "train_events_per_class": {
     "Top": 3000000
+   },
+   "entries_per_sample_by_class": {
+    "QCD": 1500000
    },
    "exclude_samples": []
   },
@@ -913,6 +919,9 @@
    "train_events_per_class": {
     "Top": 3000000
    },
+   "entries_per_sample_by_class": {
+    "QCD": 1500000
+   },
    "exclude_samples": []
   },
   "boosted2_leptonic_2lep": {
@@ -1103,6 +1112,9 @@
    "train_events_per_class": {
     "Top": 3000000
    },
+   "entries_per_sample_by_class": {
+    "QCD": 1500000
+   },
    "exclude_samples": [
     "qcd_ht100to200",
     "qcd_ht200to400",
@@ -1117,5 +1129,8 @@
   "boosted2_unresolved": "/depot/cms/private/users/schul105/VVV/analysis/CMSSW_16_1_0_pre4/src/ScoutingVVVTools/selections/BDT/study_boosted3/kfold_finedecor_jec_powheg_unresolved",
   "boosted2_leptonic_1lep": "/depot/cms/private/users/schul105/VVV/analysis/CMSSW_16_1_0_pre4/src/ScoutingVVVTools/selections/BDT/study_boosted3/kfold_finedecor_jec_powheg_1lep",
   "boosted2_leptonic_2lep": "/depot/cms/private/users/schul105/VVV/analysis/CMSSW_16_1_0_pre4/src/ScoutingVVVTools/selections/BDT/study_boosted3/kfold_finedecor_jec_powheg_2lep"
+ },
+ "class_scale": {
+  "QCD": 2.0
  }
 }

@@ -131,7 +131,8 @@ def load_split_data(cfg, category, fold):
                     caps = _water_fill(budget, n_avail, shares)
                     caps = np.minimum(np.maximum(caps, np.minimum(8192, n_avail)), n_avail).astype(np.int64)
                 else:
-                    caps = np.minimum(n_avail, cfg["entries_per_sample"]).astype(np.int64)
+                    per_sample_cap = cc.get("entries_per_sample_by_class", {}).get(cls, cfg["entries_per_sample"])
+                    caps = np.minimum(n_avail, per_sample_cap).astype(np.int64)
             else:
                 caps = np.minimum(n_avail, cfg["eval_entries_per_sample"]).astype(np.int64)
 

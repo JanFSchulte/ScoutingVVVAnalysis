@@ -23,6 +23,7 @@ The guiding rule is **validate against legacy at every stage**. The legacy chain
 - QCD: mass fit only.
 - First port: Phases 0-3 and 5. Phases 4 and 6 (training, SR optimisation, datacards) stay legacy for now.
 - Location: this `/depot` directory.
+- Training QCD statistics (2026-11-03): x2 over legacy (boosted3 class budget 6M; per-sample cap 1.5M in the boosted2 categories) to test whether the mass decorrelation improves. Compare against a legacy-budget training before adopting.
 
 ## Architecture
 

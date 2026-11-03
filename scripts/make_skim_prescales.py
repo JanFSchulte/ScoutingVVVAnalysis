@@ -3,7 +3,8 @@
 For every (category, sample) the training takes, from the 3 train folds, either its share
 of the class budget (train_events_per_class, water-filled over the class's samples by
 expected yield xsec * N / raw_entries, as legacy) or at most entries_per_sample, and at
-most eval_entries_per_sample from each of the monitor and test folds. The prescale keeps
+most eval_entries_per_sample from each of the monitor and test folds (entries_per_sample_by_class
+overrides the per-sample cap for a class). The prescale keeps
 `margin` times the larger of those needs, so a prescaled skim gives the training the same
 events a full skim would (up to the margin). `--class-factor QCD=3` keeps 3x more of a
 class, e.g. to raise its training budget later.
@@ -88,7 +89,8 @@ def main():
                                    for s in members])
                 need_train = water_fill(budget, n * TRAIN_FRACTION, yields)
             else:
-                need_train = np.minimum(n * TRAIN_FRACTION, cfg["entries_per_sample"])
+                per_sample_cap = cc.get("entries_per_sample_by_class", {}).get(cls, cfg["entries_per_sample"])
+                need_train = np.minimum(n * TRAIN_FRACTION, per_sample_cap)
             need_fold = np.minimum(n * FOLD_FRACTION, cfg["eval_entries_per_sample"])
             factor = args.margin * factors.get(cls, 1.0)
             keep_fraction = np.minimum(1.0, factor * np.maximum(need_train / (n * TRAIN_FRACTION), need_fold / (n * FOLD_FRACTION)))
