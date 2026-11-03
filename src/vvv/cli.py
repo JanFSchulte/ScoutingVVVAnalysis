@@ -103,8 +103,14 @@ def metadata(
     redirector: str = typer.Option("auto", help='"auto" (EOS / global), or a prefix such as ' + XCACHE),
     metadata_dir: Path = METADATA_DIR,
     max_files: int = typer.Option(None, help="first N files only (tests; normalisation is then partial)"),
+    overwrite: bool = typer.Option(False, help="redo samples whose metadata exists"),
+    xrootd_timeout: int = 300,
 ):
-    """Sums of weights, theory sums and pileup profile per MC sample -> metadata/<sample>.json."""
+    """Sums of weights, theory sums and pileup profile per MC sample -> metadata/<sample>.json.
+
+    One sample at a time; samples with a record are skipped (resume), and a failing sample
+    is reported at the end without stopping the others.
+    """
     from coffea import processor
 
     from vvv.processors.metadata import MetadataProcessor, runs_sums, summarise
@@ -112,23 +118,37 @@ def metadata(
 
     metadata_dir.mkdir(parents=True, exist_ok=True)
     client = _gateway_client() if gateway else None
-    runner = processor.Runner(executor=_executor(workers, gateway, client), schema=VVVScoutingSchema, chunksize=500_000)
     # Every file must be read: a skipped file would bias the normalisation, so no skipbadfiles here.
-    filesets = {name: _load_filelist(name, redirector)[:max_files] for name in samples}
-    out = runner({name: {"files": {f: "Events" for f in files}} for name, files in filesets.items()},
-                 MetadataProcessor(), treename="Events")
-    for name, files in filesets.items():
-        record = summarise(name, out[name], runs_sums(files, map_fn=_map_fn(workers, client)))
+    runner = processor.Runner(executor=_executor(workers, gateway, client), schema=VVVScoutingSchema,
+                              chunksize=500_000, xrootdtimeout=xrootd_timeout)
+    failed = []
+    for name in samples:
+        path = metadata_dir / f"{name}.json"
+        if path.exists() and not overwrite:
+            typer.echo(f"{name}: done, skipped")
+            continue
+        files = _load_filelist(name, redirector)[:max_files]
+        try:
+            out = runner({name: {"files": {f: "Events" for f in files}}}, MetadataProcessor(), treename="Events")
+            record = summarise(name, out[name], runs_sums(files, timeout=xrootd_timeout, map_fn=_map_fn(workers, client)))
+        except Exception as err:  # noqa: BLE001 - report it, go on with the other samples
+            failed.append(name)
+            typer.echo(f"{name}: FAILED {type(err).__name__}: {err}")
+            continue
         if record["runs"]["genEventCount"] != record["n_events"]:
             typer.echo(f"WARNING {name}: Runs genEventCount {record['runs']['genEventCount']} != {record['n_events']} events read")
-        (metadata_dir / f"{name}.json").write_text(json.dumps(record, indent=1))
+        path.write_text(json.dumps(record, indent=1))
         typer.echo(f"{name}: {record['n_events']} events, sumw {record['runs']['genEventSumw']:.6g}")
+    if failed:
+        typer.echo(f"{len(failed)} samples failed (rerun to retry): {' '.join(failed)}")
+        raise typer.Exit(1)
 
 
 @app.command()
 def run(
     samples: list[str] = typer.Argument(..., help="sample names"),
-    output: Path = typer.Option(None, help="output pickle (default /work/users/$USER/vvv/hists/<first>.pkl)"),
+    output: Path = typer.Option(None, help="output pickle (default /work/users/$USER/vvv/hists/<first>.pkl); "
+                                "with --skim-dir, the directory of the per-sample pickles"),
     skim_dir: Path = typer.Option(None, help="write Parquet skims here (e.g. /work/users/$USER/vvv/skims)"),
     skim_prescale: Path = typer.Option(None, help="JSON {sample: {category: P}} from scripts/make_skim_prescales.py"),
     skim_theory: bool = typer.Option(False, help="also write the theory-weight columns to the skims"),
@@ -143,6 +163,7 @@ def run(
     redirector: str = typer.Option("auto", help='"auto" (EOS / global), or a prefix such as ' + XCACHE),
     metadata_dir: Path = METADATA_DIR,
     unblind: bool = False,
+    xrootd_timeout: int = 300,
 ):
     """Process samples: skims and/or mass-fit histograms for nominal and all variations."""
     from coffea import processor
@@ -167,17 +188,54 @@ def run(
                              skim_dir=skim_dir, blind=not unblind,
                              skim_prescale=json.loads(skim_prescale.read_text())["prescale"] if skim_prescale else None,
                              skim_theory=skim_theory)
-    fileset = {
-        name: {"files": {f: "Events" for f in _load_filelist(name, redirector)[:max_files]}} for name in samples
-    }
-    runner = processor.Runner(executor=_executor(workers, gateway), schema=VVVScoutingSchema,
-                              chunksize=chunksize, maxchunks=maxchunks, skipbadfiles=True)
-    out = runner(fileset, proc, treename="Events")
-    output = output or _work_dir() / "hists" / f"{samples[0]}.pkl"
+    if skim_dir is None:
+        fileset = {
+            name: {"files": {f: "Events" for f in _load_filelist(name, redirector)[:max_files]}} for name in samples
+        }
+        runner = processor.Runner(executor=_executor(workers, gateway), schema=VVVScoutingSchema,
+                                  chunksize=chunksize, maxchunks=maxchunks, skipbadfiles=True,
+                                  xrootdtimeout=xrootd_timeout)
+        out = runner(fileset, proc, treename="Events")
+        output = output or _work_dir() / "hists" / f"{samples[0]}.pkl"
+        _dump(out, output)
+        return
+
+    # Skims: one sample at a time and no skipped files, so every skim covers its whole
+    # sample. A finished sample gets <skim_dir>/<sample>/_DONE.json and is skipped on a rerun;
+    # chunk files are named by file and entry range, so re-running a failed sample overwrites
+    # its partial output instead of duplicating it.
+    client = _gateway_client() if gateway else None
+    runner = processor.Runner(executor=_executor(workers, gateway, client), schema=VVVScoutingSchema,
+                              chunksize=chunksize, maxchunks=maxchunks, xrootdtimeout=xrootd_timeout)
+    hist_dir = output or _work_dir() / "hists" / skim_dir.name
+    failed = []
+    for name in samples:
+        done = skim_dir / name / "_DONE.json"
+        if done.exists():
+            typer.echo(f"{name}: done, skipped")
+            continue
+        files = _load_filelist(name, redirector)[:max_files]
+        try:
+            out = runner({name: {"files": {f: "Events" for f in files}}}, proc, treename="Events")
+        except Exception as err:  # noqa: BLE001 - report it, go on with the other samples
+            failed.append(name)
+            typer.echo(f"{name}: FAILED {type(err).__name__}: {err}")
+            continue
+        _dump(out, hist_dir / f"{name}.pkl")
+        if maxchunks is None and max_files is None:
+            done.parent.mkdir(parents=True, exist_ok=True)
+            done.write_text(json.dumps({"n_files": len(files), "chunksize": chunksize,
+                                        "cutflow": out["cutflow"][name]}, indent=1))
+        typer.echo(f"{name}: {json.dumps(out['cutflow'][name])}")
+    if failed:
+        typer.echo(f"{len(failed)} samples failed (rerun to retry): {' '.join(failed)}")
+        raise typer.Exit(1)
+
+
+def _dump(out, output: Path):
     output.parent.mkdir(parents=True, exist_ok=True)
     with open(output, "wb") as handle:
         pickle.dump(out, handle)
-    typer.echo(json.dumps(out["cutflow"], indent=1))
     typer.echo(f"wrote {output}")
 
 

@@ -15,7 +15,8 @@ for every category:
   histograms with a member axis.
 """
 
-import uuid
+import hashlib
+import os
 from pathlib import Path
 
 import awkward as ak
@@ -152,7 +153,7 @@ class AnalysisProcessor(processor.ProcessorABC):
         out["rho_consensus"][dataset] = int(info["n_rho_consensus"])
         event_number = ak.to_numpy(events.event)
         ids = passthrough(events, sample.is_mc)
-        chunk_id = uuid.uuid4().hex[:12]
+        chunk_id = _chunk_id(events.metadata)
 
         for config_name, obj in selected.items():
             for category in CATEGORIES:
@@ -229,7 +230,17 @@ class AnalysisProcessor(processor.ProcessorABC):
                     table[f"{name}_{m}"] = ratio[:, m]
         path = self.skim_dir / dataset / category / config_name
         path.mkdir(parents=True, exist_ok=True)
-        pq.write_table(pa.table(table), path / f"{chunk_id}.parquet", compression="zstd")
+        # Write-then-rename: a worker killed mid-write leaves only a dot file, which readers ignore.
+        tmp = path / f".{chunk_id}.parquet.tmp"
+        pq.write_table(pa.table(table), tmp, compression="zstd")
+        os.replace(tmp, path / f"{chunk_id}.parquet")
 
     def postprocess(self, accumulator):
         return accumulator
+
+
+def _chunk_id(metadata):
+    """Name of a chunk's skim files: fixed by its file and entry range, so a retried or
+    re-run chunk overwrites its own files instead of duplicating its events."""
+    key = f"{metadata.get('fileuuid', metadata.get('filename'))}:{metadata['entrystart']}:{metadata['entrystop']}"
+    return hashlib.sha1(key.encode()).hexdigest()[:16]
