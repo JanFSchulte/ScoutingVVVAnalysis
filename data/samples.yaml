@@ -1,0 +1,1616 @@
+# Imported from legacy ScoutingVVVTools src/sample.json by `vvv import-samples`.
+# Cross sections in fb (XSDB pb x 1000, VV scaled to NNLO, V+jets NLO/LO k-factors applied).
+samples:
+  data_2024:
+    das:
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024G_part1_260904_v7-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024G_part2_260904_v7-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024G_part3_260804_v6-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024G_part4_260804_v6-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024G_part5_260904_v7-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024G_part6_260804_v6-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024G_part7_260804_v6-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024G_part8_260804_v6-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024G_part9_260804_v6-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024G_part10_260804_v6-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024G_part11_260804_v6-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024H_part1_260904_v7-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024H_part2_260904_v7-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024I_part1_260904_v7-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024I_part2_260904_v7-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024I_part3_260904_v7-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024I_part4_260904_v7-00000000000000000000000000000000/USER
+    kind: data
+    sample_id: 99
+    process_class: null
+    has_theory_weights: false
+    legacy:
+      raw_entries: 12002261817
+    lumi_fb: 54.20562347
+  2024G_UParT_v6:
+    das:
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024G_part3_260804_v6-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024G_part4_260804_v6-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024G_part6_260804_v6-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024G_part7_260804_v6-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024G_part8_260804_v6-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024G_part9_260804_v6-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024G_part10_260804_v6-00000000000000000000000000000000/USER
+    - /ScoutingPFRun3/yiyangz-ScoutingNano_Data_2024G_part11_260804_v6-00000000000000000000000000000000/USER
+    kind: data
+    sample_id: 99
+    process_class: null
+    has_theory_weights: false
+    legacy:
+      raw_entries: -1
+    lumi_fb: 27.51
+  www:
+    das:
+    - /WWW-4F_TuneCP5_13p6TeV_amcatnlo-pythia8/jschulte-ScoutingNano_MC_WWW_v5_jetMatchFix-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 0
+    process_class: VVV
+    has_theory_weights: true
+    legacy:
+      raw_entries: 4299284
+      genweight_mean: 0.2327584605358664
+      weight_pu_mean: 0.9999903181600497
+      weight_pu_up_mean: 0.9999009324097125
+      weight_pu_down_mean: 0.9999993144776341
+    xsec_fb: 232.8
+  wwz:
+    das:
+    - /WWZ-4F_TuneCP5_13p6TeV_amcatnlo-pythia8/jschulte-ScoutingNano_MC_WWZ_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 1
+    process_class: VVV
+    has_theory_weights: true
+    legacy:
+      raw_entries: 16197159
+      genweight_mean: 0.18524052477831768
+      weight_pu_mean: 0.9999903230607143
+      weight_pu_up_mean: 0.9999009343658153
+      weight_pu_down_mean: 0.9999993268811939
+    xsec_fb: 185.1
+  wzz:
+    das:
+    - /WZZ-5F_TuneCP5_13p6TeV_amcatnlo-pythia8/jschulte-ScoutingNano_MC_WZZ_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 2
+    process_class: VVV
+    has_theory_weights: true
+    legacy:
+      raw_entries: 16199286
+      genweight_mean: 0.062080417259153774
+      weight_pu_mean: 0.9999903226927661
+      weight_pu_up_mean: 0.9999009335184399
+      weight_pu_down_mean: 0.999999310508601
+    xsec_fb: 62.06
+  zzz:
+    das:
+    - /ZZZ-5F_TuneCP5_13p6TeV_amcatnlo-pythia8/jschulte-ScoutingNano_MC_ZZZ_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 3
+    process_class: VVV
+    has_theory_weights: true
+    legacy:
+      raw_entries: 16192091
+      genweight_mean: 0.015936190410272458
+      weight_pu_mean: 0.9999903197629808
+      weight_pu_up_mean: 0.9999009365260247
+      weight_pu_down_mean: 0.9999993142952881
+    xsec_fb: 15.91
+  ZH-Zto2Q-Hto2Wto4Q:
+    das:
+    - /ZH-Zto2Q-Hto2Wto4Q_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_ZH_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 4
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 6586101
+      genweight_mean: 0.8431932907368097
+      weight_pu_mean: 0.9999903179525431
+      weight_pu_up_mean: 0.999900934073813
+      weight_pu_down_mean: 0.9999993195880768
+    xsec_fb: 64.412976
+  GluGluZH-Zto2Q-Hto2Wto4Q:
+    das:
+    - /GluGluZH-Zto2Q-Hto2Wto4Q_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_GluGluZH_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 5
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 6756000
+      genweight_mean: 0.0681322
+      weight_pu_mean: 0.999990332498884
+      weight_pu_up_mean: 0.9999009342432853
+      weight_pu_down_mean: 0.9999993219857097
+    xsec_fb: 4.621875
+  WplusH-Wto2Q-Hto2Wto4Q:
+    das:
+    - /WplusH-Wto2Q-Hto2Wto4Q_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_WplusH-Wto2Q-Hto2Wto4Q_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 6
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 3395977
+      genweight_mean: 0.5786778837548078
+      weight_pu_mean: 0.999970047503217
+      weight_pu_up_mean: 0.999737297103135
+      weight_pu_down_mean: 0.9999976311904093
+    xsec_fb: 48.040278
+  WminusH-Wto2Q-Hto2Wto4Q:
+    das:
+    - /WminusH-Wto2Q-Hto2Wto4Q_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_WminsH-Wto2Q-Hto2Wto4Q_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 7
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 3382165
+      genweight_mean: 0.5805497548203595
+      weight_pu_mean: 0.9999903259240539
+      weight_pu_up_mean: 0.9999009391240073
+      weight_pu_down_mean: 0.9999993179440119
+    xsec_fb: 48.040278
+  qcd_ht40to70:
+    das:
+    - /QCD-4Jets_Bin-HT-40to70_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_QCD_HT-40to70_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 10
+    process_class: QCD
+    has_theory_weights: false
+    legacy:
+      raw_entries: 110777315
+      genweight_mean: 1117847118.1130767
+      weight_pu_mean: 0.9999953344969814
+      weight_pu_up_mean: 0.9999486513448272
+      weight_pu_down_mean: 0.9999996893711676
+    xsec_fb: 312300000000
+  qcd_ht70to100:
+    das:
+    - /QCD-4Jets_Bin-HT-70to100_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_QCD_HT-70to100_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 11
+    process_class: QCD
+    has_theory_weights: false
+    legacy:
+      raw_entries: 108584880
+      genweight_mean: 305088036.29672253
+      weight_pu_mean: 0.9999903232123465
+      weight_pu_up_mean: 0.9999009385929761
+      weight_pu_down_mean: 0.9999993247267243
+    xsec_fb: 58470000000
+  qcd_ht100to200:
+    das:
+    - /QCD-4Jets_Bin-HT-100to200_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_QCD_HT-100to200_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 12
+    process_class: QCD
+    has_theory_weights: false
+    legacy:
+      raw_entries: 120388125
+      genweight_mean: 163827670.58080164
+      weight_pu_mean: 0.999995317262012
+      weight_pu_up_mean: 0.9999485496894299
+      weight_pu_down_mean: 0.9999996842925543
+    xsec_fb: 25310000000
+  qcd_ht200to400:
+    das:
+    - /QCD-4Jets_Bin-HT-200to400_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_QCD_HT-200to400_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 13
+    process_class: QCD
+    has_theory_weights: false
+    legacy:
+      raw_entries: 115255250
+      genweight_mean: 17200282.254925665
+      weight_pu_mean: 0.9999903406690636
+      weight_pu_up_mean: 0.9999010334178375
+      weight_pu_down_mean: 0.9999993253579192
+    xsec_fb: 1960000000
+  qcd_ht400to600:
+    das:
+    - /QCD-4Jets_Bin-HT-400to600_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_QCD_HT-400to600_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 14
+    process_class: QCD
+    has_theory_weights: false
+    legacy:
+      raw_entries: 106725734
+      genweight_mean: 1045393.5661043371
+      weight_pu_mean: 0.9999903259150922
+      weight_pu_up_mean: 0.9999010329435158
+      weight_pu_down_mean: 0.9999993187179353
+    xsec_fb: 97400000
+  qcd_ht600to800:
+    das:
+    - /QCD-4Jets_Bin-HT-600to800_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_QCD_HT-600to800_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 15
+    process_class: QCD
+    has_theory_weights: false
+    legacy:
+      raw_entries: 127535907
+      genweight_mean: 161146.78350866004
+      weight_pu_mean: 0.999990323128549
+      weight_pu_up_mean: 0.9999010313453229
+      weight_pu_down_mean: 0.9999993290207935
+    xsec_fb: 13540000
+  qcd_ht800to1000:
+    das:
+    - /QCD-4Jets_Bin-HT-800to1000_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_QCD_HT-800to1000_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 16
+    process_class: QCD
+    has_theory_weights: false
+    legacy:
+      raw_entries: 118730244
+      genweight_mean: 37984.52913641387
+      weight_pu_mean: 0.9999953140477819
+      weight_pu_up_mean: 0.9999485479188011
+      weight_pu_down_mean: 0.9999996829409122
+    xsec_fb: 3010000
+  qcd_ht1000to1200:
+    das:
+    - /QCD-4Jets_Bin-HT-1000to1200_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_QCD_HT-1000to1200_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 17
+    process_class: QCD
+    has_theory_weights: false
+    legacy:
+      raw_entries: 100791718
+      genweight_mean: 11447.53434207777
+      weight_pu_mean: 0.9999903183932783
+      weight_pu_up_mean: 0.9999009389980563
+      weight_pu_down_mean: 0.9999993164109304
+    xsec_fb: 890300
+  qcd_ht1200to1500:
+    das:
+    - /QCD-4Jets_Bin-HT-1200to1500_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_QCD_HT-1200to1500_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 18
+    process_class: QCD
+    has_theory_weights: false
+    legacy:
+      raw_entries: 106024471
+      genweight_mean: 5054.509316206958
+      weight_pu_mean: 0.9999903260127988
+      weight_pu_up_mean: 0.9999010337139125
+      weight_pu_down_mean: 0.9999993180948502
+    xsec_fb: 384800
+  qcd_ht1500to2000:
+    das:
+    - /QCD-4Jets_Bin-HT-1500to2000_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_QCD_HT-1500to2000_v5_jetMatchFix-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 19
+    process_class: QCD
+    has_theory_weights: false
+    legacy:
+      raw_entries: 113208234
+      genweight_mean: 1679.6573280067314
+      weight_pu_mean: 0.9999903217715679
+      weight_pu_up_mean: 0.9999010321424022
+      weight_pu_down_mean: 0.9999993217232047
+    xsec_fb: 127300
+  qcd_ht2000:
+    das:
+    - /QCD-4Jets_Bin-HT-2000_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_QCD_HT-2000_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 20
+    process_class: QCD
+    has_theory_weights: false
+    legacy:
+      raw_entries: 84983029
+      genweight_mean: 349.2749592847575
+      weight_pu_mean: 0.99999532345192
+      weight_pu_up_mean: 0.9999485423186315
+      weight_pu_down_mean: 0.9999996787817376
+    xsec_fb: 26260
+  ttbar_had:
+    das:
+    - /TTto4Q_TuneCP5_13p6TeV_powheg-pythia8/jschulte-ScoutingNano_MC_TTTo4Q_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 21
+    process_class: Top
+    has_theory_weights: true
+    legacy:
+      raw_entries: 473944839
+      genweight_mean: 347.331757570567
+      weight_pu_mean: 0.9999903376096756
+      weight_pu_up_mean: 0.9999010380780389
+      weight_pu_down_mean: 0.9999993252614282
+    xsec_fb: 419657
+  ttbar_semilep:
+    das:
+    - /TTtoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8/jschulte-ScoutingNano_MC_TTToLNu2Q_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 22
+    process_class: Top
+    has_theory_weights: true
+    legacy:
+      raw_entries: 484298177
+      genweight_mean: 334.31535566445996
+      weight_pu_mean: 0.999995331984919
+      weight_pu_up_mean: 0.99994864962116
+      weight_pu_down_mean: 0.999999686898305
+    xsec_fb: 405702
+  ww:
+    das:
+    - /WW_TuneCP5_13p6TeV_pythia8/yiyangz-ScoutingNano_MC_v1-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 23
+    process_class: null
+    has_theory_weights: true
+    legacy:
+      raw_entries: 0
+    xsec_fb: 80230
+  wz:
+    das:
+    - /WZ_TuneCP5_13p6TeV_pythia8/yiyangz-ScoutingNano_MC_v1-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 24
+    process_class: null
+    has_theory_weights: true
+    legacy:
+      raw_entries: 0
+    xsec_fb: 29100
+  zz:
+    das:
+    - /ZZ_TuneCP5_13p6TeV_pythia8/yiyangz-ScoutingNano_MC_v1-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 25
+    process_class: null
+    has_theory_weights: true
+    legacy:
+      raw_entries: 0
+    xsec_fb: 12750
+  tbarwplus_had:
+    das:
+    - /TbarWplusto4Q_TuneCP5_13p6TeV_powheg-pythia8/jschulte-ScoutingNano_MC_TbarWplus_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 26
+    process_class: Top
+    has_theory_weights: true
+    legacy:
+      raw_entries: 24000000
+      genweight_mean: 16.431805694866647
+      weight_pu_mean: 0.9999903213430673
+      weight_pu_up_mean: 0.9999009423853547
+      weight_pu_down_mean: 0.9999993185225005
+    xsec_fb: 19971
+  twminus_had:
+    das:
+    - /TWminusto4Q_TuneCP5_13p6TeV_powheg-pythia8/jschulte-ScoutingNano_MC_TWminus_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 27
+    process_class: Top
+    has_theory_weights: true
+    legacy:
+      raw_entries: 23999000
+      genweight_mean: 16.400984914371413
+      weight_pu_mean: 0.9999903252643122
+      weight_pu_up_mean: 0.9999009373993291
+      weight_pu_down_mean: 0.9999993193477635
+    xsec_fb: 19971
+  wjets_h100to400:
+    das:
+    - /Wto2Q-3Jets_Bin-HT-100to400_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_Wto2Q_HT-100to400_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 28
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 384703157
+      genweight_mean: 67876.21058165446
+      weight_pu_mean: 0.9999953399339223
+      weight_pu_up_mean: 0.9999486518374093
+      weight_pu_down_mean: 0.9999996800774792
+    xsec_fb: 26140300
+  wjets_h400to800:
+    das:
+    - /Wto2Q-3Jets_Bin-HT-400to800_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_Wto2Q_HT-400to800_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 29
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 401294004
+      genweight_mean: 1775.0810040950005
+      weight_pu_mean: 0.9999903368347558
+      weight_pu_up_mean: 0.9999010347803812
+      weight_pu_down_mean: 0.9999993290318366
+    xsec_fb: 573468
+  wjets_h800to1500:
+    das:
+    - /Wto2Q-3Jets_Bin-HT-800to1500_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_Wto2Q_HT-800to1500_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 30
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 52712810
+      genweight_mean: 148.6887928717549
+      weight_pu_mean: 0.9999903267663626
+      weight_pu_up_mean: 0.9999010349930074
+      weight_pu_down_mean: 0.9999993264103586
+    xsec_fb: 45648.6
+  wjets_h1500to2500:
+    das:
+    - /Wto2Q-3Jets_Bin-HT-1500to2500_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_Wto2Q_HT-1500to2500_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 31
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 48297099
+      genweight_mean: 8.987123095946632
+      weight_pu_mean: 0.9999903265059302
+      weight_pu_up_mean: 0.9999009387995765
+      weight_pu_down_mean: 0.9999993173065623
+    xsec_fb: 2656.73
+  wjets_h2500:
+    das:
+    - /Wto2Q-3Jets_Bin-HT-2500_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_Wto2Q_HT-2500_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 32
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 50555741
+      genweight_mean: 0.5383813001579649
+      weight_pu_mean: 0.9999903413783807
+      weight_pu_up_mean: 0.9999010376236777
+      weight_pu_down_mean: 0.9999993168001158
+    xsec_fb: 164.673
+  zjets_h100to400:
+    das:
+    - /Zto2Q-4Jets_Bin-HT-100to400_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_Zto2Q_HT-100to400_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 33
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 454296062
+      genweight_mean: 32808.069450060684
+      weight_pu_mean: 0.9999903238084465
+      weight_pu_up_mean: 0.9999010291679794
+      weight_pu_down_mean: 0.9999993187249632
+    xsec_fb: 10130100
+  zjets_h400to800:
+    das:
+    - /Zto2Q-4Jets_Bin-HT-400to800_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_Zto2Q_HT-400to800_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 34
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 181646889
+      genweight_mean: 1485.009393411928
+      weight_pu_mean: 0.9999953267409629
+      weight_pu_up_mean: 0.9999486453394886
+      weight_pu_down_mean: 0.9999996846315261
+    xsec_fb: 230813
+  zjets_h800to1500:
+    das:
+    - /Zto2Q-4Jets_Bin-HT-800to1500_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_Zto2Q_HT-800to1500_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 35
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 51519410
+      genweight_mean: 154.46405054762528
+      weight_pu_mean: 0.9999903320868194
+      weight_pu_up_mean: 0.9999010462892238
+      weight_pu_down_mean: 0.9999993310796239
+    xsec_fb: 19801.4
+  zjets_h1500to2500:
+    das:
+    - /Zto2Q-4Jets_Bin-HT-1500to2500_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_Zto2Q_HT-1500to2500_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 36
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 67209394
+      genweight_mean: 10.733479558488506
+      weight_pu_mean: 0.9999903197485915
+      weight_pu_up_mean: 0.9999009265278336
+      weight_pu_down_mean: 0.9999993189796439
+    xsec_fb: 1235.97
+  zjets_h2500:
+    das:
+    - /Zto2Q-4Jets_Bin-HT-2500_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_Zto2Q_HT-2500_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 37
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 42051768
+      genweight_mean: 0.6924470633470581
+      weight_pu_mean: 0.9999903140497273
+      weight_pu_up_mean: 0.9999009429349552
+      weight_pu_down_mean: 0.9999993117871262
+    xsec_fb: 80.2232
+  dy_h1500to2500_m120:
+    das:
+    - /DYto2L-4Jets_Bin-HT-1500to2500-MLL-120_TuneCP5_13p6TeV_madgraphMLM-pythia8/yiyangz-ScoutingNano_MC_DYto2L-4Jets_Bin-HT-1500to2500-MLL-120_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 39
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 999402
+      genweight_mean: 0.01992761504171895
+      weight_pu_mean: 0.9999801819592969
+      weight_pu_up_mean: 0.9998119566485335
+      weight_pu_down_mean: 0.9999985403707694
+    xsec_fb: 2.50172
+  dy_h1500to2500_m4to50:
+    das:
+    - /DYto2L-4Jets_Bin-HT-1500to2500-MLL-4to50_TuneCP5_13p6TeV_madgraphMLM-pythia8/yiyangz-ScoutingNano_MC_DYto2L-4Jets_Bin-HT-1500to2500-MLL-4to50_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 40
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 1780238
+      genweight_mean: 0.20210905046175284
+      weight_pu_mean: 0.9999789747987747
+      weight_pu_up_mean: 0.9994785993021177
+      weight_pu_down_mean: 1.0000464963915838
+    xsec_fb: 32.1229
+  dy_h1500to2500_m50to120:
+    das:
+    - /DYto2L-4Jets_Bin-HT-1500to2500-MLL-50to120_TuneCP5_13p6TeV_madgraphMLM-pythia8/yiyangz-ScoutingNano_MC_DYto2L-4Jets_Bin-HT-1500to2500-MLL-50to120_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 41
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 1889567
+      genweight_mean: 0.573837072882888
+      weight_pu_mean: 0.9999801830080756
+      weight_pu_up_mean: 0.999811959583039
+      weight_pu_down_mean: 0.9999985364808931
+    xsec_fb: 77.3446
+  dy_h2500_m120:
+    das:
+    - /DYto2L-4Jets_Bin-HT-2500-MLL-120_TuneCP5_13p6TeV_madgraphMLM-pythia8/yiyangz-ScoutingNano_MC_DYto2L-4Jets_Bin-HT-2500-MLL-120_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 42
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 992490
+      genweight_mean: 0.0013978906692509482
+      weight_pu_mean: 1.0000012630173272
+      weight_pu_up_mean: 0.9998778904710847
+      weight_pu_down_mean: 1.0000266968141152
+    xsec_fb: 0.183314
+  dy_h2500_m4to50:
+    das:
+    - /DYto2L-4Jets_Bin-HT-2500-MLL-4to50_TuneCP5_13p6TeV_madgraphMLM-pythia8/yiyangz-ScoutingNano_MC_DYto2L-4Jets_Bin-HT-2500-MLL-4to50_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 43
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 1039707
+      genweight_mean: 0.01013949448674275
+      weight_pu_mean: 0.9998596048792957
+      weight_pu_up_mean: 0.9994535403557977
+      weight_pu_down_mean: 0.9999919790280833
+    xsec_fb: 1.64143
+  dy_h2500_m50to120:
+    das:
+    - /DYto2L-4Jets_Bin-HT-2500-MLL-50to120_TuneCP5_13p6TeV_madgraphMLM-pythia8/yiyangz-ScoutingNano_MC_DYto2L-4Jets_Bin-HT-2500-MLL-50to120_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 44
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 984539
+      genweight_mean: 0.03785889959249456
+      weight_pu_mean: 0.9999599126400928
+      weight_pu_up_mean: 0.9996483102621472
+      weight_pu_down_mean: 0.9999968509559165
+    xsec_fb: 5.24294
+  dy_h400to800_m120:
+    das:
+    - /DYto2L-4Jets_Bin-HT-400to800-MLL-120_TuneCP5_13p6TeV_madgraphMLM-pythia8/yiyangz-ScoutingNano_MC_DYto2L-4Jets_Bin-HT-400to800-MLL-120_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 45
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 1775774
+      genweight_mean: 2.1058954177444313
+      weight_pu_mean: 0.9999599015224008
+      weight_pu_up_mean: 0.9996483108263474
+      weight_pu_down_mean: 0.9999968413962551
+    xsec_fb: 271.2
+  dy_h800to1500_m120:
+    das:
+    - /DYto2L-4Jets_Bin-HT-800to1500-MLL-120_TuneCP5_13p6TeV_madgraphMLM-pythia8/yiyangz-ScoutingNano_MC_DYto2L-4Jets_Bin-HT-800to1500-MLL-120_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 46
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 949421
+      genweight_mean: 0.2545425386825444
+      weight_pu_mean: 0.9999599201169221
+      weight_pu_up_mean: 0.999648315799336
+      weight_pu_down_mean: 0.9999968442350469
+    xsec_fb: 31.3767
+  dy_h800to1500_m4to50:
+    das:
+    - /DYto2L-4Jets_Bin-HT-800to1500-MLL-4to50_TuneCP5_13p6TeV_madgraphMLM-pythia8/yiyangz-ScoutingNano_MC_DYto2L-4Jets_Bin-HT-800to1500-MLL-4to50_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 47
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 1833349
+      genweight_mean: 4.3012899981169435
+      weight_pu_mean: 0.9999801892956808
+      weight_pu_up_mean: 0.9998119512253574
+      weight_pu_down_mean: 0.9999985385877096
+    xsec_fb: 658.951
+  dy_h800to1500_m50to120:
+    das:
+    - /DYto2L-4Jets_Bin-HT-800to1500-MLL-50to120_TuneCP5_13p6TeV_madgraphMLM-pythia8/yiyangz-ScoutingNano_MC_DYto2L-4Jets_Bin-HT-800to1500-MLL-50to120_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 48
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 2659044
+      genweight_mean: 7.8722451805064155
+      weight_pu_mean: 0.9999903177640492
+      weight_pu_up_mean: 0.9999009419966007
+      weight_pu_down_mean: 0.9999993192351601
+    xsec_fb: 1079.7
+  dy_h40to70_m4to50:
+    das:
+    - /DYto2L-4Jets_Bin-HT-40to70-MLL-4to50_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_DYto2L-4Jets_Bin-HT-40to70-MLL-4to50_v6-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 100
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 150771980
+      genweight_mean: 4177.902186983043
+      weight_pu_mean: 0.9999580086494365
+      weight_pu_up_mean: 0.9998183384282889
+      weight_pu_down_mean: 0.9999837920612088
+    xsec_fb: 1459960
+  dy_h40to70_m50to120:
+    das:
+    - /DYto2L-4Jets_Bin-HT-40to70-MLL-50to120_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_DYto2L-4Jets_Bin-HT-40to70-MLL-50to120_v6-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 101
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 169618807
+      genweight_mean: 1519.3180695694125
+      weight_pu_mean: 0.9999967893432283
+      weight_pu_up_mean: 0.9999532758245474
+      weight_pu_down_mean: 1.0000012785726062
+    xsec_fb: 505862
+  dy_h40to70_m120:
+    das:
+    - /DYto2L-4Jets_Bin-HT-40to70-MLL-120_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_DYto2L-4Jets_Bin-HT-40to70-MLL-120_v6-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 102
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 13417029
+      genweight_mean: 23.165929597370777
+      weight_pu_mean: 0.9999903226460989
+      weight_pu_up_mean: 0.9999009326516505
+      weight_pu_down_mean: 0.9999993244935235
+    xsec_fb: 7324.95
+  dy_h70to100_m4to50:
+    das:
+    - /DYto2L-4Jets_Bin-HT-70to100-MLL-4to50_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_DYto2L-4Jets_Bin-HT-70to100-MLL-4to50_v6-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 103
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 206637526
+      genweight_mean: 1893.8876514398069
+      weight_pu_mean: 1.0000000597791054
+      weight_pu_up_mean: 0.9999671185835448
+      weight_pu_down_mean: 1.000000338588968
+    xsec_fb: 556448
+  dy_h70to100_m50to120:
+    das:
+    - /DYto2L-4Jets_Bin-HT-70to100-MLL-50to120_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_DYto2L-4Jets_Bin-HT-70to100-MLL-50to120_v6-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 104
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 148893553
+      genweight_mean: 883.3696135663539
+      weight_pu_mean: 0.9999984183419728
+      weight_pu_up_mean: 0.9999179137063192
+      weight_pu_down_mean: 0.9999977892955941
+    xsec_fb: 224756
+  dy_h70to100_m120:
+    das:
+    - /DYto2L-4Jets_Bin-HT-70to100-MLL-120_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_DYto2L-4Jets_Bin-HT-70to100-MLL-120_v6-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 105
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 14258194
+      genweight_mean: 14.577042871053937
+      weight_pu_mean: 0.9999903145232936
+      weight_pu_up_mean: 0.99990094901462
+      weight_pu_down_mean: 0.999999309338768
+    xsec_fb: 3526.62
+  dy_h100to400_m4to50:
+    das:
+    - /DYto2L-4Jets_Bin-HT-100to400-MLL-4to50_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_DYto2L-4Jets_Bin-HT-100to400-MLL-4to50_v6-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 106
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 188160508
+      genweight_mean: 2103.312586715212
+      weight_pu_mean: 0.9999911973262252
+      weight_pu_up_mean: 0.9998878128792344
+      weight_pu_down_mean: 1.0000033265847525
+    xsec_fb: 506666
+  dy_h100to400_m50to120:
+    das:
+    - /DYto2L-4Jets_Bin-HT-100to400-MLL-50to120_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_DYto2L-4Jets_Bin-HT-100to400-MLL-50to120_v6-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 107
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 166331744
+      genweight_mean: 1502.2942908667903
+      weight_pu_mean: 0.9999903369634315
+      weight_pu_up_mean: 0.9999010269828981
+      weight_pu_down_mean: 0.9999993290380694
+    xsec_fb: 287582
+  dy_h100to400_m120:
+    das:
+    - /DYto2L-4Jets_Bin-HT-100to400-MLL-120_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_DYto2L-4Jets_Bin-HT-100to400-MLL-120_v6-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 108
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 17393511
+      genweight_mean: 30.911198080433447
+      weight_pu_mean: 0.9999903154600482
+      weight_pu_up_mean: 0.9999009374255199
+      weight_pu_down_mean: 0.9999993208725547
+    xsec_fb: 5352.44
+  dy_h400to800_m4to50:
+    das:
+    - /DYto2L-4Jets_Bin-HT-400to800-MLL-4to50_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_DYto2L-4Jets_Bin-HT-400to800-MLL-4to50_v6-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 109
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 11303425
+      genweight_mean: 52.80760095567786
+      weight_pu_mean: 0.999995318811128
+      weight_pu_up_mean: 0.9999485490346627
+      weight_pu_down_mean: 0.9999996723359429
+    xsec_fb: 8952.95
+  dy_h400to800_m50to120:
+    das:
+    - /DYto2L-4Jets_Bin-HT-400to800-MLL-50to120_TuneCP5_13p6TeV_madgraphMLM-pythia8/jschulte-ScoutingNano_MC_DYto2L-4Jets_Bin-HT-400to800-MLL-50to120_v6-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 110
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 11521592
+      genweight_mean: 71.55101038223208
+      weight_pu_mean: 0.9999903193141346
+      weight_pu_up_mean: 0.9999009389486463
+      weight_pu_down_mean: 0.9999993200543796
+    xsec_fb: 10556.1
+  WWto2L2Nu_powheg:
+    das:
+    - /WWto2L2Nu_TuneCP5_13p6TeV_powheg-pythia8/jschulte-ScoutingNano_MC_WWto2L2Nu_v7-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 111
+    process_class: VV
+    has_theory_weights: true
+    legacy:
+      raw_entries: 238369210
+      genweight_mean: 11.789139444253081
+      weight_pu_mean: 0.9999768334223363
+      weight_pu_up_mean: 0.9998822819668416
+      weight_pu_down_mean: 0.9999957863254808
+    xsec_fb: 14719
+  WWto4Q_powheg:
+    das:
+    - /WWto4Q_TuneCP5_13p6TeV_powheg-pythia8/jschulte-ScoutingNano_MC_WWto4Q_v7-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 112
+    process_class: VV
+    has_theory_weights: true
+    legacy:
+      raw_entries: 149548323
+      genweight_mean: 50.79003537120548
+      weight_pu_mean: 0.9999790921043852
+      weight_pu_up_mean: 0.999887253424795
+      weight_pu_down_mean: 0.9999932608591334
+    xsec_fb: 62473
+  WWtoLNu2Q_powheg:
+    das:
+    - /WWtoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8/jschulte-ScoutingNano_MC_WWtoLNu2Q_v7-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 113
+    process_class: VV
+    has_theory_weights: true
+    legacy:
+      raw_entries: 275788602
+      genweight_mean: 48.939679059407965
+      weight_pu_mean: 0.9999903341105081
+      weight_pu_up_mean: 0.9999010398341946
+      weight_pu_down_mean: 0.9999993245403168
+    xsec_fb: 60648
+  WZto2L2Q_powheg:
+    das:
+    - /WZto2L2Q_TuneCP5_13p6TeV_powheg-pythia8/jschulte-ScoutingNano_MC_WZto2L2Q_v7-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 114
+    process_class: VV
+    has_theory_weights: true
+    legacy:
+      raw_entries: 235007746
+      genweight_mean: 7.568153679977642
+      weight_pu_mean: 0.9999887473902672
+      weight_pu_up_mean: 0.9999016126381385
+      weight_pu_down_mean: 0.999995919536783
+    xsec_fb: 7898
+  WZto2Nu2Q_powheg:
+    das:
+    - /WZto2Nu2Q_TuneCP5_13p6TeV_powheg-pythia8/jschulte-ScoutingNano_MC_WZto2Nu2Q_v7-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 115
+    process_class: VV
+    has_theory_weights: true
+    legacy:
+      raw_entries: 14936000
+      genweight_mean: 6.392576652830746
+      weight_pu_mean: 0.9999903257221859
+      weight_pu_up_mean: 0.9999009404973679
+      weight_pu_down_mean: 0.9999993119116845
+    xsec_fb: 6672
+  WZto3LNu_powheg:
+    das:
+    - /WZto3LNu_TuneCP5_13p6TeV_powheg-pythia8/jschulte-ScoutingNano_MC_WZto3LNu_v7-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 116
+    process_class: VV
+    has_theory_weights: true
+    legacy:
+      raw_entries: 245670469
+      genweight_mean: 4.924233236065311
+      weight_pu_mean: 0.9999899309784923
+      weight_pu_up_mean: 0.9998975213952692
+      weight_pu_down_mean: 1.0000006991786452
+    xsec_fb: 5139
+  WZtoL3Nu_powheg:
+    das:
+    - /WZtoL3Nu_TuneCP5_13p6TeV_powheg-pythia8/jschulte-ScoutingNano_MC_WZtoL3Nu_v7-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 117
+    process_class: VV
+    has_theory_weights: true
+    legacy:
+      raw_entries: 9997000
+      genweight_mean: 3.0775299120936306
+      weight_pu_mean: 0.9999903208437502
+      weight_pu_up_mean: 0.9999009382728778
+      weight_pu_down_mean: 0.999999318056141
+    xsec_fb: 3211
+  WZtoLNu2Q_powheg:
+    das:
+    - /WZtoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8/jschulte-ScoutingNano_MC_WZtoLNu2Q_v7-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 118
+    process_class: VV
+    has_theory_weights: true
+    legacy:
+      raw_entries: 138479909
+      genweight_mean: 15.87026460057931
+      weight_pu_mean: 0.999985981610961
+      weight_pu_up_mean: 0.9998716595746809
+      weight_pu_down_mean: 0.9999996470791287
+    xsec_fb: 16563
+  ZZto2L2Nu_powheg:
+    das:
+    - /ZZto2L2Nu_TuneCP5_13p6TeV_powheg-pythia8/jschulte-ScoutingNano_MC_ZZto2L2Nu_v7-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 119
+    process_class: VV
+    has_theory_weights: true
+    legacy:
+      raw_entries: 182354489
+      genweight_mean: 1.0308072980638872
+      weight_pu_mean: 0.9999856127321495
+      weight_pu_up_mean: 0.9999021265628624
+      weight_pu_down_mean: 0.9999932238469493
+    xsec_fb: 1191
+  ZZto2L2Q_powheg:
+    das:
+    - /ZZto2L2Q_TuneCP5_13p6TeV_powheg-pythia8/jschulte-ScoutingNano_MC_ZZto2L2Q_v7-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 120
+    process_class: VV
+    has_theory_weights: true
+    legacy:
+      raw_entries: 163694760
+      genweight_mean: 6.789406453629297
+      weight_pu_mean: 1.0000002314329293
+      weight_pu_up_mean: 0.9999115831677162
+      weight_pu_down_mean: 1.0000066388474789
+    xsec_fb: 7841
+  ZZto2Nu2Q_powheg:
+    das:
+    - /ZZto2Nu2Q_TuneCP5_13p6TeV_powheg-pythia8/jschulte-ScoutingNano_MC_ZZto2Nu2Q_v7-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 121
+    process_class: VV
+    has_theory_weights: true
+    legacy:
+      raw_entries: 46047410
+      genweight_mean: 4.825848914012754
+      weight_pu_mean: 0.9999903181942161
+      weight_pu_up_mean: 0.9999009338806558
+      weight_pu_down_mean: 0.9999993195219128
+    xsec_fb: 5575
+  ZZto4L_powheg:
+    das:
+    - /ZZto4L_TuneCP5_13p6TeV_powheg-pythia8/jschulte-ScoutingNano_MC_ZZto4L_v7-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 122
+    process_class: VV
+    has_theory_weights: true
+    legacy:
+      raw_entries: 227537624
+      genweight_mean: 1.3904435798125607
+      weight_pu_mean: 0.9999738809894658
+      weight_pu_up_mean: 0.9998867591341508
+      weight_pu_down_mean: 0.9999967530720641
+    xsec_fb: 1606
+  ttbar_2l2nu:
+    das:
+    - /TTto2L2Nu_Par-ERD-On_TuneCP5_13p6TeV_powheg-pythia8/jschulte-ScoutingNano_MC_TTTo2L2Nu_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 49
+    process_class: Top
+    has_theory_weights: true
+    legacy:
+      raw_entries: 59986000
+      genweight_mean: 80.44719177333718
+      weight_pu_mean: 0.9999903173683427
+      weight_pu_up_mean: 0.9999009431974883
+      weight_pu_down_mean: 0.9999993246634897
+    xsec_fb: 98087.0
+  twminus_lnu2q:
+    das:
+    - /TWminustoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8/yiyangz-ScoutingNano_MC_TWminustoLNu2Q_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 50
+    process_class: Top
+    has_theory_weights: true
+    legacy:
+      raw_entries: 27966221
+      genweight_mean: 35.986138793636755
+      weight_pu_mean: 0.9999436376893599
+      weight_pu_up_mean: 0.999826217171554
+      weight_pu_down_mean: 0.9999851043354537
+    xsec_fb: 19310.0
+  tbarwplus_lnu2q:
+    das:
+    - /TbarWplustoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8/yiyangz-ScoutingNano_MC_TbarWplustoLNu2Q_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 51
+    process_class: Top
+    has_theory_weights: true
+    legacy:
+      raw_entries: 28563210
+      genweight_mean: 36.05362174164059
+      weight_pu_mean: 0.9999990457891611
+      weight_pu_up_mean: 0.9998814743817691
+      weight_pu_down_mean: 1.000011252768331
+    xsec_fb: 19310.0
+  wlnu_h100to400_m0to120:
+    das:
+    - /WtoLNu-4Jets_Bin-HT-100to400-MLNu-0to120_TuneCP5_13p6TeV_madgraphMLM-pythia8/yiyangz-ScoutingNano_MC_WtoLNu-4Jets_Bin-HT-100to400-MLNu-0to120_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 52
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 369577062
+      genweight_mean: 13318.532665525452
+      weight_pu_mean: 0.9999852164001505
+      weight_pu_up_mean: 0.9998930209192235
+      weight_pu_down_mean: 0.9999975593271399
+    xsec_fb: 2647950
+  wlnu_h100to400_m120:
+    das:
+    - /WtoLNu-4Jets_Bin-HT-100to400-MLNu-120_TuneCP5_13p6TeV_madgraphMLM-pythia8/yiyangz-ScoutingNano_MC_WtoLNu-4Jets_Bin-HT-100to400-MLNu-120__260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 53
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 22914838
+      genweight_mean: 92.27420779418597
+      weight_pu_mean: 1.0000008052903304
+      weight_pu_up_mean: 0.9999287759007178
+      weight_pu_down_mean: 0.9999985862492832
+    xsec_fb: 16457.6
+  wlnu_h1500to2500_m0to120:
+    das:
+    - /WtoLNu-4Jets_Bin-HT-1500to2500-MLNu-0to120_TuneCP5_13p6TeV_madgraphMLM-pythia8/yiyangz-ScoutingNano_MC_WtoLNu-4Jets_Bin-HT-1500to2500-MLNu-0to120_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 54
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 15165053
+      genweight_mean: 5.045769053895548
+      weight_pu_mean: 1.000005027213459
+      weight_pu_up_mean: 0.9999233031290907
+      weight_pu_down_mean: 1.0000160347851075
+    xsec_fb: 697.986
+  wlnu_h1500to2500_m120:
+    das:
+    - /WtoLNu-4Jets_Bin-HT-1500to2500-MLNu-120_TuneCP5_13p6TeV_madgraphMLM-pythia8/yiyangz-ScoutingNano_MC_WtoLNu-4Jets_Bin-HT-1500to2500-MLNu-120_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 55
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 15046750
+      genweight_mean: 0.059101956159470385
+      weight_pu_mean: 0.9999802264918282
+      weight_pu_up_mean: 0.9998663209217559
+      weight_pu_down_mean: 1.0000014988732282
+    xsec_fb: 7.62016
+  wlnu_h2500_m0to120:
+    das:
+    - /WtoLNu-4Jets_Bin-HT-2500-MLNu-0to120_TuneCP5_13p6TeV_madgraphMLM-pythia8/yiyangz-ScoutingNano_MC_WtoLNu-4Jets_Bin-HT-2500-MLNu-0to120_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 56
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 13634921
+      genweight_mean: 0.3332638423063706
+      weight_pu_mean: 0.9999903246496633
+      weight_pu_up_mean: 0.9999009319375778
+      weight_pu_down_mean: 0.9999993267047599
+    xsec_fb: 47.4075
+  wlnu_h2500_m120:
+    das:
+    - /WtoLNu-4Jets_Bin-HT-2500-MLNu-120_TuneCP5_13p6TeV_madgraphMLM-pythia8/yiyangz-ScoutingNano_MC_WtoLNu-4Jets_Bin-HT-2500-MLNu-120_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 57
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 13583419
+      genweight_mean: 0.004197932187224807
+      weight_pu_mean: 1.0000145623864911
+      weight_pu_up_mean: 0.9999208520150841
+      weight_pu_down_mean: 1.00002736585133
+    xsec_fb: 0.565617
+  wlnu_h400to800_m0to120:
+    das:
+    - /WtoLNu-4Jets_Bin-HT-400to800-MLNu-0to120_TuneCP5_13p6TeV_madgraphMLM-pythia8/yiyangz-ScoutingNano_MC_WtoLNu-4Jets_Bin-HT-400to800_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 58
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 122052338
+      genweight_mean: 627.6762731111847
+      weight_pu_mean: 1.0000047419786995
+      weight_pu_up_mean: 0.9998963149218849
+      weight_pu_down_mean: 1.0000139300098971
+    xsec_fb: 95165.5
+  wlnu_h400to800_m120:
+    das:
+    - /WtoLNu-4Jets_Bin-HT-400to800-MLNu-120_TuneCP5_13p6TeV_madgraphMLM-pythia8/yiyangz-ScoutingNano_MC_WtoLNu-4Jets_Bin-HT-400to800-MLNu-120_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 59
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 14453377
+      genweight_mean: 6.203135427965912
+      weight_pu_mean: 0.9999952815336326
+      weight_pu_up_mean: 0.999961310412622
+      weight_pu_down_mean: 1.0000154792971094
+    xsec_fb: 823.203
+  wlnu_h40to100_m0to120:
+    das:
+    - /WtoLNu-4Jets_Bin-HT-40to100-MLNu-0to120_TuneCP5_13p6TeV_madgraphMLM-pythia8/yiyangz-ScoutingNano_MC_WtoLNu-4Jets_Bin-HT-40to100-MLNu-0to120_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 60
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 353360659
+      genweight_mean: 22087.13661045476
+      weight_pu_mean: 0.9999825196617944
+      weight_pu_up_mean: 0.999875174014347
+      weight_pu_down_mean: 0.9999997550869846
+    xsec_fb: 6906390
+  wlnu_h800to1500_m0to120:
+    das:
+    - /WtoLNu-4Jets_Bin-HT-800to1500-MLNu-0to120_TuneCP5_13p6TeV_madgraphMLM-pythia8/yiyangz-ScoutingNano_MC_WtoLNu-4Jets_Bin-HT-800to1500-MLNu-0to120_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 61
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 15283623
+      genweight_mean: 69.22221331456167
+      weight_pu_mean: 0.9999903179453594
+      weight_pu_up_mean: 0.9999009325125278
+      weight_pu_down_mean: 0.9999993129985537
+    xsec_fb: 9743.99
+  wlnu_h800to1500_m120:
+    das:
+    - /WtoLNu-4Jets_Bin-HT-800to1500-MLNu-120_TuneCP5_13p6TeV_madgraphMLM-pythia8/yiyangz-ScoutingNano_MC_WtoLNu-4Jets_Bin-HT-800to1500-MLNu-120_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 62
+    process_class: VJets
+    has_theory_weights: true
+    legacy:
+      raw_entries: 12043931
+      genweight_mean: 0.7511474347965437
+      weight_pu_mean: 0.9999601188166146
+      weight_pu_up_mean: 0.9998108156743534
+      weight_pu_down_mean: 0.9999730784870894
+    xsec_fb: 94.9677
+  WWTo4Q:
+    das:
+    - /WWto4Q-1Jets-4FS_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/yiyangz-ScoutingNano_MC_WWto4Q_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 63
+    process_class: null
+    has_theory_weights: true
+    legacy:
+      raw_entries: 12090004
+      genweight_mean: 91.28937280102649
+      weight_pu_mean: 0.9999903211779552
+      weight_pu_up_mean: 0.9999009267254253
+      weight_pu_down_mean: 0.9999993329638996
+    xsec_fb: 62473
+  WWToLNu2Q:
+    das:
+    - /WWtoLNu2Q-1Jets-4FS_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/yiyangz-ScoutingNano_MC_WWtoLNu2Q_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 64
+    process_class: null
+    has_theory_weights: true
+    legacy:
+      raw_entries: 100815753
+      genweight_mean: 87.84947548452581
+      weight_pu_mean: 0.999990325235773
+      weight_pu_up_mean: 0.9999009341069494
+      weight_pu_down_mean: 0.9999993302046676
+    xsec_fb: 60648
+  WZto2L2Q:
+    das:
+    - /WZto2L2Q-1Jets-4FS_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/yiyangz-ScoutingNano_MC_WZto2L2Q_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 65
+    process_class: null
+    has_theory_weights: true
+    legacy:
+      raw_entries: 15032979
+      genweight_mean: 10.81817680868194
+      weight_pu_mean: 0.9999903170489011
+      weight_pu_up_mean: 0.9999009381127776
+      weight_pu_down_mean: 0.9999993298212896
+    xsec_fb: 7017
+  WZto2Nu2Q:
+    das:
+    - /WZto2Nu2Q-1Jets-4FS_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/yiyangz-ScoutingNano_MC_Zto2Nu2Q_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 66
+    process_class: null
+    has_theory_weights: true
+    legacy:
+      raw_entries: 7738130
+      genweight_mean: 11.93124440919939
+      weight_pu_mean: 0.9999903224029176
+      weight_pu_up_mean: 0.9999009296858573
+      weight_pu_down_mean: 0.9999993175703069
+    xsec_fb: 7502
+  WZto4Q:
+    das:
+    - /WZto4Q-1Jets-4FS_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/yiyangz-ScoutingNano_MC_WZto4Q_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 67
+    process_class: VV
+    has_theory_weights: true
+    legacy:
+      raw_entries: 6132868
+      genweight_mean: 41.48013645963364
+      weight_pu_mean: 0.9999903250885
+      weight_pu_up_mean: 0.9999009346560248
+      weight_pu_down_mean: 0.9999993257397568
+    xsec_fb: 25966
+  WZtoLNu2Q:
+    das:
+    - /WZtoLNu2Q-1Jets-4FS_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/yiyangz-ScoutingNano_MC_WZtoLNu2Q_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 68
+    process_class: null
+    has_theory_weights: true
+    legacy:
+      raw_entries: 30788498
+      genweight_mean: 20.074473286846345
+      weight_pu_mean: 0.9999903341328132
+      weight_pu_up_mean: 0.9999010228860417
+      weight_pu_down_mean: 0.9999993175185671
+    xsec_fb: 12639
+  ZZto2L2Q:
+    das:
+    - /ZZto2L2Q-1Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/yiyangz-ScoutingNano_MC_ZZto2L2Q_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 69
+    process_class: null
+    has_theory_weights: true
+    legacy:
+      raw_entries: 21572700
+      genweight_mean: 6.190280904716709
+      weight_pu_mean: 0.9999903193184484
+      weight_pu_up_mean: 0.9999009380783416
+      weight_pu_down_mean: 0.9999993157615905
+    xsec_fb: 4459
+  ZZto2Nu2Q:
+    das:
+    - /ZZto2Nu2Q-1Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/yiyangz-ScoutingNano_MC_ZZto2Nu2Q_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 70
+    process_class: null
+    has_theory_weights: true
+    legacy:
+      raw_entries: 5026604
+      genweight_mean: 7.565896876137441
+      weight_pu_mean: 0.9999903155824426
+      weight_pu_up_mean: 0.9999009330009261
+      weight_pu_down_mean: 0.9999993192265275
+    xsec_fb: 5223
+  ZZto4Q:
+    das:
+    - /ZZto4Q-1Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/yiyangz-ScoutingNano_MC_ZZto4Q_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 71
+    process_class: VV
+    has_theory_weights: true
+    legacy:
+      raw_entries: 4971870
+      genweight_mean: 13.252017957615152
+      weight_pu_mean: 0.9999903273920655
+      weight_pu_up_mean: 0.999900939402599
+      weight_pu_down_mean: 0.9999993249844471
+    xsec_fb: 9047
+  GluGluZH-Zto2L-Hto2Wto2L2Nu:
+    das:
+    - /GluGluZH-Zto2L-Hto2Wto2L2Nu_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_GluGluZH-Zto2L-Hto2Wto2L2Nu_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 72
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 6730998
+      genweight_mean: 0.06813219999999998
+      weight_pu_mean: 0.9999903223340005
+      weight_pu_up_mean: 0.9999010308283759
+      weight_pu_down_mean: 0.9999993303728184
+    xsec_fb: 0.156118
+  GluGluZH-Zto2L-Hto2Wto4Q:
+    das:
+    - /GluGluZH-Zto2L-Hto2Wto4Q_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_GluGluZH-Zto2L-Hto2Wto4Q_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 73
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 6710000
+      genweight_mean: 0.0681322
+      weight_pu_mean: 0.9999801865291994
+      weight_pu_up_mean: 0.9998119400278866
+      weight_pu_down_mean: 0.9999985381808082
+    xsec_fb: 0.667521
+  GluGluZH-Zto2L-Hto2WtoLNu2Q:
+    das:
+    - /GluGluZH-Zto2L-Hto2WtoLNu2Q_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_GluGluZH-Zto2L-Hto2WtoLNu2Q_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 74
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 6741998
+      genweight_mean: 0.06813219999999999
+      weight_pu_mean: 0.9999903215034233
+      weight_pu_up_mean: 0.999900933406615
+      weight_pu_down_mean: 0.9999993261199759
+    xsec_fb: 0.645637
+  GluGluZH-Zto2Q-Hto2Wto2L2Nu:
+    das:
+    - /GluGluZH-Zto2Q-Hto2Wto2L2Nu_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_GluGluZH-Zto2Q-Hto2Wto2L2Nu_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 75
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 6756000
+      genweight_mean: 0.06813219999999999
+      weight_pu_mean: 0.9999801754592116
+      weight_pu_up_mean: 0.9998119450327392
+      weight_pu_down_mean: 0.9999985362246794
+    xsec_fb: 1.080948
+  GluGluZH-Zto2Q-Hto2WtoLNu2Q:
+    das:
+    - /GluGluZH-Zto2Q-Hto2WtoLNu2Q_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_GluGluZH-Zto2Q-Hto2WtoLNu2Q_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 76
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 6769000
+      genweight_mean: 0.06813219999999998
+      weight_pu_mean: 0.9999903310095779
+      weight_pu_up_mean: 0.9999009251739422
+      weight_pu_down_mean: 0.9999993268869265
+    xsec_fb: 4.47035
+  WminusH-Wto2Q-Hto2Wto2L2Nu:
+    das:
+    - /WminusH-Wto2Q-Hto2Wto2L2Nu_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_WminusH-Wto2Q-Hto2Wto2L2Nu_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 77
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 3341371
+      genweight_mean: 0.5806273199952955
+      weight_pu_mean: 0.9999801811788486
+      weight_pu_up_mean: 0.9998119470925066
+      weight_pu_down_mean: 0.9999985322709547
+    xsec_fb: 11.235491
+  WminusH-Wto2Q-Hto2WtoLNu2Q:
+    das:
+    - /WminusH-Wto2Q-Hto2WtoLNu2Q_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_WminusH-Wto2Q-Hto2WtoLNu2Q_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 78
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 3397929
+      genweight_mean: 0.580502576130343
+      weight_pu_mean: 0.9999801804394989
+      weight_pu_up_mean: 0.9998119454393473
+      weight_pu_down_mean: 0.9999985461826596
+    xsec_fb: 46.465304
+  WminusH-WtoLNu-Hto2Wto2L2Nu:
+    das:
+    - /WminusH-WtoLNu-Hto2Wto2L2Nu_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_WminusH-WtoLNu-Hto2Wto2L2Nu_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 79
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 3386948
+      genweight_mean: 0.580582612244416
+      weight_pu_mean: 0.9999903197295129
+      weight_pu_up_mean: 0.9999009377190939
+      weight_pu_down_mean: 0.999999328393848
+    xsec_fb: 5.433571
+  WminusH-WtoLNu-Hto2Wto4Q:
+    das:
+    - /WminusH-WtoLNu-Hto2Wto4Q_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_WminusH-WtoLNu-Hto2Wto4Q_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 80
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 3341497
+      genweight_mean: 0.580597707298256
+      weight_pu_mean: 0.9999903284504114
+      weight_pu_up_mean: 0.9999009419185882
+      weight_pu_down_mean: 0.9999993192244079
+    xsec_fb: 23.232652
+  WminusH-WtoLNu-Hto2WtoLNu2Q:
+    das:
+    - /WminusH-WtoLNu-Hto2WtoLNu2Q_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_WminusH-WtoLNu-Hto2WtoLNu2Q_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 81
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 3325512
+      genweight_mean: 0.5807753927383212
+      weight_pu_mean: 0.9999801800815121
+      weight_pu_up_mean: 0.9998119488215751
+      weight_pu_down_mean: 0.9999985321051755
+    xsec_fb: 22.470982
+  WplusH-Wto2Q-Hto2WtoLNu2Q:
+    das:
+    - /WplusH-Wto2Q-Hto2WtoLNu2Q_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_WplusH-Wto2Q-Hto2WtoLNu2Q_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 82
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 3391045
+      genweight_mean: 0.5786879535789119
+      weight_pu_mean: 0.9999801814807694
+      weight_pu_up_mean: 0.9998119484093003
+      weight_pu_down_mean: 0.9999985387771948
+    xsec_fb: 46.465304
+  WplusH-WtoLNu-Hto2Wto2L2Nu:
+    das:
+    - /WplusH-WtoLNu-Hto2Wto2L2Nu_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_WplusH-WtoLNu-Hto2Wto2L2Nu_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 83
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 3393951
+      genweight_mean: 0.5779543522390278
+      weight_pu_mean: 0.999970050729481
+      weight_pu_up_mean: 0.9997372968583128
+      weight_pu_down_mean: 0.999997631279469
+    xsec_fb: 5.433571
+  WplusH-WtoLNu-Hto2Wto4Q:
+    das:
+    - /WplusH-WtoLNu-Hto2Wto4Q_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_WplusH-WtoLNu-Hto2Wto4Q_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 84
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 3396967
+      genweight_mean: 0.5781798631850122
+      weight_pu_mean: 0.9999700597222364
+      weight_pu_up_mean: 0.9997372959039321
+      weight_pu_down_mean: 0.9999976273270492
+    xsec_fb: 23.232652
+  WplusH-WtoLNu-Hto2WtoLNu2Q:
+    das:
+    - /WplusH-WtoLNu-Hto2WtoLNu2Q_M-125_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_WplusH-WtoLNu-Hto2WtoLNu2Q_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 85
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 3396968
+      genweight_mean: 0.5781411878357409
+      weight_pu_mean: 0.9999903245217683
+      weight_pu_up_mean: 0.9999009289940815
+      weight_pu_down_mean: 0.9999993175512109
+    xsec_fb: 22.470982
+  ZH-Zto2L-Hto2Wto2L2Nu:
+    das:
+    - /ZH-Zto2L-Hto2Wto2L2Nu_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_ZH-Zto2L-Hto2Wto2L2Nu_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 86
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 6643616
+      genweight_mean: 0.8424983146680953
+      weight_pu_mean: 0.9999903393689074
+      weight_pu_up_mean: 0.9999009351334164
+      weight_pu_down_mean: 0.9999993119026537
+    xsec_fb: 2.175739
+  ZH-Zto2L-Hto2Wto4Q:
+    das:
+    - /ZH-Zto2L-Hto2Wto4Q_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_ZH-Zto2L-Hto2Wto4Q_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 87
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 6692810
+      genweight_mean: 0.8423715693175203
+      weight_pu_mean: 0.9999903119816955
+      weight_pu_up_mean: 0.9999009384001131
+      weight_pu_down_mean: 0.9999993198335193
+    xsec_fb: 9.30294
+  ZH-Zto2L-Hto2WtoLNu2Q:
+    das:
+    - /ZH-Zto2L-Hto2WtoLNu2Q_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_ZH-Zto2L-Hto2WtoLNu2Q_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 88
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 6774279
+      genweight_mean: 0.8424971256954419
+      weight_pu_mean: 0.9999903184444157
+      weight_pu_up_mean: 0.9999009305747045
+      weight_pu_down_mean: 0.9999993217343247
+    xsec_fb: 8.997948
+  ZH-Zto2Q-Hto2Wto2L2Nu:
+    das:
+    - /ZH-Zto2Q-Hto2Wto2L2Nu_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_ZH-Zto2Q-Hto2Wto2L2Nu_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 89
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 6704760
+      genweight_mean: 0.8429604963390178
+      weight_pu_mean: 0.9999903069433914
+      weight_pu_up_mean: 0.9999009326058356
+      weight_pu_down_mean: 0.9999993208298524
+    xsec_fb: 15.06468
+  ZH-Zto2Q-Hto2WtoLNu2Q:
+    das:
+    - /ZH-Zto2Q-Hto2WtoLNu2Q_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_ZH-Zto2Q-Hto2WtoLNu2Q_v5-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 90
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 6737862
+      genweight_mean: 0.8434378768238341
+      weight_pu_mean: 0.999990332190499
+      weight_pu_up_mean: 0.9999009291551446
+      weight_pu_down_mean: 0.9999993251699097
+    xsec_fb: 62.301232
+  ZZto4L:
+    das:
+    - /ZZto4L-1Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/yiyangz-ScoutingNano_MC_ZZto4L_260713_v5-00000000000000000000000000000000/USER
+    kind: background
+    sample_id: 91
+    process_class: null
+    has_theory_weights: true
+    legacy:
+      raw_entries: 40586133
+      genweight_mean: 2.1717095831950606
+      weight_pu_mean: 0.9999903191934768
+      weight_pu_up_mean: 0.9999009346952948
+      weight_pu_down_mean: 0.9999993176532639
+    xsec_fb: 1732
+  WplusH-Wto2Q-Hto2Wto2L2Nu:
+    das:
+    - /WplusH_Wto2Q_Hto2Wto2L2Nu_M-125_Par-M-125_TuneCP5_13p6TeV_powhegMINLO-jhugen-pythia8/jschulte-ScoutingNano_MC_WplusH-Wto2Q-Hto2Wto2L2Nu_v5_jetMatchFix-00000000000000000000000000000000/USER
+    kind: signal
+    sample_id: 92
+    process_class: VH
+    has_theory_weights: true
+    legacy:
+      raw_entries: 3392002
+      genweight_mean: 0.5786429049888534
+      weight_pu_mean: 0.9999801943170925
+      weight_pu_up_mean: 0.9998119423439072
+      weight_pu_down_mean: 0.9999985403970412
+    xsec_fb: 11.235491

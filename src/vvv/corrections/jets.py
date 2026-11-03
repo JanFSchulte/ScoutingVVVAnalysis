@@ -79,12 +79,14 @@ class RhoRecovery:
         rho = np.asarray(rho, dtype=np.float64)
         above = rho > rmax
         below = rho < 0.0
-        inner = np.clip(rho, 0.0, rmax)
-        reflected = np.where(above, 2 * rmax - rho, np.where(below, -rho, inner))
+        reflected = np.where(above, 2 * rmax - rho, np.where(below, -rho, rho))
         value = self._jec(area, eta, phi, raw_pt, reflected)
-        edge = np.where(above, rmax, 0.0)
-        edge_value = self._jec(area, eta, phi, raw_pt, edge)
-        return np.where(above | below, 2.0 * edge_value - value, value)
+        outside = np.flatnonzero(above | below)
+        if len(outside):
+            o = outside
+            edge = np.where(above[o], rmax, 0.0)
+            value[o] = 2.0 * self._jec(area[o], eta[o], phi[o], raw_pt[o], edge) - value[o]
+        return value
 
     def _carries(self, area, eta, phi, raw_pt, stored):
         low = self._jec(area, eta, phi, raw_pt, np.zeros_like(raw_pt))
@@ -92,39 +94,39 @@ class RhoRecovery:
         return low - high > self.cfg.min_sensitivity * stored
 
     def _solve(self, area, eta, phi, raw_pt, stored):
-        """Illinois regula falsi on [-margin, rho_max + margin]; returns (rho, ok)."""
+        """Illinois regula falsi on [-margin, rho_max + margin]; returns (rho, ok).
+
+        Same per-jet iteration as legacy solveRho; only unconverged jets are evaluated.
+        """
         c = self.cfg
-
-        def residual(r):
-            return self._extended(area, eta, phi, raw_pt, r) - stored
-
-        low = np.full_like(raw_pt, -c.bracket_margin)
-        high = np.full_like(raw_pt, c.rho_max + c.bracket_margin)
-        f_low = residual(low)
-        f_high = residual(high)
+        n = len(raw_pt)
+        low = np.full(n, -c.bracket_margin)
+        high = np.full(n, c.rho_max + c.bracket_margin)
+        f_low = self._extended(area, eta, phi, raw_pt, low) - stored
+        f_high = self._extended(area, eta, phi, raw_pt, high) - stored
         ok = (f_low >= 0) & (f_high <= 0) & (f_low > f_high)
-        rho = np.zeros_like(raw_pt)
-        side = np.zeros(raw_pt.shape, dtype=np.int8)
-        active = ok.copy()
+        rho = np.zeros(n)
+        side = np.zeros(n, dtype=np.int8)
+        act = np.flatnonzero(ok)
         for _ in range(c.solver_iterations):
-            if not active.any():
+            if not len(act):
                 break
-            with np.errstate(invalid="ignore", divide="ignore"):
-                guess = (low * f_high - high * f_low) / (f_high - f_low)
-            rho = np.where(active, guess, rho)
-            f = residual(np.where(active, rho, 0.0))
-            done = active & (np.abs(f) <= 1e-10)
-            step = active & ~done
+            lo, hi, flo, fhi = low[act], high[act], f_low[act], f_high[act]
+            guess = (lo * fhi - hi * flo) / (fhi - flo)
+            rho[act] = guess
+            f = self._extended(area[act], eta[act], phi[act], raw_pt[act], guess) - stored[act]
+            step = ~(np.abs(f) <= 1e-10)
             pos = step & (f > 0)
             neg = step & ~(f > 0)
-            f_high = np.where(pos & (side == 1), 0.5 * f_high, f_high)
-            low = np.where(pos, rho, low)
-            f_low = np.where(pos, f, f_low)
-            f_low = np.where(neg & (side == -1), 0.5 * f_low, f_low)
-            high = np.where(neg, rho, high)
-            f_high = np.where(neg, f, f_high)
-            side = np.where(pos, 1, np.where(neg, -1, side)).astype(np.int8)
-            active = step
+            sd = side[act]
+            f_high[act] = np.where(pos & (sd == 1), 0.5 * fhi, fhi)
+            f_low[act] = np.where(neg & (sd == -1), 0.5 * flo, flo)
+            low[act] = np.where(pos, guess, lo)
+            f_low[act] = np.where(pos, f, f_low[act])
+            high[act] = np.where(neg, guess, hi)
+            f_high[act] = np.where(neg, f, f_high[act])
+            side[act] = np.where(pos, 1, np.where(neg, -1, sd))
+            act = act[step]
         return np.clip(rho, 0.0, c.rho_max), ok
 
     def _agrees(self, area, eta, phi, raw_pt, stored, carries, rho):
@@ -170,58 +172,72 @@ class RhoRecovery:
         rho[good] = first_rho[good]
         ok |= good
 
-        # Rare events: per-event consensus over neighbouring JEC bins.
+        # Rare events: consensus over neighbouring JEC bins.
         fallback = np.flatnonzero(has_jets & ~good)
-        for ev in fallback:
-            sel = evt == ev
-            value = self._consensus(a[sel], e[sel], p[sel], r[sel], s[sel])
-            if value is not None:
-                rho[ev] = value
-                ok[ev] = True
+        if len(fallback):
+            in_fallback = np.isin(evt, fallback)
+            fi = np.flatnonzero(in_fallback)
+            values = self._consensus(a[fi], e[fi], p[fi], r[fi], s[fi], evt[fi])
+            for ev, value in values.items():
+                if value is not None:
+                    rho[ev] = value
+                    ok[ev] = True
         return rho, ok, len(fallback)
 
-    def _consensus(self, a, e, p, r, s):
-        c = self.cfg
-        d = c.bin_edge_probe
-        axis = [(0.0, 0.0), (d, 0.0), (-d, 0.0), (0.0, d), (0.0, -d)]
-        diagonal = [(de, dp) for de in (d, -d) for dp in (d, -d)]
-        for shifts in (axis, axis + diagonal):
-            value = self._from_shifted_bins(a, e, p, r, s, shifts)
-            if value is not None:
-                return value
-        return None
+    def _shifted_solutions(self, a, e, p, r, s, shifts):
+        """Per (jet, shift): whether the shifted JEC bin counts and its rho solution."""
+        n, m = len(r), len(shifts)
+        de = np.array([x for x, _ in shifts])
+        dp = np.array([y for _, y in shifts])
+        A, R, S = (np.repeat(v, m) for v in (a, r, s))
+        E = (e[:, None] + de[None, :]).ravel()
+        P = (p[:, None] + dp[None, :]).ravel()
+        own = np.tile((de == 0.0) & (dp == 0.0), n)
+        probe = np.full(n * m, self.cfg.bin_probe_rho)
+        own_bin = np.repeat(self._jec(a, e, p, r, np.full(n, self.cfg.bin_probe_rho)), m)
+        same_bin = ~own & (self._jec(A, E, P, R, probe) == own_bin)
+        carries = ~same_bin & self._carries(A, E, P, R, S)
+        sol = np.zeros(n * m)
+        solved = np.zeros(n * m, dtype=bool)
+        ci = np.flatnonzero(carries)
+        if len(ci):
+            sol[ci], solved[ci] = self._solve(A[ci], E[ci], P[ci], R[ci], S[ci])
+        return carries.reshape(n, m), sol.reshape(n, m), solved.reshape(n, m)
 
-    def _from_shifted_bins(self, a, e, p, r, s, shifts):
-        probe = np.full(1, self.cfg.bin_probe_rho)
+    def _consensus(self, a, e, p, r, s, evt):
+        """Legacy consensusRho for every fallback event: {event: rho or None}."""
+        d = self.cfg.bin_edge_probe
+        axis = [(0.0, 0.0), (d, 0.0), (-d, 0.0), (0.0, d), (0.0, -d)]
+        diagonal = [(x, y) for x in (d, -d) for y in (d, -d)]
+        results = {int(ev): None for ev in np.unique(evt)}
+        for shifts in (axis, axis + diagonal):
+            pending = np.array([ev for ev, v in results.items() if v is None])
+            if not len(pending):
+                break
+            sel = np.isin(evt, pending)
+            carries, sol, solved = self._shifted_solutions(a[sel], e[sel], p[sel], r[sel], s[sel], shifts)
+            events = evt[sel]
+            for ev in pending:
+                rows = np.flatnonzero(events == ev)
+                results[int(ev)] = self._median_of_solutions(carries[rows], sol[rows], solved[rows])
+        return results
+
+    def _median_of_solutions(self, carries, sol, solved):
         solutions = []
-        for i in range(len(r)):
-            one = lambda x: np.array([x], dtype=np.float64)  # noqa: E731
-            own_bin = self._jec(one(a[i]), one(e[i]), one(p[i]), one(r[i]), probe)[0]
-            jet_solutions = []
-            carries = False
-            for de, dp in shifts:
-                eta, phi = one(e[i] + de), one(p[i] + dp)
-                own = de == 0.0 and dp == 0.0
-                if not own and self._jec(one(a[i]), eta, phi, one(r[i]), probe)[0] == own_bin:
-                    continue
-                if not self._carries(one(a[i]), eta, phi, one(r[i]), one(s[i]))[0]:
-                    continue
-                carries = True
-                value, ok = self._solve(one(a[i]), eta, phi, one(r[i]), one(s[i]))
-                if ok[0]:
-                    jet_solutions.append(value[0])
-            if not carries:
+        for jet_carries, jet_sol, jet_ok in zip(carries, sol, solved):
+            if not jet_carries.any():
                 continue
-            if not jet_solutions:
+            values = jet_sol[jet_carries & jet_ok]
+            if not len(values):
                 return None
-            solutions.append(jet_solutions)
+            solutions.append(values)
         if not solutions:
             return None
-        for anchor_solutions in solutions:
-            for anchor in anchor_solutions:
-                chosen = [min(js, key=lambda v: abs(v - anchor)) for js in solutions]
+        for anchors in solutions:
+            for anchor in anchors:
+                chosen = np.array([js[np.argmin(np.abs(js - anchor))] for js in solutions])
                 median = float(np.median(chosen))
-                if all(abs(v - median) <= self.cfg.tolerance for v in chosen):
+                if np.all(np.abs(chosen - median) <= self.cfg.tolerance):
                     return median
         return None
 
