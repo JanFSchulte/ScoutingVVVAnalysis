@@ -102,41 +102,48 @@ def load_split_data(cfg, category, fold):
     classes = list(cfg["class_groups"])
 
     splits = {"train": [], "monitor": [], "test": []}
+    split_folds = (("train", None), ("monitor", (fold - 1) % k), ("test", fold))
+
+    def selections(event):
+        folds = (event.astype(np.uint64) % np.uint64(k)).astype(np.int64)
+        return {split: np.flatnonzero(folds == wanted) if wanted is not None else
+                np.flatnonzero((folds != fold) & (folds != (fold - 1) % k)) for split, wanted in split_folds}
+
     for label, cls in enumerate(classes):
         samples = [s for s in cfg["class_groups"][cls] if s not in cc.get("exclude_samples", [])]
-        loaded = []
+        # Pass 1, event and weight only: per-sample caps. A class can hold ~80M skim rows,
+        # so the full columns are read one sample at a time in pass 2.
+        info = []
         for sample in samples:
-            data = _read_sample(cfg["skim_dir"], sample, category, columns)
+            data = _read_sample(cfg["skim_dir"], sample, category, ["event", "weight"])
             if data is None or len(data["event"]) == 0:
                 print(f"  {category}: no skim entries for {sample}, skipped", flush=True)
                 continue
-            loaded.append((sample, data))
-        if not loaded:
+            n_sel = {split: len(sel) for split, sel in selections(data["event"]).items()}
+            info.append((sample, n_sel, max(float(np.sum(np.abs(data["weight"]))), 0.0)))
+        if not info:
             raise RuntimeError(f"{category}: class {cls} has no training events")
 
-        for split, wanted in (("train", None), ("monitor", (fold - 1) % k), ("test", fold)):
-            per_sample = []
-            for sample, data in loaded:
-                folds = (data["event"].astype(np.uint64) % np.uint64(k)).astype(np.int64)
-                sel = np.flatnonzero(folds == wanted) if wanted is not None else np.flatnonzero(
-                    (folds != fold) & (folds != (fold - 1) % k)
-                )
-                per_sample.append((sample, data, sel))
+        caps = {}
+        for split, _ in split_folds:
             # Per-sample entry caps; a class budget is water-filled over its samples.
-            n_avail = np.array([len(sel) for _, _, sel in per_sample], dtype=np.float64)
+            n_avail = np.array([n_sel[split] for _, n_sel, _ in info], dtype=np.float64)
             if split == "train":
                 budget = cc.get("train_events_per_class", {}).get(cls)
                 if budget:
-                    shares = np.array([max(float(np.sum(np.abs(d["weight"]))), 0.0) for _, d, _ in per_sample])
-                    caps = _water_fill(budget, n_avail, shares)
-                    caps = np.minimum(np.maximum(caps, np.minimum(8192, n_avail)), n_avail).astype(np.int64)
+                    shares = np.array([abs_w for _, _, abs_w in info])
+                    c = _water_fill(budget, n_avail, shares)
+                    caps[split] = np.minimum(np.maximum(c, np.minimum(8192, n_avail)), n_avail).astype(np.int64)
                 else:
                     per_sample_cap = cc.get("entries_per_sample_by_class", {}).get(cls, cfg["entries_per_sample"])
-                    caps = np.minimum(n_avail, per_sample_cap).astype(np.int64)
+                    caps[split] = np.minimum(n_avail, per_sample_cap).astype(np.int64)
             else:
-                caps = np.minimum(n_avail, cfg["eval_entries_per_sample"]).astype(np.int64)
+                caps[split] = np.minimum(n_avail, cfg["eval_entries_per_sample"]).astype(np.int64)
 
-            for (sample, data, sel), cap in zip(per_sample, caps):
+        for i, (sample, _, _) in enumerate(info):
+            data = _read_sample(cfg["skim_dir"], sample, category, columns)
+            for split, sel in selections(data["event"]).items():
+                cap = caps[split][i]
                 if len(sel) == 0:
                     continue
                 pick = sel[_subsample(len(sel), int(cap), f"{category}/{sample}/{split}")]
@@ -166,11 +173,13 @@ def load_split_data(cfg, category, fold):
         out[split] = {"X": X, "w": w, "y": y,
                       "event": np.concatenate([p["event"] for p in parts]),
                       "sample": np.concatenate([p["sample"] for p in parts])}
+        parts.clear()
     if len(out["train"]["y"]):
         order = np.random.default_rng(42).permutation(len(out["train"]["y"]))
-        tr = out["train"]
+        tr = out.pop("train")
         out["train"] = {k_: ({c: v[order] for c, v in val.items()} if isinstance(val, dict) else val[order])
                         for k_, val in tr.items()}
+        del tr
     return out
 
 
