@@ -164,6 +164,8 @@ def run(
     metadata_dir: Path = METADATA_DIR,
     unblind: bool = False,
     xrootd_timeout: int = 300,
+    batch_files: int = typer.Option(None, help="with --skim-dir: process each sample in batches of N files, "
+                                    "each resumable on its own (large samples over unreliable links)"),
 ):
     """Process samples: skims and/or mass-fit histograms for nominal and all variations."""
     from coffea import processor
@@ -203,11 +205,13 @@ def run(
     # Skims: one sample at a time and no skipped files, so every skim covers its whole
     # sample. A finished sample gets <skim_dir>/<sample>/_DONE.json and is skipped on a rerun;
     # chunk files are named by file and entry range, so re-running a failed sample overwrites
-    # its partial output instead of duplicating it.
+    # its partial output instead of duplicating it. With --batch-files the same holds per batch
+    # of files (<skim_dir>/<sample>/_batches/b<N>_<i>.json), and _DONE.json follows the last batch.
     client = _gateway_client() if gateway else None
     runner = processor.Runner(executor=_executor(workers, gateway, client), schema=VVVScoutingSchema,
                               chunksize=chunksize, maxchunks=maxchunks, xrootdtimeout=xrootd_timeout)
     hist_dir = output or _work_dir() / "hists" / skim_dir.name
+    complete = maxchunks is None and max_files is None
     failed = []
     for name in samples:
         done = skim_dir / name / "_DONE.json"
@@ -215,21 +219,54 @@ def run(
             typer.echo(f"{name}: done, skipped")
             continue
         files = _load_filelist(name, redirector)[:max_files]
-        try:
-            out = runner({name: {"files": {f: "Events" for f in files}}}, proc, treename="Events")
-        except Exception as err:  # noqa: BLE001 - report it, go on with the other samples
-            failed.append(name)
-            typer.echo(f"{name}: FAILED {type(err).__name__}: {err}")
+        if not batch_files:
+            try:
+                out = runner({name: {"files": {f: "Events" for f in files}}}, proc, treename="Events")
+            except Exception as err:  # noqa: BLE001 - report it, go on with the other samples
+                failed.append(name)
+                typer.echo(f"{name}: FAILED {type(err).__name__}: {err}")
+                continue
+            _dump(out, hist_dir / f"{name}.pkl")
+            if complete:
+                _write_done(done, len(files), chunksize, out["cutflow"][name])
+            typer.echo(f"{name}: {json.dumps(out['cutflow'][name])}")
             continue
-        _dump(out, hist_dir / f"{name}.pkl")
-        if maxchunks is None and max_files is None:
-            done.parent.mkdir(parents=True, exist_ok=True)
-            done.write_text(json.dumps({"n_files": len(files), "chunksize": chunksize,
-                                        "cutflow": out["cutflow"][name]}, indent=1))
-        typer.echo(f"{name}: {json.dumps(out['cutflow'][name])}")
+
+        batches = [files[i:i + batch_files] for i in range(0, len(files), batch_files)]
+        markers = [skim_dir / name / "_batches" / f"b{batch_files}_{i:05d}.json" for i in range(len(batches))]
+        n_failed = 0
+        for i, (batch, marker) in enumerate(zip(batches, markers)):
+            if marker.exists():
+                continue
+            try:
+                out = runner({name: {"files": {f: "Events" for f in batch}}}, proc, treename="Events")
+            except Exception as err:  # noqa: BLE001 - report it, go on with the next batch
+                n_failed += 1
+                typer.echo(f"{name} batch {i}/{len(batches)}: FAILED {type(err).__name__}: {err}")
+                continue
+            _dump(out, hist_dir / name / f"b{batch_files}_{i:05d}.pkl")
+            if complete:
+                marker.parent.mkdir(parents=True, exist_ok=True)
+                marker.write_text(json.dumps({"files": batch, "cutflow": out["cutflow"][name]}, indent=1))
+            typer.echo(f"{name} batch {i}/{len(batches)}: {json.dumps(out['cutflow'][name])}")
+        if n_failed:
+            failed.append(name)
+            typer.echo(f"{name}: {n_failed} of {len(batches)} batches failed")
+        elif complete:
+            cutflow = {}
+            for marker in markers:
+                for key, n in json.loads(marker.read_text())["cutflow"].items():
+                    cutflow[key] = cutflow.get(key, 0) + n
+            _write_done(done, len(files), chunksize, cutflow, batch_files=batch_files)
+            typer.echo(f"{name}: {json.dumps(cutflow)}")
     if failed:
         typer.echo(f"{len(failed)} samples failed (rerun to retry): {' '.join(failed)}")
         raise typer.Exit(1)
+
+
+def _write_done(done: Path, n_files: int, chunksize: int, cutflow: dict, **extra):
+    done.parent.mkdir(parents=True, exist_ok=True)
+    done.write_text(json.dumps({"n_files": n_files, "chunksize": chunksize, **extra, "cutflow": cutflow}, indent=1))
 
 
 def _dump(out, output: Path):
