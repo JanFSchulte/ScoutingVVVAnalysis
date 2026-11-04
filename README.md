@@ -44,8 +44,12 @@ signal-region assignment and the mass-fit histograms:
 
 MC is normalised to `--lumi` (default 255.8 fb^-1, the projection target). Data
 in an SR box inside the 50-150 GeV mass window is dropped unless `--unblind`.
-`--gateway` runs on the user's Dask Gateway cluster (create it with
-`pixi_project` set to this directory). The default `--redirector auto` reads
+`--gateway` runs on the user's Dask Gateway cluster. Create it with `pixi_project` set to
+the world-readable mirror (`scripts/sync_work_mirror.sh`) and with env
+`X509_USER_PROXY=/work/users/$USER/x509up` and
+`X509_CERT_DIR=/cvmfs/cms.cern.ch/grid/etc/grid-security/certificates`: the workers have no
+CA directory of their own, and without it every read from a non-Purdue site fails as
+"Operation expired" (GSI cannot verify the server). The default `--redirector auto` reads
 `/store/user/jschulte/` from Purdue EOS (`root://eos.cms.rcac.purdue.edu/`) and every
 other file through `root://cms-xrd-global.cern.ch/`, as the legacy conversion does;
 XCache timed out on these user files on 2026-11-03. `--redirector /eos/purdue` reads
