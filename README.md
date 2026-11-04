@@ -83,6 +83,19 @@ The models land in the legacy layout (`<output_dir>/<category>/fold<r>/<category
 <category>=<output_dir>` uses them directly. Events are assigned to folds by `event % 5`, for
 MC and data alike.
 
+Every fold ends with the legacy diagnostic plots (`src/vvv/ml/plots.py`), written into its fold
+directory with the legacy names: `roc_*`, `score_*_vs_*`, `importance`, `decor_corr_{train,test}`,
+`decor_score_vs_branch`, `decor_branch_shapes_by_signal_score` (each `_cls` for stage 1 and
+`_decorr` for the final model), `feature_corr`, `loss_*`, `branches/`, and `plot_summary.json`
+(AUCs and score/mass correlations). A plotting failure is logged and does not fail the fold.
+To (re)make them on CPU, e.g. after a failure or for folds trained before the plots existed
+(their loss curves are recomputed from the model every `--loss-every` rounds):
+
+```bash
+/work/pixi/global/.pixi/envs/default/bin/python scripts/plot_training.py /work/users/$USER/vvv/models/production \
+    [--categories boosted3] [--folds 0 1] [--overwrite]
+```
+
 What follows legacy exactly: features, thresholds, preprocessing, the weight chain
 (sample normalisation, sign-preserving |w|, class balancing after cuts, cap at 20 x the class
 mean), the stage-1 learning-rate schedule and early stopping (checks every 5 rounds), and the

@@ -167,10 +167,11 @@ def load_split_data(cfg, category, fold):
         X = {c: np.concatenate([p["X"][c] for p in parts]) for c in features + decor}
         w = np.concatenate([p["w"] for p in parts])
         y = np.concatenate([p["y"] for p in parts])
-        w = _balance(w, y, len(classes))
+        w = w_diag = _balance(w, y, len(classes))
         if split in ("train", "monitor") and cfg["categories"][category].get("training_weight_cap"):
             w = _cap(w, y, len(classes), cfg["categories"][category]["training_weight_cap"])
-        out[split] = {"X": X, "w": w, "y": y,
+        # w: what the model is fitted and monitored with; w_diag: before the cap (diagnostic plots).
+        out[split] = {"X": X, "w": w, "w_diag": w_diag, "y": y,
                       "event": np.concatenate([p["event"] for p in parts]),
                       "sample": np.concatenate([p["sample"] for p in parts])}
         parts.clear()
@@ -365,7 +366,11 @@ def cross_entropy_sum(margins, y, w):
 
 
 def _callback(loss_fn, cfg, cc, lr0, tree_offset, record):
-    """Legacy _DetailedLossMonitor: check every 5 rounds, halve lr on a miss, stop at the floor."""
+    """Legacy _DetailedLossMonitor: check every 5 rounds, halve lr on a miss, stop at the floor.
+
+    loss_fn(model, rounds) returns {"monitor": {...}, "train": {...}} loss components; the
+    monitor "total" drives the schedule, all of them go to record["components"] (loss plots).
+    """
     import xgboost as xgb
 
     every = cfg["metric_eval_every"]
@@ -382,8 +387,10 @@ def _callback(loss_fn, cfg, cc, lr0, tree_offset, record):
             record["eta"].append(self.lr)
             if epoch % every:
                 return False
-            loss = loss_fn(model, tree_offset + epoch + 1)
+            comps = loss_fn(model, tree_offset + epoch + 1)
+            loss = comps["monitor"]["total"]
             record["loss"].append((epoch, loss, self.lr))
+            record.setdefault("components", []).append((tree_offset + epoch + 1, comps))
             if loss < self.best - 1e-12:
                 self.best, self.best_iter, self.stale, self.lr_stale = loss, epoch, 0, 0
                 return False
@@ -473,9 +480,18 @@ def train_fold(cfg, category, fold, device="cuda"):
     def margins(model, d, rounds):
         return model.predict(d, output_margin=True, iteration_range=(0, rounds)).reshape(-1, n_classes)
 
+    def components(m, y, w, decor_term=0.0):
+        ce = cross_entropy_sum(m, y, w)
+        return {"classification": ce, "mlogloss": ce / w.sum(), "decorrelation": decor_term, "total": ce + decor_term}
+
+    def stage1_loss(model, r):
+        # The training-set margins come from XGBoost's prediction cache (no iteration_range).
+        m_tr = model.predict(dtrain, output_margin=True).reshape(-1, n_classes)
+        return {"monitor": components(margins(model, dmon, r), ymo, wmo), "train": components(m_tr, ytr, wtr)}
+
     # Stage 1
     rec1 = {"eta": [], "loss": []}
-    cb1 = _callback(lambda m, r: cross_entropy_sum(margins(m, dmon, r), ymo, wmo), cfg, cc, cc["learning_rate"], 0, rec1)
+    cb1 = _callback(stage1_loss, cfg, cc, cc["learning_rate"], 0, rec1)
     stage1 = xgb.train(params, dtrain, num_boost_round=cc["n_estimators"], callbacks=[cb1], verbose_eval=False)
     rounds1 = cb1.best_iter + 1
     stage1 = stage1[:rounds1]
@@ -509,7 +525,9 @@ def train_fold(cfg, category, fold, device="cuda"):
 
         def total_loss(model, r):
             m = margins(model, dmon, r)
-            return cross_entropy_sum(m, ymo, wmo) + lam * scale * dec_mo(m, with_grad=False)[0]
+            m_tr = model.predict(dtrain, output_margin=True).reshape(-1, n_classes).astype(np.float64)
+            return {"monitor": components(m, ymo, wmo, lam * scale * dec_mo(m, with_grad=False)[0]),
+                    "train": components(m_tr, ytr, wtr, lam * scale * dec_tr(m_tr, with_grad=False)[0])}
 
         rec2 = {"eta": [], "loss": []}
         cb2 = _callback(total_loss, cfg, cc, cc["learning_rate_decorr"], rounds1, rec2)
@@ -521,6 +539,15 @@ def train_fold(cfg, category, fold, device="cuda"):
         print(f"{category} fold{fold}: stage 2 {cb2.best_iter + 1} rounds ({time.time() - t0:.0f} s)", flush=True)
         log["loss_stage2"] = rec2["loss"]
     log["loss_stage1"] = rec1["loss"]
+    # Per split and component, at the evaluated rounds (legacy loss_history, for the loss plots).
+    kept = [(r, c) for r, c in rec1["components"] if r <= rounds1]
+    if final is not stage1:
+        kept += [(r, c) for r, c in rec2["components"] if r <= final.num_boosted_rounds()]
+    if kept:
+        log["loss_components"] = {
+            split: {"round": [r for r, _ in kept], **{k: [c[split][k] for _, c in kept] for k in kept[0][1][split]}}
+            for split in ("train", "monitor")
+        }
 
     # Legacy layout, read by vvv.ml.inference.CategoryModel.
     (out / "branch.json").write_text(json.dumps({category: [{"name": f} for f in features]}, indent=1))
@@ -529,4 +556,17 @@ def train_fold(cfg, category, fold, device="cuda"):
     (out / "config.json").write_text(json.dumps(cfg, indent=1))
     (out / "training_log.json").write_text(json.dumps(log, indent=1, default=float))
     final.save_model(str(out / f"{category}_model.json"))  # last: marks the fold as done
+
+    # Diagnostic plots into the fold directory; a failure is reported, never fails the fold
+    # (scripts/plot_training.py redoes them).
+    try:
+        from vvv.ml.plots import plot_fold
+
+        del dtrain, dmon, Xtr, Xmo
+        written, summary = plot_fold(out, category, cfg, stage1, final, data, log)
+        (out / "plot_summary.json").write_text(json.dumps(summary, indent=1))
+        print(f"{category} fold{fold}: {len(written)} plot files ({time.time() - t0:.0f} s)", flush=True)
+    except Exception as err:  # noqa: BLE001
+        print(f"{category} fold{fold}: plotting FAILED ({type(err).__name__}: {err}); "
+              f"rerun scripts/plot_training.py", flush=True)
     return f"{final.num_boosted_rounds()} rounds in {time.time() - t0:.0f} s"
