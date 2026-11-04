@@ -63,7 +63,7 @@ without a GPU.
 # 1. Training config from the legacy production k-fold configs; QCD x2 over legacy
 #    (class budget in boosted3, per-sample cap 1.5M elsewhere) for the decorrelation
 pixi run python scripts/make_training_config.py configs/training/production.json \
-    --skim-dir /work/users/$USER/vvv/skims --output-dir /work/users/$USER/vvv/models/production \
+    --skim-dir /depot/cms/users/$USER/VVV/skims --output-dir /work/users/$USER/vvv/models/production \
     --class-scale QCD=2
 # 2. Training skims: nominal only, each (sample, category) prescaled to keep 1.5x what the
 #    training config draws from it
@@ -71,6 +71,8 @@ pixi run python scripts/make_skim_prescales.py configs/skim_prescales.json
 pixi run vvv metadata <samples...> --gateway
 pixi run vvv run <samples...> --gateway --skim-dir /work/users/$USER/vvv/skims \
     --skim-prescale configs/skim_prescales.json
+# 2b. One file per chunk is ~200k files and ~100 GB, over the /work quota: merge them onto /depot
+pixi run python scripts/compact_skims.py /work/users/$USER/vvv/skims /depot/cms/users/$USER/VVV/skims --remove-source
 # 3. Submit (resubmitting the same config resumes; finished folds are skipped)
 /work/pixi/global/.pixi/envs/default/bin/python scripts/submit_training.py configs/training/production.json --workers 8
 /work/pixi/global/.pixi/envs/default/bin/python scripts/submit_training.py --logs <job id>

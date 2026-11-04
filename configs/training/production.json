@@ -12,7 +12,7 @@
  "decor_tail_min_prob": 0.0002,
  "decor_tail_n": 10,
  "metric_eval_every": 5,
- "skim_dir": "/work/users/schul105/vvv/skims",
+ "skim_dir": "/depot/cms/users/schul105/VVV/skims",
  "output_dir": "/work/users/schul105/vvv/models/production",
  "class_groups": {
   "VVV": [
