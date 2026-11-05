@@ -30,6 +30,10 @@ TREE_KEYS = (
 )
 
 
+# Not used (a deliberate change from legacy): QCD below HT 200 GeV reaches the selection only through
+# pileup, so these samples are neither skimmed nor trained on.
+NOT_USED = ("qcd_ht40to70", "qcd_ht70to100", "qcd_ht100to200")
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("out")
@@ -45,7 +49,7 @@ def main():
         legacy = json.loads((LEGACY / study / "bdt_config.json").read_text())
         if cfg is None:
             cfg = {k: legacy[k] for k in GLOBAL_KEYS}
-            class_groups = legacy["class_groups"]
+            class_groups = {c: [x for x in members if x not in NOT_USED] for c, members in legacy["class_groups"].items()}
         elif any(legacy[k] != cfg[k] for k in GLOBAL_KEYS):
             raise ValueError(f"{study}: global settings differ from the other categories")
         fold0 = LEGACY / study / tree / "fold0"

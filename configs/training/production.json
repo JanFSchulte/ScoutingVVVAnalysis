@@ -117,9 +117,6 @@
    "dy_h400to800_m50to120"
   ],
   "QCD": [
-   "qcd_ht40to70",
-   "qcd_ht70to100",
-   "qcd_ht100to200",
    "qcd_ht200to400",
    "qcd_ht400to600",
    "qcd_ht600to800",
@@ -1116,10 +1113,7 @@
     "QCD": 1500000
    },
    "exclude_samples": [
-    "qcd_ht100to200",
-    "qcd_ht200to400",
-    "qcd_ht40to70",
-    "qcd_ht70to100"
+    "qcd_ht200to400"
    ]
   }
  },

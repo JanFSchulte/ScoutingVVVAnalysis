@@ -43,6 +43,8 @@ EFF_NORM_FLOOR = 1e-4
 def _read_sample(skim_dir, sample, category, columns):
     import pyarrow.dataset as ds
 
+    if not (Path(skim_dir) / sample / "_DONE.json").exists():
+        raise FileNotFoundError(f"{skim_dir}/{sample}: no finished skim (_DONE.json)")
     path = Path(skim_dir) / sample / category / "nominal"
     if not path.exists():
         return None

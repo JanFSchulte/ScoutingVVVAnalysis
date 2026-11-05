@@ -21,7 +21,8 @@ MASS_BRANCH = "ScoutingFatPFJetRecluster_msoftdrop_1"
 
 def load_skim_inputs(cfg, skim_dir, category, training_config, catalogue=None, log=print):
     """ScanInputs of one category from <skim_dir>/<sample>/<category>/nominal/ for the samples of
-    the training config's class_groups (weights as stored: already x lumi)."""
+    the training config's class_groups bar the category's exclude_samples (weights as stored:
+    already x lumi)."""
     from vvv.samples import load_samples
 
     catalogue = catalogue or load_samples()
@@ -30,11 +31,14 @@ def load_skim_inputs(cfg, skim_dir, category, training_config, catalogue=None, l
     if list(groups) != list(CLASSES):
         raise ValueError(f"class_groups {list(groups)} are not in the model's class order {CLASSES}")
     window = tcfg["categories"][category]["thresholds"][MASS_BRANCH]
+    excluded = set(tcfg["categories"][category].get("exclude_samples", []))
     signal = [all(catalogue[s].kind == "signal" for s in members) for members in groups.values()]
     columns = [f"proba_{c}" for c in CLASSES] + ["weight", MASS_BRANCH]
     parts = []
     for idx, members in enumerate(groups.values()):
         for sample in members:
+            if sample in excluded:
+                continue
             if not (Path(skim_dir) / sample / "_DONE.json").exists():
                 raise FileNotFoundError(f"{skim_dir}/{sample}: no _DONE.json (skim incomplete)")
             path = Path(skim_dir) / sample / category / "nominal"
