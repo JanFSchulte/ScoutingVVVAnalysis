@@ -1,0 +1,49 @@
+{
+ "source": "legacy sr_granularity/kfold_finedecor_jec_powheg_massfit/n4_minb0_minc25/sr_config.json",
+ "lumi": 255.8,
+ "n_signal_regions": 4,
+ "score_axes": "all",
+ "min_bkg_weight": 5.0,
+ "min_signal_weight": 0.0,
+ "min_signal_entries": 0,
+ "min_bkg_entries": 0,
+ "coarse_bin_width": 0.01,
+ "fine_bin_width": 0.001,
+ "fine_refine_window": 0.05,
+ "beam_width": 160,
+ "top_intervals_per_axis": 16,
+ "coordinate_rounds": 12,
+ "fine_refine_passes": 3,
+ "max_selection_candidates": 1500,
+ "selection_reps_per_axis": 150,
+ "branch_bound_max_nodes": 30000000,
+ "branch_bound_time_limit_seconds": 300,
+ "max_threads": 8,
+ "progress_every_seconds": 15,
+ "exclude_samples": [
+  "qcd_ht40to70",
+  "qcd_ht70to100",
+  "qcd_ht100to200",
+  "qcd_ht200to400"
+ ],
+ "abcd_uncertainty": {
+  "branch": "ScoutingFatPFJetRecluster_msoftdrop_1",
+  "control_window": [
+   [
+    20.0,
+    50.0
+   ],
+   [
+    150.0,
+    250.0
+   ]
+  ],
+  "nonclosure": 0.2,
+  "transfer_factors": [
+   1.52,
+   2.1
+  ],
+  "min_control_weight": 25.0
+ },
+ "tie_break": "deterministic"
+}

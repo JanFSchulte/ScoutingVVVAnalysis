@@ -18,11 +18,25 @@ by the ABCD variance of a QCD prediction from msoftdrop control windows (abcd_qc
 plus (nonclosure x QCD)^2, and boxes need min_control_weight expected control events.
 
 Every coarse-stage box has its edges on the coarse grid, so with cells=True the events are
-first summed into the occupied coarse cells and the coarse stage runs on those (exact up to
-floating-point summation order); the fine stage and the final yields use the events.
+first summed into the occupied coarse cells and the coarse stage runs on those; the fine stage
+and the final yields use the events.
+
+tie_break (config key): "legacy" (default) reproduces signal_region_hist.py bit for bit on the
+same hardware, but its many exact ties (boxes whose edges extend into empty space have the same
+S and B) are broken by floating-point summation noise, so the result depends on event order,
+on cells vs events and on the CPU. "deterministic" removes that dependence:
+
+- the per-event weights of every scanned sum (signal w, background w and w^2, QCD w, control
+  variance and count) are rounded to multiples of a power of two chosen so that every partial
+  sum stays below 2^53: all sums are then exact, in any order, for events and cells alike;
+- the Cowan Z uses log1p forms (the legacy ln of a ratio near 1 loses all digits for huge B);
+- candidates are ranked by Z^2 rounded to 10 significant digits, ties broken by the tightest
+  box (smallest total width, then the edges), with stable sorts throughout;
+- the reported yields are exactly rounded sums (math.fsum) of the original weights.
 """
 
 import json
+import math
 import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
@@ -30,6 +44,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 EPS = 1e-12
+Z2_DIGITS = 10  # significant digits of Z^2 compared under tie_break = "deterministic"
 SEED_QUANTILES = (0.5, 0.6, 0.7, 0.8, 0.9, 0.95)
 
 
@@ -94,6 +109,7 @@ class SRConfig:
     zero_count_floor: bool = False
     exclude_samples: list = field(default_factory=list)
     abcd: AbcdConfig | None = None
+    tie_break: str = "legacy"
     raw: dict = field(default_factory=dict, repr=False)
 
     @classmethod
@@ -123,8 +139,11 @@ class SRConfig:
             zero_count_floor=bool(d.get("zero_count_floor", False)),
             exclude_samples=list(d.get("exclude_samples", [])),
             abcd=AbcdConfig.from_dict(d["abcd_uncertainty"]) if d.get("abcd_uncertainty") is not None else None,
+            tie_break=str(d.get("tie_break", "legacy")),
             raw=dict(d),
         )
+        if c.tie_break not in ("legacy", "deterministic"):
+            raise ValueError(f"tie_break must be 'legacy' or 'deterministic', got {c.tie_break!r}")
         c.qcd_coarse_bin_width = float(d.get("qcd_coarse_bin_width", c.coarse_bin_width))
         c.qcd_fine_bin_width = float(d.get("qcd_fine_bin_width", c.fine_bin_width))
         c.qcd_fine_refine_window = float(d.get("qcd_fine_refine_window", c.fine_refine_window))
@@ -134,6 +153,10 @@ class SRConfig:
     def load(cls, path):
         with open(path, encoding="utf-8") as fh:
             return cls.from_dict(json.load(fh))
+
+    @property
+    def deterministic(self):
+        return self.tie_break == "deterministic"
 
     @property
     def need_counts(self):
@@ -235,11 +258,11 @@ class ScanInputs:
 # --- significance -----------------------------------------------------------
 
 
-def asimov_z(S, B, B_var):
+def asimov_z(S, B, B_var, stable=False):
     """Asimov discovery significance with background uncertainty sigma_B^2 = B_var (Cowan):
     Z = sqrt(2[(S+B) ln((S+B)(B+v)/(B^2+(S+B)v)) - (B^2/v) ln(1 + vS/(B(B+v)))]), the
     v -> 0 limit sqrt(2[(S+B) ln(1+S/B) - S]) for v <= 1e-12 B^2. Vectorised; 0 where S <= 0
-    or B <= 0."""
+    or B <= 0. stable: the first log as log1p(SB / (B^2 + (S+B)v)) (same value, no cancellation)."""
     S, B, V = np.broadcast_arrays(np.asarray(S, dtype=float), np.asarray(B, dtype=float),
                                   np.maximum(np.asarray(B_var, dtype=float), 0.0))
     Z = np.zeros(S.shape, dtype=float)
@@ -250,24 +273,25 @@ def asimov_z(S, B, B_var):
         v_safe = np.where(exact, 1.0, v)
         with np.errstate(divide="ignore", invalid="ignore", over="ignore"):
             f_exact = (s + b) * np.log1p(s / b) - s
-            f_unc = ((s + b) * np.log((s + b) * (b + v_safe) / (b * b + (s + b) * v_safe))
-                     - (b * b / v_safe) * np.log1p(v_safe * s / (b * (b + v_safe))))
+            first = (np.log1p(s * b / (b * b + (s + b) * v_safe)) if stable
+                     else np.log((s + b) * (b + v_safe) / (b * b + (s + b) * v_safe)))
+            f_unc = (s + b) * first - (b * b / v_safe) * np.log1p(v_safe * s / (b * (b + v_safe)))
         f = np.where(exact, f_exact, f_unc)
         Z[ok] = np.sqrt(2.0 * np.maximum(np.nan_to_num(f, nan=0.0), 0.0))
     return Z if Z.ndim else float(Z)
 
 
-def asimov_z_with_error(S, B, sS, sB):
+def asimov_z_with_error(S, B, sS, sB, stable=False):
     """(Z, sigma_Z): Z = asimov_z(S, B, sB^2), sigma_Z from the MC statistics sS and sB of S
     and B by central finite differences (sigma_B held fixed)."""
-    Z = float(asimov_z(S, B, sB * sB))
+    Z = float(asimov_z(S, B, sB * sB, stable))
     if Z <= 0.0:
         return 0.0, 0.0
     hS = 1e-6 * max(abs(S), 1e-12)
     hB = 1e-6 * max(abs(B), 1e-12)
     v = sB * sB
-    dZ_dS = (float(asimov_z(S + hS, B, v)) - float(asimov_z(S - hS, B, v))) / (2.0 * hS)
-    dZ_dB = (float(asimov_z(S, B + hB, v)) - float(asimov_z(S, max(B - hB, 1e-300), v))) / (2.0 * hB)
+    dZ_dS = (float(asimov_z(S + hS, B, v, stable)) - float(asimov_z(S - hS, B, v, stable))) / (2.0 * hS)
+    dZ_dB = (float(asimov_z(S, B + hB, v, stable)) - float(asimov_z(S, max(B - hB, 1e-300), v, stable))) / (2.0 * hB)
     return Z, float(np.sqrt((dZ_dS * sS) ** 2 + (dZ_dB * sB) ** 2))
 
 
@@ -336,6 +360,39 @@ def grid_edges(width):
     return np.unique(edges)
 
 
+def quantise(x):
+    """x rounded to multiples of 2^-k, k the largest with sum |x| < 2^52 x 2^-k: every partial sum
+    of the result is then exact in float64, whatever the order."""
+    x = np.asarray(x, dtype=float)
+    total = math.fsum(np.abs(x).tolist())
+    if total <= 0.0:
+        return x.copy()
+    scale = 2.0 ** math.floor(math.log2(2.0 ** 52 / total))
+    return np.rint(x * scale) / scale
+
+
+def round_sig(x, digits=Z2_DIGITS):
+    """x (array, >= 0) rounded to `digits` significant digits (0 and non-finite kept)."""
+    x = np.asarray(x, dtype=float)
+    out = x.copy()
+    ok = np.isfinite(x) & (x > 0.0)
+    if np.any(ok):
+        e = np.floor(np.log10(x[ok]))
+        out[ok] = np.round(x[ok] / 10.0 ** e, digits - 1) * 10.0 ** e
+    return out
+
+
+def _width(lo, hi):
+    return math.fsum(h - lo_ for lo_, h in zip(lo, hi))
+
+
+def rank_key(ctx, it):
+    """Sort key of a candidate, best first: -Z (legacy), or -round(Z^2), tightest box, edges."""
+    if not ctx.cfg.deterministic:
+        return -it["Z"]
+    return (-it["Zq"], _width(it["lo"], it["hi"]), tuple(it["lo"]), tuple(it["hi"]))
+
+
 # --- scan rows (events or coarse cells) --------------------------------------
 
 
@@ -347,19 +404,32 @@ class Rows:
 
     cells = False
 
-    def __init__(self, axes, y, w, is_sig, is_bkg, b2, q, floor_masks, control):
+    def __init__(self, axes, y, w, is_sig, is_bkg, b2, q, floor_masks, control, exact=False):
         self.axes, self.y, self.w = axes, y, w
         self.is_sig, self.is_bkg = is_sig, is_bkg
+        self.w_raw = w
         self.s = np.where(is_sig, w, 0.0)
         self.b = np.where(is_bkg, w, 0.0)
+        self.b2_all = self.b * self.b
         self.b2, self.q = b2, q
         self.floor_masks = floor_masks
         self.control = control  # dict(axes, var, win, w) or None
         self.n = axes.shape[0]
+        self.exact = exact
+        if exact:  # every scanned sum exact (see quantise)
+            self.s, self.b, self.b2_all, self.b2, self.q = (quantise(x) for x in
+                                                            (self.s, self.b, self.b2_all, b2, q))
+            self.w = quantise(w)
+            if control is not None:
+                control["var_raw"], control["w_raw"] = control["var"], control["w"]
+                control["var"], control["w"] = quantise(control["var"]), quantise(control["w"])
 
     def rect_stats(self, m):
         """(S, B, sigma_B MC of all background, S entries, B entries) of the rows m."""
         ms, mb = m & self.is_sig, m & self.is_bkg
+        if self.exact:
+            return (float(self.s[m].sum()), float(self.b[m].sum()), float(np.sqrt(self.b2_all[m].sum())),
+                    int(ms.sum()), int(mb.sum()))
         wS, wB = self.w[ms], self.w[mb]
         return float(wS.sum()), float(wB.sum()), float(np.sqrt((wB ** 2).sum())), int(ms.sum()), int(mb.sum())
 
@@ -420,7 +490,8 @@ class CellRows(Rows):
         self.index = _axis_index(self.idx, axis_edges)
         self.n = n
         self.s, self.b, self.b2, self.q = agg(ev.s), agg(ev.b), agg(ev.b2), agg(ev.q)
-        self.b2_all = agg(ev.b * ev.b)
+        self.b2_all = agg(ev.b2_all)
+        self.exact = ev.exact
         self.ns, self.nb = agg(ev.is_sig), agg(ev.is_bkg)
         self.floor_n = [agg(mc) for mc in ev.floor_masks]
         self.floor_w = [agg(np.where(mc, ev.w, 0.0)) for mc in ev.floor_masks]
@@ -587,7 +658,7 @@ class Ctx:
             if cfg.abcd.transfer_factors is not None:
                 self.tf = np.asarray(cfg.abcd.transfer_factors, dtype=float)
             else:  # QCD MC of the scan / of the control window
-                self.tf = np.array([float(q.sum()) / float(cw[c_qcd & (control["win"] == k)].sum())
+                self.tf = np.array([self.sum(q) / self.sum(cw[c_qcd & (control["win"] == k)])
                                     for k in range(nwin)])
             self.nc2 = cfg.abcd.nonclosure ** 2
             self.min_control = cfg.abcd.min_control_weight
@@ -595,9 +666,9 @@ class Ctx:
         self.floor_classes = [c for c in self.background_classes if not (self.abcd and c in self.qcd_classes)]
         floor_masks = [y == c for c in self.floor_classes]
         self.floor_alpha2 = [(float(np.median(np.abs(w[mc]))) ** 2) if mc.any() else 0.0 for mc in floor_masks]
-        self.events = Rows(axes, y, w, is_sig, is_bkg, b2, q, floor_masks, control)
-        self.S_total = float(self.events.s.sum())
-        self.B_total = float(self.events.b.sum())
+        self.events = Rows(axes, y, w, is_sig, is_bkg, b2, q, floor_masks, control, exact=cfg.deterministic)
+        self.S_total = self.sum(np.where(is_sig, w, 0.0))
+        self.B_total = self.sum(np.where(is_bkg, w, 0.0))
 
         qa = self.qcd_axis()
         coarse = grid_edges(cfg.coarse_bin_width)
@@ -613,6 +684,13 @@ class Ctx:
         self.forbidden = []
         self._t0 = time.monotonic()
         self._last = self._t0
+
+    def sum(self, x):
+        """Sum of x: exactly rounded (math.fsum, order-independent) under tie_break = "deterministic"."""
+        return math.fsum(np.asarray(x, dtype=float).tolist()) if self.cfg.deterministic else float(np.sum(x))
+
+    def z(self, S, B, B2):
+        return asimov_z(S, B, B2, stable=self.cfg.deterministic)
 
     def qcd_axis(self):
         for i, name in enumerate(self.axis_names):
@@ -686,10 +764,13 @@ def evaluate_region(ctx, rows, lo, hi, stats=None):
     if (cfg.min_signal_entries > 0 and S_e < cfg.min_signal_entries) or \
             (cfg.min_bkg_entries > 0 and B_e < cfg.min_bkg_entries):
         return None
-    Z = float(asimov_z(S, B, B2))
+    Z = float(ctx.z(S, B, B2))
     if Z <= 0.0:
         return None
-    return {"lo": lo, "hi": hi, "S": S, "B": B, "Z": Z, "S_entries": S_e, "B_entries": B_e}
+    item = {"lo": lo, "hi": hi, "S": S, "B": B, "Z": Z, "S_entries": S_e, "B_entries": B_e}
+    if cfg.deterministic:
+        item["Zq"] = float(round_sig(Z * Z))
+    return item
 
 
 def top_intervals_on_axis(ctx, rows, d, lo, hi, edges, top_n):
@@ -737,13 +818,17 @@ def top_intervals_on_axis(ctx, rows, d, lo, hi, edges, top_n):
         return []
     Bsafe = np.where(valid, B_mat, 1.0)
     Ssafe = np.where(valid, S_mat, 0.0)
-    Z2 = np.where(valid, asimov_z(Ssafe, Bsafe, np.where(valid, B2_mat, 0.0)) ** 2, -np.inf)
+    Z2 = np.where(valid, ctx.z(Ssafe, Bsafe, np.where(valid, B2_mat, 0.0)) ** 2, -np.inf)
     valid_count = int(np.count_nonzero(np.isfinite(Z2) & (Z2 > 0.0)))
     if valid_count == 0:
         return []
     take = min(max(1, int(top_n)), valid_count)
     flat = Z2.ravel()
-    if take >= flat.size:
+    if cfg.deterministic:  # rounded Z^2 descending, then the narrowest interval, then its edges
+        cand = np.flatnonzero(np.isfinite(flat) & (flat > 0.0) & valid.ravel())
+        a_c, b_c = cand // K, cand % K
+        order = cand[np.lexsort((b_c, a_c, edges[b_c] - edges[a_c], -round_sig(flat[cand])))]
+    elif take >= flat.size:
         order = np.argsort(flat)[::-1]
     else:
         order = np.argpartition(flat, -take)[-take:]
@@ -810,7 +895,7 @@ def coarse_beam_search(ctx, forbidden=()):
     if not initial:
         ctx.forbidden = []
         return []
-    beam = sorted(initial, key=lambda it: -it["Z"])[:cfg.beam_width]
+    beam = sorted(initial, key=lambda it: rank_key(ctx, it))[:cfg.beam_width]
     ctx.progress(f"Coarse beam start: edges/axis={ctx.coarse_edges[0].size}, seeds={len(initial)}, "
                  f"beam={len(beam)}, best_Z={beam[0]['Z']:.4f}", force=True)
 
@@ -842,7 +927,7 @@ def coarse_beam_search(ctx, forbidden=()):
             key = region_key(item["lo"], item["hi"])
             if key not in merged or item["Z"] > merged[key]["Z"]:
                 merged[key] = item
-        beam = sorted(merged.values(), key=lambda it: -it["Z"])[:cfg.beam_width]
+        beam = sorted(merged.values(), key=lambda it: rank_key(ctx, it))[:cfg.beam_width]
         ctx.progress(f"Coarse round {r + 1}/{cfg.coordinate_rounds} done: pool={len(pool)}, beam={len(beam)}, "
                      f"best_Z={beam[0]['Z'] if beam else 0.0:.4f}", force=True)
         keys = tuple(region_key(it["lo"], it["hi"]) for it in beam)
@@ -867,7 +952,8 @@ def find_regions(ctx, target_n, report=None):
             key = region_key(it["lo"], it["hi"])
             if key not in pool or it["Z"] > pool[key]["Z"]:
                 pool[key] = it
-        best = max(cpool, key=lambda it: it["Z"])
+        best = max(cpool, key=lambda it: it["Z"]) if not ctx.cfg.deterministic else \
+            min(cpool, key=lambda it: rank_key(ctx, it))
         chain.append(best)
         forbidden.append((best["lo"], best["hi"]))
         ctx.progress(f"Diversity pass {k + 1}/{target_n}: best_Z={best['Z']:.4f}, chain={len(chain)}, "
@@ -876,7 +962,7 @@ def find_regions(ctx, target_n, report=None):
             report.append({"pass": k + 1, "best_Z": best["Z"], "pass_pool": len(cpool), "pool": len(pool),
                            "lo": best["lo"], "hi": best["hi"]})
     keys = {region_key(c["lo"], c["hi"]) for c in chain}
-    for it in sorted(pool.values(), key=lambda x: -x["Z"]):
+    for it in sorted(pool.values(), key=lambda x: rank_key(ctx, x)):
         if len(chain) >= target_n:
             break
         key = region_key(it["lo"], it["hi"])
@@ -895,7 +981,10 @@ def select_branch_bound(ctx, candidates, target_n, incumbent=None):
     multi-start greedy incumbent, exact bitset branch-and-bound (node / time caps).
     Returns (picked boxes, summary)."""
     cfg = ctx.cfg
-    items_sorted = sorted(candidates, key=lambda it: -(it["Z"] ** 2))
+    if cfg.deterministic:
+        items_sorted = sorted(candidates, key=lambda it: rank_key(ctx, it))
+    else:
+        items_sorted = sorted(candidates, key=lambda it: -(it["Z"] ** 2))
     if len(items_sorted) < target_n:
         raise RuntimeError(f"Only {len(items_sorted)} candidate signal regions are available; requested {target_n}")
     # Diversity-preserving cap: top Z^2, the top reps per dominant (largest lower cut) axis, the chain.
@@ -923,7 +1012,7 @@ def select_branch_bound(ctx, candidates, target_n, incumbent=None):
         augment(incumbent)
     if len(kept) != len(items_sorted):
         ctx.log(f"  Selection pool: {len(items_sorted)} -> {len(kept)} (top-Z + per-axis diversity + incumbent)")
-    items = sorted(kept, key=lambda it: -(it["Z"] ** 2))
+    items = sorted(kept, key=lambda it: rank_key(ctx, it) if cfg.deterministic else -(it["Z"] ** 2))
     n = len(items)
     los = [it["lo"] for it in items]
     his = [it["hi"] for it in items]
@@ -1091,6 +1180,8 @@ def bin_stats(ctx, lo, hi):
     """Yields and significance of one box on the events (the CSV row plus sigma_B terms)."""
     ev = ctx.events
     m = box_mask(ev.axes, lo, hi)
+    if ctx.cfg.deterministic:
+        return _bin_stats_exact(ctx, lo, hi, m)
     wS, wB = ev.w[m & ev.is_sig], ev.w[m & ev.is_bkg]
     S, B = float(wS.sum()), float(wB.sum())
     sS, sB = float(np.sqrt((wS ** 2).sum())), float(np.sqrt((wB ** 2).sum()))
@@ -1114,6 +1205,36 @@ def bin_stats(ctx, lo, hi):
     return out
 
 
+def _bin_stats_exact(ctx, lo, hi, m):
+    """bin_stats from exactly rounded sums of the original weights (tie_break = "deterministic")."""
+    ev, fs = ctx.events, ctx.sum
+    w = ev.w_raw
+    wS, wB = w[m & ev.is_sig], w[m & ev.is_bkg]
+    S, B = fs(wS), fs(wB)
+    sS, sB = math.sqrt(fs(wS * wS)), math.sqrt(fs(wB * wB))
+    floor = ctx.floor_variance(ev, m)
+    out = {"lo": list(lo), "hi": list(hi), "S": S, "S_err": sS, "S_entries": int((m & ev.is_sig).sum()),
+           "B": B, "B_err": sB, "B_entries": int((m & ev.is_bkg).sum()), "floor_variance": floor}
+    sB_z = math.sqrt(sB ** 2 + floor)
+    if ctx.abcd:
+        mc = m & ev.is_bkg & ~np.isin(ev.y, ctx.qcd_classes)
+        mc_var = fs(w[mc] * w[mc])
+        qcd = fs(w[m & np.isin(ev.y, ctx.qcd_classes)])
+        c = ev.control
+        cm = box_mask(c["axes"], lo, hi)
+        nwin = len(ctx.cfg.abcd.windows)
+        c_vars = [fs(c["var_raw"][cm & (c["win"] == k)]) for k in range(nwin)]
+        abcd_var = float(abcd_qcd_variance(ctx.tf, c_vars, qcd)) + ctx.nc2 * qcd * qcd
+        sB_z = math.sqrt(mc_var + floor + abcd_var)
+        out.update({"QCD": qcd, "sigma_abcd": abcd_var ** 0.5, "sigma_mc_nonqcd": mc_var ** 0.5,
+                    "control_count": fs(c["w_raw"][cm]),
+                    "control_count_per_window": [fs(c["w_raw"][cm & (c["win"] == k)]) for k in range(nwin)]})
+    out["sigma_B"] = sB_z
+    out["significance"], out["significance_error"] = asimov_z_with_error(S, B, sS, sB_z, stable=True)
+    out["backgrounds"] = {ctx.class_names[c]: fs(w[m & (ev.y == c)]) for c in ctx.background_classes}
+    return out
+
+
 # --- driver -----------------------------------------------------------------
 
 
@@ -1124,7 +1245,7 @@ def optimise(cfg, inputs, cells=False, threads=None, log=print):
     inputs = inputs.exclude(cfg.exclude_samples, log=log)
     ctx = Ctx(cfg, inputs, cells=cells, threads=threads, log=log)
     report = {"n_scan_events": int(ctx.events.n), "S_total": ctx.S_total, "B_total": ctx.B_total,
-              "axes": ctx.axis_names, "cells": bool(cells), "threads": ctx.threads}
+              "axes": ctx.axis_names, "cells": bool(cells), "threads": ctx.threads, "tie_break": cfg.tie_break}
     if ctx.abcd:
         win = ctx.events.control["win"]
         report["control_events_per_window"] = [int(np.count_nonzero(win == k)) for k in range(len(cfg.abcd.windows))]

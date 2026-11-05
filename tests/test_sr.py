@@ -141,3 +141,51 @@ def test_exclude_samples():
     proba, w, y, sample, _ = _toy(n=2000)
     inputs = ScanInputs(proba, w, y, sample, CLASSES, [True, False, False]).exclude(["qcd"], log=lambda m: None)
     assert "qcd" not in set(inputs.sample) and len(inputs.weight) == np.count_nonzero(y != 2)
+
+
+def test_asimov_z_stable_for_huge_background():
+    from decimal import Decimal, getcontext
+
+    getcontext().prec = 60
+    s, b, v = 100.0, 1.48e7, 8e12  # the ln of a ratio within 1e-11 of 1: legacy loses the digits
+    S, B, V = Decimal(s), Decimal(b), Decimal(v)
+    f = (S + B) * ((S + B) * (B + V) / (B * B + (S + B) * V)).ln() - B * B / V * (1 + V * S / (B * (B + V))).ln()
+    exact = float((2 * f).sqrt())
+    assert asimov_z(s, b, v, stable=True) == pytest.approx(exact, rel=1e-6)
+    assert asimov_z(5.0, 20.0, 4.0, stable=True) == pytest.approx(asimov_z(5.0, 20.0, 4.0), rel=1e-12)
+
+
+def _tied_toy(n=6000, seed=5):
+    """Scores on a 0.02 lattice (many boxes with equal content), msd for ABCD."""
+    proba, w, y, sample, msd = _toy(n, seed)
+    proba = np.round(proba / 0.02) * 0.02
+    proba[:, 2] = np.clip(1.0 - proba[:, 0] - proba[:, 1], 0.0, 1.0)
+    return proba, w, y, sample, msd
+
+
+@pytest.mark.parametrize("abcd", [False, True])
+def test_deterministic_tie_break(tmp_path, abcd):
+    proba, w, y, sample, msd = _tied_toy()
+    extra = {"tie_break": "deterministic"}
+    if abcd:
+        extra["abcd_uncertainty"] = {"branch": "msd", "control_window": [[20, 50], [150, 250]], "nonclosure": 0.2,
+                                     "transfer_factors": [0.5, 0.5], "min_control_weight": 5.0}
+    cfg = _cfg(**extra)
+
+    def run(perm, cells):
+        kw = dict(abcd_values=msd[perm], abcd_cond=[50, 150], control_windows=[(20, 50), (150, 250)]) if abcd else {}
+        inputs = ScanInputs.from_events(proba[perm], w[perm], y[perm], sample[perm], CLASSES, [True, False, False],
+                                        **kw)
+        bins, report = optimise(cfg, inputs, cells=cells, log=lambda m: None)
+        path = tmp_path / f"sr_{cells}_{perm[0]}.csv"
+        write_csv(path, bins, report["axes"])
+        return path.read_text(), report
+
+    ident = np.arange(len(w))
+    ref, report = run(ident, False)
+    shuffled = np.random.default_rng(11).permutation(len(w))
+    assert run(ident, True)[0] == ref  # cells == events
+    assert run(shuffled, False)[0] == ref  # event order does not matter
+    assert run(shuffled, True)[0] == ref
+    bins = list(csv.DictReader(ref.splitlines()))
+    assert len(bins) == 2 and report["tie_break"] == "deterministic"
