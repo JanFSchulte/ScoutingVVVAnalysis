@@ -155,6 +155,7 @@ def run(
     skim_cut: Path = typer.Option(None, help="training config (configs/training/*.json): skim only events passing "
                                   "its category thresholds bar the msoftdrop_1 window, with msoftdrop_1 in the "
                                   "mass-fit range (data skims)"),
+    jet_variations: bool = typer.Option(True, help="with --model-dir, also run the eight jet variations (MC)"),
     every_nth_file: int = typer.Option(None, help="use every N-th file of each sample (e.g. a small unthresholded "
                                        "data skim for plots); recorded in _DONE.json"),
     model_dir: list[str] = typer.Option([], help="CATEGORY=DIR of a legacy-format K-fold training"),
@@ -196,7 +197,7 @@ def run(
                              skim_prescale=json.loads(skim_prescale.read_text())["prescale"] if skim_prescale else None,
                              skim_theory=skim_theory,
                              skim_cut={c: v["thresholds"] for c, v in json.loads(skim_cut.read_text())["categories"].items()}
-                             if skim_cut else None)
+                             if skim_cut else None, jet_variations=jet_variations)
     if skim_dir is None:
         fileset = {
             name: {"files": {f: "Events" for f in _load_filelist(name, redirector)[::every_nth_file or 1][:max_files]}} for name in samples

@@ -7,7 +7,9 @@ for every category:
 - skim (optional): the category's variables, weights and weight-variation
   ratios are written to Parquet (<skim_dir>/<dataset>/<category>/<config>/),
   the training input and the replacement of the legacy converted trees; with skim_cut
-  only the events that can reach a mass-fit histogram are written (the data skims);
+  only the events that can reach a mass-fit histogram are written (the data skims), and
+  for categories with a model, their out-of-fold class probabilities proba_<class> (the
+  input of the signal-region optimisation);
 - histograms (optional, needs models): the K-fold classifier scores the events
   passing the legacy BDT thresholds (all but the mass-fit branch), each event
   gets its SR bin_index (0 = outside every SR box), and the mass-fit histogram
@@ -27,7 +29,7 @@ from coffea import processor
 from coffea.lumi_tools import LumiMask
 
 from vvv.config import AnalysisConfig
-from vvv.ml.inference import CategoryModel, region_index, threshold_mask
+from vvv.ml.inference import CLASSES, CategoryModel, region_index, threshold_mask
 from vvv.objects import CATEGORIES
 from vvv.selection import EventSelection, preselection
 from vvv.variables import category_variables, passthrough
@@ -83,6 +85,7 @@ class AnalysisProcessor(processor.ProcessorABC):
         skim_prescale=None,
         skim_theory=False,
         skim_cut=None,
+        jet_variations=True,
         blind=True,
         blind_window=(50.0, 150.0),
     ):
@@ -106,6 +109,7 @@ class AnalysisProcessor(processor.ProcessorABC):
         self.skim_prescale = skim_prescale or {}
         self.skim_theory = skim_theory
         self.skim_cut = {cat: {k: v for k, v in thr.items() if k != MASS_BRANCH} for cat, thr in (skim_cut or {}).items()}
+        self.jet_variations = jet_variations
         self.blind = blind
         self.blind_window = blind_window
         self._selection = None
@@ -151,7 +155,7 @@ class AnalysisProcessor(processor.ProcessorABC):
         w_variations = weights.variations(events)
 
         # Jet variations matter only for histograms (or explicitly skimmed variations).
-        vary = sample.is_mc and (bool(self.model_dirs) or self.skim_variations)
+        vary = sample.is_mc and self.jet_variations and (bool(self.model_dirs) or self.skim_variations)
         configurations = ("nominal",) + (self.cfg.jet_variations if vary else ())
         selected, info = self.selection(events, sample.is_mc, configurations)
         out["rho_failures"][dataset] = int((~info["rho_ok"]).sum())
@@ -182,9 +186,11 @@ class AnalysisProcessor(processor.ProcessorABC):
                     if config_name == "nominal":
                         variations = {k: v[mask][keep] for k, v in w_variations.items()
                                       if self.skim_theory or k not in THEORY_SETS}
-                    self._write_skim(dataset, category, config_name, chunk_id,
-                                     {k: v[keep] for k, v in {**{k: v[mask] for k, v in ids.items()}, **columns}.items()},
-                                     w[keep] * prescale, variations)
+                    skim = {k: v[keep] for k, v in {**{k: v[mask] for k, v in ids.items()}, **columns}.items()}
+                    if category in self.skim_cut and category in self.model_dirs:
+                        proba = self.models[category].predict(skim, event_number[mask][keep])
+                        skim.update({f"proba_{c}": proba[:, i] for i, c in enumerate(CLASSES)})
+                    self._write_skim(dataset, category, config_name, chunk_id, skim, w[keep] * prescale, variations)
                 if category in self.model_dirs:
                     self._fill(out, dataset, sample, category, config_name, columns, event_number[mask], w,
                                {k: v[mask] for k, v in w_variations.items()} if config_name == "nominal" else {})
