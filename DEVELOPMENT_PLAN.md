@@ -24,6 +24,8 @@ The guiding rule is **validate against legacy at every stage**. The legacy chain
 - First port: Phases 0-3 and 5. Phases 4 and 6 (training, SR optimisation, datacards) stay legacy for now.
 - Location: this `/depot` directory.
 - Training QCD statistics (2026-11-03): x2 over legacy (boosted3 class budget 6M; per-sample cap 1.5M in the boosted2 categories) to test whether the mass decorrelation improves. Compare against a legacy-budget training before adopting.
+- Low-HT QCD (2026-11-05): qcd_ht40to70, qcd_ht70to100 and qcd_ht100to200 are not used (they reach the selection only through pileup), unlike the legacy trainings and score caches that included them. Comparisons with legacy QCD metrics must drop them on the legacy side too.
+- SR optimisation (2026-11-05): `tie_break: "deterministic"` for new SRs (hardware- and order-independent); `"legacy"` only for closure.
 
 ## Architecture
 
