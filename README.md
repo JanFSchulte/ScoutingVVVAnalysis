@@ -56,6 +56,14 @@ XCache timed out on these user files on 2026-11-03. `--redirector /eos/purdue` r
 Purdue EOS files through the session mount, for local tests only. `--max-files N` limits a test run;
 `--maxchunks` alone still preprocesses every file of the sample.
 
+Data skims (all of data_2024 would be ~600 GB) keep only the events that can reach a mass-fit
+histogram: `--skim-cut configs/training/production.json` applies each category's thresholds
+except the msoftdrop_1 window and requires msoftdrop_1 inside the mass axis (20-250 GeV), ~107 GB.
+A 1-in-40-files skim without the cut (`--every-nth-file 40`, ~15 GB) is for data/MC plots. Both
+are staged on /work and merged onto /depot while running (`scripts/drain_skims.py`, whose
+`--check` compares the rows with the cutflow and looks for duplicate events); the production
+script is `/work/users/$USER/vvv/logs/data_skim.sh`. A change of thresholds or fit range needs a re-skim.
+
 ## Training (XGBoost on GPU via Ray)
 
 The k-fold, mass-decorrelated multiclass BDTs (port of legacy `selections/BDT/train.py`)
