@@ -6,7 +6,8 @@ for every category:
 
 - skim (optional): the category's variables, weights and weight-variation
   ratios are written to Parquet (<skim_dir>/<dataset>/<category>/<config>/),
-  the training input and the replacement of the legacy converted trees;
+  the training input and the replacement of the legacy converted trees; with skim_cut
+  only the events that can reach a mass-fit histogram are written (the data skims);
 - histograms (optional, needs models): the K-fold classifier scores the events
   passing the legacy BDT thresholds (all but the mass-fit branch), each event
   gets its SR bin_index (0 = outside every SR box), and the mass-fit histogram
@@ -81,13 +82,16 @@ class AnalysisProcessor(processor.ProcessorABC):
         skim_variations=False,
         skim_prescale=None,
         skim_theory=False,
+        skim_cut=None,
         blind=True,
         blind_window=(50.0, 150.0),
     ):
         """
         samples: {name: Sample}; metadata: {name: metadata record} (MC);
         models: {category: model_dir} of legacy-format K-fold trainings;
-        signal_regions: {category: [(bin_index, {class: (lo, hi)})]}.
+        signal_regions: {category: [(bin_index, {class: (lo, hi)})]};
+        skim_cut: {category: thresholds}: skim only events passing the thresholds other than
+        the mass-fit branch, with the mass-fit branch inside the mass axis (what _fill keeps).
         """
         self.cfg = cfg
         self.samples = samples
@@ -101,6 +105,7 @@ class AnalysisProcessor(processor.ProcessorABC):
         # {sample: {category: P}}: keep 1 in P events (hash of the event number), weight x P.
         self.skim_prescale = skim_prescale or {}
         self.skim_theory = skim_theory
+        self.skim_cut = {cat: {k: v for k, v in thr.items() if k != MASS_BRANCH} for cat, thr in (skim_cut or {}).items()}
         self.blind = blind
         self.blind_window = blind_window
         self._selection = None
@@ -169,6 +174,10 @@ class AnalysisProcessor(processor.ProcessorABC):
                 if self.skim_dir is not None and (config_name == "nominal" or self.skim_variations):
                     prescale = int(self.skim_prescale.get(dataset, {}).get(category, 1))
                     keep = _prescale_mask(event_number[mask], prescale)
+                    if category in self.skim_cut:
+                        keep &= self._fit_region(columns, category)
+                        if config_name == "nominal":
+                            out["cutflow"][dataset][f"{category}_skim"] = int(keep.sum())
                     variations = {}
                     if config_name == "nominal":
                         variations = {k: v[mask][keep] for k, v in w_variations.items()
@@ -180,6 +189,11 @@ class AnalysisProcessor(processor.ProcessorABC):
                     self._fill(out, dataset, sample, category, config_name, columns, event_number[mask], w,
                                {k: v[mask] for k, v in w_variations.items()} if config_name == "nominal" else {})
         return out
+
+    def _fit_region(self, columns, category):
+        lo, hi = self.mass_axis.edges[0], self.mass_axis.edges[-1]
+        mass = np.asarray(columns[MASS_BRANCH], dtype=np.float64)
+        return threshold_mask(columns, self.skim_cut[category]) & (mass >= lo) & (mass < hi)
 
     def _fill(self, out, dataset, sample, category, config_name, columns, event, w, w_variations):
         model = self.models[category]

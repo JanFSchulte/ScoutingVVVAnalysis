@@ -152,6 +152,11 @@ def run(
     skim_dir: Path = typer.Option(None, help="write Parquet skims here (e.g. /work/users/$USER/vvv/skims)"),
     skim_prescale: Path = typer.Option(None, help="JSON {sample: {category: P}} from scripts/make_skim_prescales.py"),
     skim_theory: bool = typer.Option(False, help="also write the theory-weight columns to the skims"),
+    skim_cut: Path = typer.Option(None, help="training config (configs/training/*.json): skim only events passing "
+                                  "its category thresholds bar the msoftdrop_1 window, with msoftdrop_1 in the "
+                                  "mass-fit range (data skims)"),
+    every_nth_file: int = typer.Option(None, help="use every N-th file of each sample (e.g. a small unthresholded "
+                                       "data skim for plots); recorded in _DONE.json"),
     model_dir: list[str] = typer.Option([], help="CATEGORY=DIR of a legacy-format K-fold training"),
     signal_regions: list[str] = typer.Option([], help="CATEGORY=signal_region.csv"),
     lumi: float = typer.Option(255.8, help="fb^-1 for MC normalisation"),
@@ -189,10 +194,12 @@ def run(
     proc = AnalysisProcessor(DEFAULT, catalogue, meta, lumi, models=models, signal_regions=regions,
                              skim_dir=skim_dir, blind=not unblind,
                              skim_prescale=json.loads(skim_prescale.read_text())["prescale"] if skim_prescale else None,
-                             skim_theory=skim_theory)
+                             skim_theory=skim_theory,
+                             skim_cut={c: v["thresholds"] for c, v in json.loads(skim_cut.read_text())["categories"].items()}
+                             if skim_cut else None)
     if skim_dir is None:
         fileset = {
-            name: {"files": {f: "Events" for f in _load_filelist(name, redirector)[:max_files]}} for name in samples
+            name: {"files": {f: "Events" for f in _load_filelist(name, redirector)[::every_nth_file or 1][:max_files]}} for name in samples
         }
         runner = processor.Runner(executor=_executor(workers, gateway), schema=VVVScoutingSchema,
                                   chunksize=chunksize, maxchunks=maxchunks, skipbadfiles=True,
@@ -218,7 +225,8 @@ def run(
         if done.exists():
             typer.echo(f"{name}: done, skipped")
             continue
-        files = _load_filelist(name, redirector)[:max_files]
+        files = _load_filelist(name, redirector)[::every_nth_file or 1][:max_files]
+        extra = {k: v for k, v in (("every_nth_file", every_nth_file), ("skim_cut", str(skim_cut) if skim_cut else None)) if v}
         if not batch_files:
             try:
                 out = runner({name: {"files": {f: "Events" for f in files}}}, proc, treename="Events")
@@ -228,7 +236,7 @@ def run(
                 continue
             _dump(out, hist_dir / f"{name}.pkl")
             if complete:
-                _write_done(done, len(files), chunksize, out["cutflow"][name])
+                _write_done(done, len(files), chunksize, out["cutflow"][name], **extra)
             typer.echo(f"{name}: {json.dumps(out['cutflow'][name])}")
             continue
 
@@ -257,7 +265,7 @@ def run(
             for marker in markers:
                 for key, n in json.loads(marker.read_text())["cutflow"].items():
                     cutflow[key] = cutflow.get(key, 0) + n
-            _write_done(done, len(files), chunksize, cutflow, batch_files=batch_files)
+            _write_done(done, len(files), chunksize, cutflow, batch_files=batch_files, **extra)
             typer.echo(f"{name}: {json.dumps(cutflow)}")
     if failed:
         typer.echo(f"{len(failed)} samples failed (rerun to retry): {' '.join(failed)}")
