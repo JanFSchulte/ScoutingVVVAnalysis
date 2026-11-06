@@ -24,6 +24,7 @@ The guiding rule is **validate against legacy at every stage**. The legacy chain
 - First port: Phases 0-3 and 5. Phases 4 and 6 (training, SR optimisation, datacards) stay legacy for now.
 - Location: this `/depot` directory.
 - Training QCD statistics (2026-11-03): x2 over legacy (boosted3 class budget 6M; per-sample cap 1.5M in the boosted2 categories) to test whether the mass decorrelation improves. Compare against a legacy-budget training before adopting.
+  - Rejected (2026-11-06): on the same OOF skim events, resolved/unresolved with the legacy budget give QCD corr(p(VVV), msd1) +0.044/+0.040 vs +0.067/+0.068 with x2 (stage-2 penalty falls to 0.11/0.06 of its start vs 0.19/0.11 in the same 1496 rounds), for 0.004-0.005 lower AUC vs QCD. All categories use `configs/training/legacy_budget.json` (models in `/work/users/schul105/vvv/models/legacy_budget`). Legacy itself reached +0.017/+0.026; the penalty is still falling at the round cap.
 - Low-HT QCD (2026-11-05): qcd_ht40to70, qcd_ht70to100 and qcd_ht100to200 are not used (they reach the selection only through pileup), unlike the legacy trainings and score caches that included them. Comparisons with legacy QCD metrics must drop them on the legacy side too.
 - SR optimisation (2026-11-05): `tie_break: "deterministic"` for new SRs (hardware- and order-independent); `"legacy"` only for closure.
 
