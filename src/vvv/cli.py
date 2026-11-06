@@ -292,6 +292,71 @@ def run(
         raise typer.Exit(1)
 
 
+@app.command("ttbar-cr")
+def ttbar_cr(
+    samples: list[str] = typer.Argument(..., help="sample names (configs/jms_jmr.json lists the CR samples)"),
+    output_dir: Path = typer.Option(None, help="per-sample output pickles (default /work/users/$USER/vvv/ttbar_cr)"),
+    skim_dir: Path = typer.Option(None, help="also write the ttbar_cr tree as Parquet here (for refits)"),
+    fit_config: Path = typer.Option(Path(__file__).resolve().parents[2] / "configs" / "jms_jmr.json",
+                                    help="JMS/JMR fit config: the histograms are filled for its selection"),
+    jet_variations: bool = typer.Option(False, help="also fill the histograms for JES/JER up/down (MC)"),
+    lumi: float = typer.Option(None, help="fb^-1 for MC normalisation (default: data_2024 luminosity)"),
+    workers: int = 8,
+    gateway: bool = False,
+    chunksize: int = 200_000,
+    maxchunks: int = typer.Option(None, help="limit the number of chunks (testing)"),
+    max_files: int = typer.Option(None, help="use only the first N files per sample (testing)"),
+    batch_files: int = typer.Option(None, help="process each sample in batches of N files, one pickle per batch; "
+                                    "finished batches are skipped on a rerun"),
+    redirector: str = typer.Option("auto", help='"auto" (EOS / global), or a prefix such as ' + XCACHE),
+    metadata_dir: Path = METADATA_DIR,
+    xrootd_timeout: int = 300,
+):
+    """Semileptonic ttbar control region: probe-jet histograms and skims for the JMS/JMR fit.
+
+    Jet corrections as the analysis but without JMS/JMR, the SingleMuon trigger, the golden JSON
+    for data. Output <output-dir>/<sample>.pkl (or <sample>/b<N>_<i>.pkl with --batch-files):
+    cutflow, the pass/fail fit histogram and the CR control distributions;
+    scripts/fit_jms_jmr.py fits them.
+    """
+    from coffea import processor
+
+    from vvv.config import TTBAR_CR
+    from vvv.processors.ttbar_cr import TtbarCRProcessor
+    from vvv.samples import load_samples
+    from vvv.schema import VVVScoutingSchema
+
+    catalogue = load_samples()
+    meta = {}
+    for name in samples:
+        if catalogue[name].is_mc:
+            path = metadata_dir / f"{name}.json"
+            if not path.exists():
+                raise typer.BadParameter(f"{name}: run `vvv metadata {name}` first")
+            meta[name] = json.loads(path.read_text())
+    lumi = lumi if lumi is not None else catalogue["data_2024"].lumi_fb
+    proc = TtbarCRProcessor(TTBAR_CR, catalogue, meta, lumi, json.loads(fit_config.read_text()),
+                            skim_dir=skim_dir, jet_variations=jet_variations)
+    client = _gateway_client() if gateway else None
+    runner = processor.Runner(executor=_executor(workers, gateway, client), schema=VVVScoutingSchema,
+                              chunksize=chunksize, maxchunks=maxchunks, skipbadfiles=True,
+                              xrootdtimeout=xrootd_timeout)
+    output_dir = output_dir or _work_dir() / "ttbar_cr"
+    for name in samples:
+        files = _load_filelist(name, redirector)[:max_files]
+        batches = [files[i:i + batch_files] for i in range(0, len(files), batch_files)] if batch_files else [files]
+        for i, batch in enumerate(batches):
+            path = output_dir / name / f"b{batch_files}_{i:05d}.pkl" if batch_files else output_dir / f"{name}.pkl"
+            if batch_files and path.exists():
+                continue
+            # After batching, so the batch boundaries do not move (as in `run`).
+            batch, dropped = _drop_excluded(name, batch)
+            out = runner({name: {"files": {f: "Events" for f in batch}}}, proc, treename="Events")
+            out["excluded_files"] = dropped
+            _dump(out, path)
+            typer.echo(f"{name}{f' batch {i}/{len(batches)}' if batch_files else ''}: {json.dumps(out['cutflow'][name])}")
+
+
 def _write_done(done: Path, n_files: int, chunksize: int, cutflow: dict, **extra):
     done.parent.mkdir(parents=True, exist_ok=True)
     done.write_text(json.dumps({"n_files": n_files, "chunksize": chunksize, **extra, "cutflow": cutflow}, indent=1))

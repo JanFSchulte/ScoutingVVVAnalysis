@@ -114,3 +114,24 @@ class AnalysisConfig:
 
 
 DEFAULT = AnalysisConfig()
+
+
+@dataclass(frozen=True)
+class TtbarCRConfig:
+    """Semileptonic ttbar control region (legacy selections/convert_ttbar_cr).
+
+    Same inputs, jet corrections and object IDs as the analysis (AnalysisConfig),
+    except that the AK8 soft-drop mass gets no JMS/JMR: this region measures them.
+    """
+
+    analysis: AnalysisConfig = field(default_factory=AnalysisConfig)
+    trigger: str = "DST_PFScouting_SingleMuon"
+    mu_min_pt: float = 10.0
+    mu_max_abs_eta: float = 2.4
+    probe_max_abs_eta: float = 2.4
+    probe_min_abs_dphi: float = 1.5708  # legacy literal, not pi/2
+    # JMS/JMR variations would equal nominal without JMS/JMR.
+    jet_variations: tuple[str, ...] = ("jes_up", "jes_down", "jer_up", "jer_down")
+
+
+TTBAR_CR = TtbarCRConfig()

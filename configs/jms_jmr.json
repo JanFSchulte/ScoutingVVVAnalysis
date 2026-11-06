@@ -1,0 +1,113 @@
+{
+  "_note": "JMS/JMR tag-and-probe fit in the ttbar CR, port of legacy selections/jms_jmr/config.json and the plotting/config_ttbar_cr.json sample groups. Data is data_2024 (legacy: 2024G_UParT_v6, changed 2026-11-06). ww/wz/zz are left out: they have no file list, and the legacy fit skipped them (raw_entries = 0).",
+  "data_samples": [
+    "data_2024"
+  ],
+  "class_groups": {
+    "Top": [
+      "ttbar_had",
+      "ttbar_semilep",
+      "ttbar_2l2nu"
+    ],
+    "VT": [
+      "tbarwplus_had",
+      "twminus_had",
+      "tbarwplus_lnu2q",
+      "twminus_lnu2q"
+    ],
+    "VV": [],
+    "Wlnu": [
+      "wlnu_h100to400_m0to120",
+      "wlnu_h100to400_m120",
+      "wlnu_h1500to2500_m0to120",
+      "wlnu_h1500to2500_m120",
+      "wlnu_h2500_m0to120",
+      "wlnu_h2500_m120",
+      "wlnu_h400to800_m0to120",
+      "wlnu_h400to800_m120",
+      "wlnu_h40to100_m0to120",
+      "wlnu_h800to1500_m0to120",
+      "wlnu_h800to1500_m120"
+    ],
+    "DY": [
+      "dy_h1500to2500_m120",
+      "dy_h1500to2500_m4to50",
+      "dy_h1500to2500_m50to120",
+      "dy_h2500_m120",
+      "dy_h2500_m4to50",
+      "dy_h2500_m50to120",
+      "dy_h400to800_m120",
+      "dy_h800to1500_m120",
+      "dy_h800to1500_m4to50",
+      "dy_h800to1500_m50to120"
+    ],
+    "QCD": [
+      "qcd_ht400to600",
+      "qcd_ht600to800",
+      "qcd_ht800to1000",
+      "qcd_ht1000to1200",
+      "qcd_ht1200to1500",
+      "qcd_ht1500to2000",
+      "qcd_ht2000"
+    ]
+  },
+  "mass_branch": "Probe_msoftdrop_1",
+  "tag_branch": "Probe_WvsQCD_1",
+  "tag_wp": 0.2,
+  "selection": {
+    "ScoutingMuonVtx_pt_1": [
+      30,
+      null
+    ],
+    "ScoutingMuonVtx_trkRelIso_1": [
+      null,
+      0.1
+    ],
+    "ScoutingMuonVtx_nValidStandAloneMuonHits_1": [
+      1,
+      null
+    ],
+    "ScoutingMuonVtx_normchi2_1": [
+      null,
+      10
+    ],
+    "ScoutingMuonVtx_nValidPixelHits_1": [
+      1,
+      null
+    ],
+    "ScoutingMuonVtx_nTrackerLayersWithMeasurement_1": [
+      6,
+      null
+    ],
+    "ScoutingMuonVtx_nStandAloneMuonMatchedStations_1": [
+      2,
+      null
+    ],
+    "ScoutingMuonVtx_trk_dxy_1": [
+      -0.2,
+      0.2
+    ],
+    "ScoutingMuonVtx_trk_dz_1": [
+      -0.5,
+      0.5
+    ],
+    "ScoutingPFJetRecluster2_scoutUParT_probb_max": [
+      0.85,
+      null
+    ],
+    "LeptonicW_pt": [
+      150,
+      null
+    ],
+    "Probe_pt_1": [
+      200,
+      null
+    ]
+  },
+  "fit_window": [
+    50,
+    120
+  ],
+  "n_bins": 17,
+  "w_mass_ref": 80.38
+}
