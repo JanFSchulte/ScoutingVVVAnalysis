@@ -167,13 +167,14 @@ def load_split_data(cfg, category, fold):
     out = {}
     for split, parts in splits.items():
         X = {c: np.concatenate([p["X"][c] for p in parts]) for c in features + decor}
-        w = np.concatenate([p["w"] for p in parts])
+        w_phys = np.concatenate([p["w"] for p in parts])
         y = np.concatenate([p["y"] for p in parts])
-        w = w_diag = _balance(w, y, len(classes))
+        w = w_diag = _balance(w_phys, y, len(classes))
         if split in ("train", "monitor") and cfg["categories"][category].get("training_weight_cap"):
             w = _cap(w, y, len(classes), cfg["categories"][category]["training_weight_cap"])
-        # w: what the model is fitted and monitored with; w_diag: before the cap (diagnostic plots).
-        out[split] = {"X": X, "w": w, "w_diag": w_diag, "y": y,
+        # w: what the model is fitted and monitored with; w_diag: before the cap (diagnostic plots);
+        # w_phys: the physics weight (x lumi, subsampling corrected), before class balancing.
+        out[split] = {"X": X, "w": w, "w_diag": w_diag, "w_phys": w_phys, "y": y,
                       "event": np.concatenate([p["event"] for p in parts]),
                       "sample": np.concatenate([p["sample"] for p in parts])}
         parts.clear()
@@ -367,6 +368,40 @@ def cross_entropy_sum(margins, y, w):
     return float(np.sum(w * -np.log(p[np.arange(len(y)), y] + EPS)))
 
 
+class TorchLoss:
+    """cross_entropy_sum and the softmax gradient / hessian in float64 torch on the GPU
+    (loss_device "cuda"): the same arithmetic, without the per-round numpy work that leaves the
+    GPU idle on hosts with few cores."""
+
+    def __init__(self, n_classes, device):
+        import torch
+
+        self.torch, self.device, self.n_classes = torch, device, n_classes
+        self.cache = {}
+
+    def _const(self, a):
+        key = id(a)
+        if key not in self.cache:
+            self.cache[key] = (a, self.torch.as_tensor(a, device=self.device))
+        return self.cache[key][1]
+
+    def softmax(self, m):
+        return self.torch.softmax(self.torch.as_tensor(m, device=self.device, dtype=self.torch.float64), dim=1)
+
+    def cross_entropy_sum(self, m, y, w):
+        p = self.softmax(m)
+        py = p.gather(1, self._const(y).long()[:, None])[:, 0]
+        return float((self._const(w) * -self.torch.log(py + EPS)).sum())
+
+    def grad_hess(self, m, y, w):
+        p = self.softmax(m)
+        wt = self._const(w)[:, None]
+        grad = p * wt
+        grad[self.torch.arange(len(y), device=self.device), self._const(y).long()] -= wt[:, 0]
+        hess = self.torch.clamp(2.0 * p * (1.0 - p) * wt, min=HESS_FLOOR)
+        return grad, hess
+
+
 def _callback(loss_fn, cfg, cc, lr0, tree_offset, record):
     """Legacy _DetailedLossMonitor: check every 5 rounds, halve lr on a miss, stop at the floor.
 
@@ -432,7 +467,9 @@ def _device_name(device):
     return torch.cuda.get_device_name(0)
 
 
-def train_fold(cfg, category, fold, device="cuda"):
+def train_fold(cfg, category, fold, device="cuda", data=None, plots=True):
+    """Train one (category, fold) into <output_dir>/<category>/fold<fold>; data: the
+    load_split_data output, if already loaded (BDT configuration studies)."""
     import xgboost as xgb
 
     t0 = time.time()
@@ -444,7 +481,8 @@ def train_fold(cfg, category, fold, device="cuda"):
     qcd = [i for i, c in enumerate(classes) if "qcd" in c.lower()]
     features, decor = cc["features"], cc["decorrelate"]
 
-    data = load_split_data(cfg, category, fold)
+    if data is None:
+        data = load_split_data(cfg, category, fold)
     log = {"category": category, "fold": fold, "n": {s: int(len(d["y"])) for s, d in data.items()},
            "device": _device_name(device), "xgboost": xgb.__version__}
     print(f"{category} fold{fold}: training on {log['device']}", flush=True)
@@ -474,7 +512,7 @@ def train_fold(cfg, category, fold, device="cuda"):
         "colsample_bynode": cc["colsample_bynode"],
         "tree_method": "hist",
         "device": device,
-        "seed": 42,
+        "seed": cc.get("seed", 42),
         "disable_default_eval_metric": 1,
         "eta": cc["learning_rate"],
     }
@@ -482,8 +520,11 @@ def train_fold(cfg, category, fold, device="cuda"):
     def margins(model, d, rounds):
         return model.predict(d, output_margin=True, iteration_range=(0, rounds)).reshape(-1, n_classes)
 
+    tl = TorchLoss(n_classes, "cuda") if cfg.get("loss_device") == "cuda" and device == "cuda" else None
+    ce_sum = tl.cross_entropy_sum if tl else cross_entropy_sum
+
     def components(m, y, w, decor_term=0.0):
-        ce = cross_entropy_sum(m, y, w)
+        ce = ce_sum(m, y, w)
         return {"classification": ce, "mlogloss": ce / w.sum(), "decorrelation": decor_term, "total": ce + decor_term}
 
     def stage1_loss(model, r):
@@ -509,11 +550,20 @@ def train_fold(cfg, category, fold, device="cuda"):
         m_tr = margins(stage1, dtrain, rounds1)
         reg = _regularisation(stage1, rounds1, rec1["eta"], cc, n_classes)
         raw_tr, _, _ = dec_tr(m_tr, with_grad=False)
-        scale = (cross_entropy_sum(m_tr, ytr, wtr) + reg) / max(raw_tr, EPS)
+        scale = (ce_sum(m_tr, ytr, wtr) + reg) / max(raw_tr, EPS)
         lam = cfg["decor_lambda"]
         log["decor_scale"] = scale
         print(f"{category} fold{fold}: decorrelation scale {scale:.6g} (raw {raw_tr:.6g}, reg {reg:.6g})", flush=True)
         onehot = np.eye(n_classes)[ytr]
+
+        def objective_gpu(predt, _dtrain):
+            m = predt.reshape(-1, n_classes)
+            grad, hess = tl.grad_hess(m, ytr, wtr)
+            _, g_dec, h_dec = dec_tr(m.astype(np.float64))
+            idx = tl._const(dec_tr.idx)
+            grad[idx] += lam * scale * tl.torch.as_tensor(g_dec, device="cuda")
+            hess[idx] = tl.torch.clamp(hess[idx] + lam * scale * tl.torch.as_tensor(h_dec, device="cuda"), min=HESS_FLOOR)
+            return grad.float().cpu().numpy(), hess.float().cpu().numpy()
 
         def objective(predt, _dtrain):
             m = predt.reshape(-1, n_classes).astype(np.float64)
@@ -534,7 +584,7 @@ def train_fold(cfg, category, fold, device="cuda"):
         rec2 = {"eta": [], "loss": []}
         cb2 = _callback(total_loss, cfg, cc, cc["learning_rate_decorr"], rounds1, rec2)
         params2 = dict(params, eta=cc["learning_rate_decorr"])
-        stage2 = xgb.train(params2, dtrain, num_boost_round=cc["n_estimators_decorr"], obj=objective,
+        stage2 = xgb.train(params2, dtrain, num_boost_round=cc["n_estimators_decorr"], obj=objective_gpu if tl else objective,
                            xgb_model=stage1, callbacks=[cb2], verbose_eval=False)
         final = stage2[: rounds1 + cb2.best_iter + 1]
         log["stage2"] = {"rounds": cb2.best_iter + 1, "best_monitor_loss": cb2.best, "time_s": time.time() - t0}
@@ -561,6 +611,8 @@ def train_fold(cfg, category, fold, device="cuda"):
 
     # Diagnostic plots into the fold directory; a failure is reported, never fails the fold
     # (scripts/plot_training.py redoes them).
+    if not plots:
+        return final
     try:
         from vvv.ml.plots import plot_fold
 
