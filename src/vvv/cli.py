@@ -70,6 +70,15 @@ def _load_filelist(sample: str, redirector: str | None):
     return out
 
 
+def _drop_excluded(sample: str, files: list[str]):
+    """files minus those listed in data/filelists/<sample>.excluded.json (unreadable or broken),
+    applied after batching so batch boundaries stay fixed; returns (kept, dropped)."""
+    path = FILELIST_DIR / f"{sample}.excluded.json"
+    excluded = set(json.loads(path.read_text())["files"]) if path.exists() else set()
+    kept = [f for f in files if f[f.index("/store/"):] not in excluded]
+    return kept, [f for f in files if f[f.index("/store/"):] in excluded]
+
+
 @app.command("import-samples")
 def import_samples(
     sample_json: Path = LEGACY_ROOT / "src" / "sample.json",
@@ -200,7 +209,8 @@ def run(
                              if skim_cut else None, jet_variations=jet_variations)
     if skim_dir is None:
         fileset = {
-            name: {"files": {f: "Events" for f in _load_filelist(name, redirector)[::every_nth_file or 1][:max_files]}} for name in samples
+            name: {"files": {f: "Events" for f in _drop_excluded(name, _load_filelist(name, redirector)[::every_nth_file or 1][:max_files])[0]}}
+            for name in samples
         }
         runner = processor.Runner(executor=_executor(workers, gateway), schema=VVVScoutingSchema,
                                   chunksize=chunksize, maxchunks=maxchunks, skipbadfiles=True,
@@ -229,6 +239,9 @@ def run(
         files = _load_filelist(name, redirector)[::every_nth_file or 1][:max_files]
         extra = {k: v for k, v in (("every_nth_file", every_nth_file), ("skim_cut", str(skim_cut) if skim_cut else None)) if v}
         if not batch_files:
+            files, dropped = _drop_excluded(name, files)
+            if dropped:
+                extra["excluded_files"] = dropped
             try:
                 out = runner({name: {"files": {f: "Events" for f in files}}}, proc, treename="Events")
             except Exception as err:  # noqa: BLE001 - report it, go on with the other samples
@@ -247,6 +260,7 @@ def run(
         for i, (batch, marker) in enumerate(zip(batches, markers)):
             if marker.exists():
                 continue
+            batch, dropped = _drop_excluded(name, batch)
             try:
                 out = runner({name: {"files": {f: "Events" for f in batch}}}, proc, treename="Events")
             except Exception as err:  # noqa: BLE001 - report it, go on with the next batch
@@ -256,17 +270,22 @@ def run(
             _dump(out, hist_dir / name / f"b{batch_files}_{i:05d}.pkl")
             if complete:
                 marker.parent.mkdir(parents=True, exist_ok=True)
-                marker.write_text(json.dumps({"files": batch, "cutflow": out["cutflow"][name]}, indent=1))
+                marker.write_text(json.dumps({"files": batch, "excluded_files": dropped, "cutflow": out["cutflow"][name]},
+                                             indent=1))
             typer.echo(f"{name} batch {i}/{len(batches)}: {json.dumps(out['cutflow'][name])}")
         if n_failed:
             failed.append(name)
             typer.echo(f"{name}: {n_failed} of {len(batches)} batches failed")
         elif complete:
-            cutflow = {}
+            cutflow, dropped = {}, []
             for marker in markers:
-                for key, n in json.loads(marker.read_text())["cutflow"].items():
+                info = json.loads(marker.read_text())
+                dropped += info.get("excluded_files", [])
+                for key, n in info["cutflow"].items():
                     cutflow[key] = cutflow.get(key, 0) + n
-            _write_done(done, len(files), chunksize, cutflow, batch_files=batch_files, **extra)
+            if dropped:
+                extra["excluded_files"] = dropped
+            _write_done(done, len(files) - len(dropped), chunksize, cutflow, batch_files=batch_files, **extra)
             typer.echo(f"{name}: {json.dumps(cutflow)}")
     if failed:
         typer.echo(f"{len(failed)} samples failed (rerun to retry): {' '.join(failed)}")
