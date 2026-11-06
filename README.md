@@ -117,6 +117,39 @@ Both are staged on /work and merged onto /depot while the run is going (`scripts
 `drain_skims.py --check` compares the rows with the cutflow and looks for duplicate events.
 Changing the thresholds or the fit range requires a re-skim.
 
+### ttbar control region and JMS/JMR fit
+
+```bash
+pixi run vvv ttbar-cr ttbar_semilep ... data_2024 --skim-dir /work/users/$USER/vvv/skims_ttbar_cr
+pixi run python scripts/fit_jms_jmr.py configs/jms_jmr.json \
+    --skim-dir /work/users/$USER/vvv/skims_ttbar_cr --output-dir <dir> --plots
+```
+
+`vvv ttbar-cr` is the port of the legacy `convert_ttbar_cr` conversion (tree `ttbar_cr`). It
+applies the SingleMuon trigger, the golden JSON for data, and the analysis jet corrections (JEC,
+rho recovery, JER, Type-1 MET) without JMS/JMR. The collections are:
+
+- `ak8`: all AK8 jets, pT-sorted;
+- `ak4`: analysis jet ID and deltaR(ak8) > 0.8;
+- `mu_vtx`: muons with pT > 10 GeV, |eta| < 2.4, deltaR(ak8) > 0.8;
+- `probe`: AK8 jets with |eta| < 2.4 and |dphi(mu_vtx[0])| > 1.5708.
+
+The tree requires >= 1 of each of mu_vtx, ak4 and ak8. The output per sample is a pickle with the
+cutflow, the pass/fail probe-mass histogram of the fit and the CR control distributions. These
+are filled for the events that pass the fit selection of `configs/jms_jmr.json`, split by the probe
+W tag. With `--skim-dir`, the whole `ttbar_cr` tree (legacy branch names, `weight`, pileup ratios)
+is also written to Parquet, so a changed fit selection needs no new pass over the NanoAOD.
+`--jet-variations` adds JES/JER up/down to the histograms. `--batch-files N` writes one
+resumable pickle per batch of files.
+
+`scripts/fit_jms_jmr.py` is the port of `jms_jmr_fit.py`. It fits a Gaussian plus exponential to the
+W peak (50-120 GeV, 17 bins) of the pass region, for data and MC, and writes
+`jms_jmr_results.json` in the format `corrections/jets.py` reads (JMS = mu_data/mu_MC, JMR =
+sigma_data/sigma_MC). Its inputs are the skims, the pickles (`--hists`, fixed to the processor's
+fit selection), or legacy `convert_ttbar_cr` trees (`--legacy-root`, with the legacy weights, for
+closure). The fit never writes `data/corrections/`; adopting a new fit means copying the file there
+by hand.
+
 ### Training
 
 The classifiers are k-fold, mass-decorrelated multiclass BDTs, a port of the legacy
@@ -195,6 +228,7 @@ for the closure tests below.
 | K-fold mass-decorrelated BDT training on Ray GPUs, diagnostics | `ml/train.py`, `ml/ray_driver.py`, `ml/plots.py` | AUCs match legacy; QCD score-mass correlation +0.04 vs legacy +0.02 (see to-do) |
 | SR optimisation | `sr/optimise.py`, `scripts/optimise_signal_regions.py` | legacy mode bit-identical to legacy on all production points; deterministic tie-break mode for new SRs |
 | QCD mass-fit inputs (TF_MC fit, templates, transfer factors) | `background/qcd_massfit.py`, `scripts/estimate_qcd.py` | closure with legacy to 2e-12 on all 5 production points |
+| ttbar CR (probe selection, CR branches, histograms, skims) and JMS/JMR tag-and-probe fit | `processors/ttbar_cr.py`, `corrections/jms_fit.py`, `scripts/fit_jms_jmr.py`, `scripts/sync_ttbar_cr.py` | 100% event-by-event selection agreement with legacy `convert_branch` on 2 ttbar_semilep files (19,521 of 132,677 preselected events) and 1 data_2024 file (400 of 1,118); all 128 (MC) / 100 (data) branches within 1e-5, 115 / 87 bit-identical; the fit reproduces the legacy results JSON bit for bit on the same trees |
 | Data skims (fit region and 1/40 plot skim), staged drain to /depot | `scripts/drain_skims.py` | row counts against cutflow, duplicate check |
 
 ### Current production (2026-11-06)
@@ -222,7 +256,9 @@ Analysis chain:
 
 Physics and validation:
 
-- [ ] ttbar control-region processor and a JMS/JMR refit after the JEC (legacy values are stale).
+- [x] ttbar control-region processor and JMS/JMR fit (`vvv ttbar-cr`, `scripts/fit_jms_jmr.py`).
+- [ ] Full-statistics CR production and JMS/JMR refit after the JEC (the legacy values are stale),
+      then replace `data/corrections/jms_jmr_results.json`.
 - [ ] Data/MC plots from the plot skim.
 - [ ] Remaining decorrelation gap to legacy (QCD p(VVV)-msd1 correlation ~+0.04 vs ~+0.02). The
       stage-2 penalty is still falling at the 1496-round cap.
@@ -250,11 +286,23 @@ Infrastructure:
 - JMR < 1 gives no smearing, so the JMR variations equal nominal with the current
   `jms_jmr_results.json`.
 
+### ttbar CR: deliberate differences from legacy
+
+- Data is `data_2024` (2024G-I, the SR data sample) instead of the legacy `2024G_UParT_v6`.
+- `ww`, `wz`, `zz` are not in the CR samples: they have no file list, and the legacy fit skipped
+  them (raw_entries = 0).
+- MC weights in the fit are the analysis weights (signed genWeight, w_PU / <w_PU>, Runs-tree
+  sums). The legacy fit used weight_pu x lumi x xsec / raw_entries, without genWeight, so
+  negative-weight events (genWeight = -337 in ttbar) counted as positive.
+- The legacy theory-weight and gen-level index branches are not written. Gen pdgIds of the matched
+  particles and topWCategory/partonFlavour are.
+
 ## Layout
 
 ```
 src/vvv/schema.py              NanoEvents schema for the ScoutingNano collections
 src/vvv/corrections/jets.py    JEC, rho recovery, JER, JMS/JMR, Type-1 MET
+src/vvv/corrections/jms_fit.py JMS/JMR tag-and-probe fit of the W peak
 src/vvv/corrections/pileup.py  pileup weights (correctionlib export, legacy CSV import)
 src/vvv/objects.py             objects, ISR score, cleaning, categories
 src/vvv/variables.py           per-category classifier and selection variables
@@ -263,9 +311,9 @@ src/vvv/weights.py             normalisation, pileup and theory weight variation
 src/vvv/ml/                    K-fold inference, training (Ray driver), diagnostic plots
 src/vvv/sr/                    SR box optimisation (inputs from skims or legacy BDT outputs)
 src/vvv/background/            QCD mass-fit transfer factors and templates
-src/vvv/processors/            metadata and analysis processors
+src/vvv/processors/            metadata, analysis and ttbar CR processors
 src/vvv/cli.py                 `vvv` command line
-configs/                       training, skim prescale and SR configs
+configs/                       training, skim prescale, SR and JMS/JMR fit configs
 scripts/                       production, training, SR/QCD tools, sync_*.py legacy comparisons
 data/, metadata/               samples, file lists, corrections, derived sample metadata
 tests/                         pytest unit tests

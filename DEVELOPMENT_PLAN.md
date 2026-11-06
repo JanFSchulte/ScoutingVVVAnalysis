@@ -4,7 +4,7 @@ This plan covers how to build what `specification.md` specifies.
 
 The guiding rule is **validate against legacy at every stage**. The legacy chain (`convert_branch.C` and its JSON expression engine, about 15.6k unique lines of C++ and 31k lines of Python) is the reference. Each phase ends with an event-by-event or yield-level sync test, matched on (run, lumi, event). The port never becomes "the analysis" before it reproduces the legacy numbers. Differences that are *intended* fixes go in a changelog, not into tolerance knobs.
 
-## Status (2026-11-03)
+## Status (2026-11-06)
 
 - Phase 0: done. Pixi project, schema, samples.yaml, file lists (from legacy snapshots), legacy reference = batch `www_0` of `dataset_hybrid_leptonic_jec_c`.
 - Phases 1-2: done for MC. Categories and corrections agree event by event with legacy for nominal and all 8 jet variations. The smearing turned out bit-reproducible, so MC is synced exactly, not only statistically. Data (2 files of 2024G) is synced exactly too.
@@ -12,6 +12,7 @@ The guiding rule is **validate against legacy at every stage**. The legacy chain
 - Phase 5: the histogram processor is implemented and plumbing-tested. Still open:
   - the adapter from histograms to the legacy `combine.C` inputs (`*_syst_yields.json`, `qcd_abcd_yields.root` mass-fit directory);
   - a full-statistics run on Dask Gateway.
+- Phase 2 ttbar CR (2026-11-06): done. `vvv ttbar-cr` (processors/ttbar_cr.py) and the JMS/JMR fit (corrections/jms_fit.py, scripts/fit_jms_jmr.py). Synced event by event with the legacy convert_ttbar_cr conversion: 100% selection agreement and all branches within 1e-5 on 2 ttbar_semilep files and 1 data_2024 file. The fit reproduces the legacy results JSON bit for bit on the same trees. Still open: the full-statistics CR production and the refit.
 - Training (Phase 4, deferred) has a blocker: the production k-fold models were trained on `dataset_hybrid_leptonic_jec` (before the 2026-11-02 cleaning) with contiguous-block folds. Scores for the `_jec_c` selection therefore need a retraining. The event-number fold scheme can be introduced with that retraining.
 
 ## Decisions (2026-11-03)
@@ -27,6 +28,13 @@ The guiding rule is **validate against legacy at every stage**. The legacy chain
   - Rejected (2026-11-06): on the same OOF skim events, resolved/unresolved with the legacy budget give QCD corr(p(VVV), msd1) +0.044/+0.040 vs +0.067/+0.068 with x2 (stage-2 penalty falls to 0.11/0.06 of its start vs 0.19/0.11 in the same 1496 rounds), for 0.004-0.005 lower AUC vs QCD. All categories use `configs/training/legacy_budget.json` (models in `/work/users/schul105/vvv/models/legacy_budget`). Legacy itself reached +0.017/+0.026; the penalty is still falling at the round cap.
 - Low-HT QCD (2026-11-05): qcd_ht40to70, qcd_ht70to100 and qcd_ht100to200 are not used (they reach the selection only through pileup), unlike the legacy trainings and score caches that included them. Comparisons with legacy QCD metrics must drop them on the legacy side too.
 - SR optimisation (2026-11-05): `tie_break: "deterministic"` for new SRs (hardware- and order-independent); `"legacy"` only for closure.
+
+- ttbar CR (2026-11-06):
+  - Data is `data_2024`, the SR data sample (2024G-I, its golden JSON and file list, including `data_2024.excluded.json`), instead of the legacy `2024G_UParT_v6` (a 2024G subset). This is a deliberate deviation from the legacy CR config. DST_PFScouting_SingleMuon and the muon branches exist in the 2024G, H and I files.
+  - `ww`, `wz` and `zz` are dropped from the CR samples. They have no coffea file list, and the legacy fit skipped them (raw_entries = 0).
+  - Fit MC weights are the SR weights (signed genWeight, w_PU / <w_PU>). Legacy used weight_pu x lumi x xsec / raw_entries, without the genWeight sign.
+  - Jet variations in the CR: JES/JER up/down, optional (`--jet-variations`). The CR has no JMS/JMR to vary.
+  - The refit replaces `data/corrections/jms_jmr_results.json` only by hand, after review.
 
 ## Architecture
 
