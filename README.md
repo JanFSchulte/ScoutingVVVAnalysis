@@ -289,8 +289,9 @@ Infrastructure:
 ### ttbar CR: deliberate differences from legacy
 
 - Data is `data_2024` (2024G-I, the SR data sample) instead of the legacy `2024G_UParT_v6`.
-- `ww`, `wz`, `zz` are not in the CR samples: they have no file list, and the legacy fit skipped
-  them (raw_entries = 0).
+- The diboson samples are those of the analysis VV class (the Powheg samples and the aMC@NLO FXFX
+  WZto4Q/ZZto4Q), instead of the legacy inclusive `ww`, `wz`, `zz`, which had no events
+  (raw_entries = 0) and were skipped by the legacy fit.
 - MC weights in the fit are the analysis weights (signed genWeight, w_PU / <w_PU>, Runs-tree
   sums). The legacy fit used weight_pu x lumi x xsec / raw_entries, without genWeight, so
   negative-weight events (genWeight = -337 in ttbar) counted as positive.

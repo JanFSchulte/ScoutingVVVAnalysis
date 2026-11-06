@@ -31,7 +31,7 @@ The guiding rule is **validate against legacy at every stage**. The legacy chain
 
 - ttbar CR (2026-11-06):
   - Data is `data_2024`, the SR data sample (2024G-I, its golden JSON and file list, including `data_2024.excluded.json`), instead of the legacy `2024G_UParT_v6` (a 2024G subset). This is a deliberate deviation from the legacy CR config. DST_PFScouting_SingleMuon and the muon branches exist in the 2024G, H and I files.
-  - `ww`, `wz` and `zz` are dropped from the CR samples. They have no coffea file list, and the legacy fit skipped them (raw_entries = 0).
+  - Diboson: the CR uses the analysis VV class (Powheg samples plus the aMC@NLO FXFX WZto4Q and ZZto4Q) instead of the legacy inclusive `ww`, `wz`, `zz`, which had no events (raw_entries = 0) and were skipped by the legacy fit.
   - Fit MC weights are the SR weights (signed genWeight, w_PU / <w_PU>). Legacy used weight_pu x lumi x xsec / raw_entries, without the genWeight sign.
   - Jet variations in the CR: JES/JER up/down, optional (`--jet-variations`). The CR has no JMS/JMR to vary.
   - The refit replaces `data/corrections/jms_jmr_results.json` only by hand, after review.
