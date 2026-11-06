@@ -21,6 +21,39 @@ GATEWAY = "http://ray-train-gateway:8265"
 REPO = Path(__file__).resolve().parents[2]
 
 
+def submit(site, workers, config, categories, variants, inputs, output, quiet=False):
+    """Submit one suite job for categories x variants; returns the job id."""
+    stage = Path(tempfile.mkdtemp(prefix="bdt_suite_"))
+    for rel in ("src/vvv/__init__.py", "src/vvv/ml/__init__.py", "src/vvv/ml/train.py", "src/vvv/ml/inference.py"):
+        (stage / rel).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(REPO / rel, stage / rel)
+    for f in Path(__file__).parent.glob("*.py"):
+        shutil.copy(f, stage / f.name)
+    shutil.copy(config, stage / "config.json")
+    # Longest first (1lep/resolved/unresolved, more rounds), so the short ones fill the end.
+    slow = {"boosted2_unresolved": 4, "boosted2_resolved": 3, "boosted2_leptonic_1lep": 2, "boosted3": 1}
+    tasks = sorted(({"category": c, "variant": v} for c in categories for v in variants),
+                   key=lambda t: -(slow.get(t["category"], 0) * 10 + ("3000" in t["variant"]) * 5 + ("depth8" in t["variant"])))
+    (stage / "tasks.json").write_text(json.dumps({"config": "config.json", "tasks": tasks}, indent=1))
+
+    from ray.job_submission import JobSubmissionClient
+
+    if site == "nrp":
+        headers = {"af-site": "nrp", "af-max-workers": str(workers), "af-inputs": inputs, "af-output": output}
+        entry = "python suite_job.py tasks.json"
+    else:
+        headers = {"af-max-workers": str(workers), "af-min-gpu-memory-gb": "16",
+                   "af-cpus-per-worker": "8", "af-ram-per-worker-gb": "64"}
+        entry = f"python suite_job.py tasks.json --inputs {inputs} --output {output}"
+    client = JobSubmissionClient(GATEWAY, headers=dict(headers))
+    job = client.submit_job(entrypoint=entry, runtime_env={
+        "working_dir": str(stage), "env_vars": {"PYTHONPATH": "src:.", "PYTHONUNBUFFERED": "1"}})
+    shutil.rmtree(stage, ignore_errors=True)
+    if not quiet:
+        print(f"submitted {job}: {len(tasks)} tasks, {headers}")
+    return job
+
+
 def main():
     sys.path.insert(0, str(Path(__file__).parent))
     from variants import VARIANTS
@@ -37,34 +70,7 @@ def main():
     unknown = set(args.variants) - set(VARIANTS)
     if unknown:
         sys.exit(f"unknown variants {sorted(unknown)}")
-
-    stage = Path(tempfile.mkdtemp(prefix="bdt_suite_"))
-    for rel in ("src/vvv/__init__.py", "src/vvv/ml/__init__.py", "src/vvv/ml/train.py", "src/vvv/ml/inference.py"):
-        (stage / rel).parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy(REPO / rel, stage / rel)
-    for f in Path(__file__).parent.glob("*.py"):
-        shutil.copy(f, stage / f.name)
-    shutil.copy(args.config, stage / "config.json")
-    # Longest first (1lep/resolved/unresolved, more rounds), so the short ones fill the end.
-    slow = {"boosted2_unresolved": 4, "boosted2_resolved": 3, "boosted2_leptonic_1lep": 2, "boosted3": 1}
-    tasks = sorted(({"category": c, "variant": v} for c in args.categories for v in args.variants),
-                   key=lambda t: -(slow.get(t["category"], 0) * 10 + ("3000" in t["variant"]) * 5 + ("depth8" in t["variant"])))
-    (stage / "tasks.json").write_text(json.dumps({"config": "config.json", "tasks": tasks}, indent=1))
-
-    from ray.job_submission import JobSubmissionClient
-
-    if args.site == "nrp":
-        headers = {"af-site": "nrp", "af-max-workers": str(args.workers),
-                   "af-inputs": args.inputs, "af-output": args.output}
-        entry = "python suite_job.py tasks.json"
-    else:
-        headers = {"af-max-workers": str(args.workers), "af-min-gpu-memory-gb": "16",
-                   "af-cpus-per-worker": "8", "af-ram-per-worker-gb": "64"}
-        entry = f"python suite_job.py tasks.json --inputs {args.inputs} --output {args.output}"
-    client = JobSubmissionClient(GATEWAY, headers=dict(headers))
-    job = client.submit_job(entrypoint=entry, runtime_env={
-        "working_dir": str(stage), "env_vars": {"PYTHONPATH": "src:.", "PYTHONUNBUFFERED": "1"}})
-    print(f"submitted {job}: {len(tasks)} tasks, {headers}")
+    submit(args.site, args.workers, args.config, args.categories, args.variants, args.inputs, args.output)
 
 
 if __name__ == "__main__":
