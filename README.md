@@ -1,30 +1,80 @@
-# vvv: Scouting VVV analysis on coffea
+# ScoutingVVVAnalysis: Scouting VVV analysis on coffea
 
-Re-implementation of the conversion, systematics and histogram stages of
-ScoutingVVVTools (`../CMSSW_16_1_0_pre4/src/ScoutingVVVTools`, git 421d4d7) with
-coffea 2026.9, awkward, correctionlib and hist. What is ported and why is in
-`specification.md`; the phased plan and decisions are in `DEVELOPMENT_PLAN.md`.
+This is a port of the CMS Run-3 scouting VVV search from the ScoutingVVVTools legacy chain to the
+coffea 2026.9 stack (awkward, correctionlib, hist, XGBoost). The legacy chain is ScoutingVVVTools
+(`CMSSW_16_1_0_pre4/src/ScoutingVVVTools`, git 421d4d7), made of `convert_branch.C`, its JSON
+expression engine, the Python BDT and the `combine.C` scripts.
 
-## Setup
+The legacy chain stays the reference: every ported stage is checked against legacy outputs, event
+by event where possible. Intended differences are listed as decisions rather than absorbed into
+tolerances.
+
+- `specification.md`: what the analysis does (samples, objects, categories, corrections,
+  classifier, statistics).
+- `DEVELOPMENT_PLAN.md`: phases, status and the dated decisions.
+
+## Installation
+
+The environment is managed with [pixi](https://pixi.sh). Everything is pinned in `pixi.toml` and
+`pixi.lock`: Python 3.13, coffea 2026.9, XRootD 5.9.2, XGBoost and the rest.
 
 ```bash
-cd /depot/cms/private/users/schul105/VVV/analysis/coffea
-pixi install            # environment in .pixi/ (visible to Slurm and Dask Gateway workers)
-pixi run test           # unit tests
+git clone https://github.com/JanFSchulte/ScoutingVVVAnalysis.git
+cd ScoutingVVVAnalysis
+pixi install           # creates .pixi/ in the checkout
+pixi run test          # unit tests (pytest -q tests)
+pixi run vvv --help    # command line
 ```
 
-Remote reads need a VOMS proxy that workers can read:
+Requirements:
 
-```bash
-export X509_USER_PROXY=/work/users/$USER/x509up
-voms-proxy-init -voms cms -valid 192:00
-```
+- linux-64 (the only platform in the lock file).
+- For remote reads, a CMS VOMS proxy stored where the workers can read it:
+
+  ```bash
+  export X509_USER_PROXY=/work/users/$USER/x509up    # not /tmp: workers cannot see it
+  voms-proxy-init -voms cms -valid 192:00
+  ```
+
+- For classifier training, a GPU. On the Purdue AF, training is submitted to the AF Ray cluster
+  from a session without a GPU (see [Training](#training)). That uses the AF global environment
+  (`/work/pixi/global`, which has Ray and a CUDA build of XGBoost) and not this project's
+  environment.
+
+### On the Purdue Analysis Facility
+
+- **Location.** Check out under `/work/users/$USER/` or `/depot/cms/...` so that Dask Gateway
+  workers can read the environment. pixi refuses project commands under `/home`.
+- **Dask Gateway.** Create the cluster with `pixi_project=<checkout>` and the environment
+  variables `X509_USER_PROXY=/work/users/$USER/x509up` and
+  `X509_CERT_DIR=/cvmfs/cms.cern.ch/grid/etc/grid-security/certificates`. Without the CA
+  directory every read from a non-Purdue site fails as "Operation expired".
+- **Private checkouts.** If the checkout is in a directory that is not world-readable (e.g.
+  `/depot/cms/private/...`), mirror it to `/work` with `scripts/sync_work_mirror.sh` and point
+  `pixi_project` at the mirror. Do not re-sync the mirror while a production is running.
+
+### Data shipped in the repository
+
+- `data/samples.yaml`: the sample catalogue (names, DAS paths, cross sections, groups), imported
+  from the legacy `sample.json`.
+- `data/filelists/`: per-sample file lists, from the legacy conversion snapshots.
+- `data/corrections/`, `data/pileup/`, `data/lumi/`: JEC/JER/JMS/JMR payloads, pileup profiles
+  and the golden JSON / luminosity inputs.
+- `metadata/<sample>.json`: sums of weights, theory-weight sums and pileup profiles, keyed by a
+  file-list hash. `vvv metadata` regenerates them.
+
+The commands `vvv import-samples` and `vvv import-filelists`, the `sync_*.py` scripts and the
+"legacy" modes of the SR and QCD tools read the legacy checkout, expected at
+`../CMSSW_16_1_0_pre4/src/ScoutingVVVTools`. The analysis itself does not need that checkout.
+
+The training configs (`configs/training/*.json`) contain absolute skim and model paths of the
+current production; regenerate them with `scripts/make_training_config.py` for other locations.
 
 ## Running
 
+### Metadata and the analysis pass
+
 ```bash
-pixi run vvv import-samples          # once: data/samples.yaml from legacy sample.json
-pixi run vvv import-filelists        # once: data/filelists/ from legacy conversion snapshots
 pixi run vvv metadata www            # sums of weights, theory sums, pileup profile -> metadata/www.json
 pixi run vvv run www \
     --model-dir boosted3=<k-fold training dir> \
@@ -32,44 +82,45 @@ pixi run vvv run www \
     --skim-dir /work/users/$USER/vvv/skims
 ```
 
-`vvv run` makes one pass per sample: jet corrections (with rho recovery), the
-five categories for nominal and the eight jet variations, the classifier inputs,
-weights and weight variations, and, for categories with a model, K-fold scores,
-signal-region assignment and the mass-fit histograms:
+`vvv run` makes one pass per sample. It applies the jet corrections (including rho recovery),
+builds the five categories for the nominal jets and the eight jet variations, computes the
+classifier inputs, weights and weight variations, and, for categories with a model, the K-fold
+scores, signal-region assignment and mass-fit histograms:
 
-- `mass[dataset, category, region, syst, mass]`: syst = nominal, jet variations, pileup up/down;
+- `mass[dataset, category, region, syst, mass]`: syst = nominal, jet variations, pileup up/down.
 - `LHEScaleWeight`, `LHEPdfWeight`, `LHEPdfWeightAlphaS`, `PSWeight`
-  `[dataset, category, region, member, mass]`: members normalised to their generator-level sums;
+  `[dataset, category, region, member, mass]`: members normalised to their generator-level sums.
 - `cutflow`, `rho_failures`, `rho_consensus`.
 
-MC is normalised to `--lumi` (default 255.8 fb^-1, the projection target). Data
-in an SR box inside the 50-150 GeV mass window is dropped unless `--unblind`.
-`--gateway` runs on the user's Dask Gateway cluster. Create it with `pixi_project` set to
-the world-readable mirror (`scripts/sync_work_mirror.sh`) and with env
-`X509_USER_PROXY=/work/users/$USER/x509up` and
-`X509_CERT_DIR=/cvmfs/cms.cern.ch/grid/etc/grid-security/certificates`: the workers have no
-CA directory of their own, and without it every read from a non-Purdue site fails as
-"Operation expired" (GSI cannot verify the server). The default `--redirector auto` reads
-`/store/user/jschulte/` from Purdue EOS (`root://eos.cms.rcac.purdue.edu/`) and every
-other file through `root://cms-xrd-global.cern.ch/`, as the legacy conversion does;
-XCache timed out on these user files on 2026-11-03. `--redirector /eos/purdue` reads
-Purdue EOS files through the session mount, for local tests only. `--max-files N` limits a test run;
-`--maxchunks` alone still preprocesses every file of the sample.
+Options:
 
-Data skims (all of data_2024 would be ~600 GB) keep only the events that can reach a mass-fit
-histogram: `--skim-cut configs/training/production.json` applies each category's thresholds
-except the msoftdrop_1 window and requires msoftdrop_1 inside the mass axis (20-250 GeV), ~107 GB.
-A 1-in-40-files skim without the cut (`--every-nth-file 40`, ~15 GB) is for data/MC plots. Both
-are staged on /work and merged onto /depot while running (`scripts/drain_skims.py`, whose
-`--check` compares the rows with the cutflow and looks for duplicate events); the production
-script is `/work/users/$USER/vvv/logs/data_skim.sh`. A change of thresholds or fit range needs a re-skim.
+- **Luminosity.** MC is normalised to `--lumi` (default 255.8 fb^-1, the projection target).
+- **Blinding.** Data in an SR box inside the 50-150 GeV mass window is dropped unless `--unblind`.
+- **Dask.** `--gateway` runs on the user's Dask Gateway cluster.
+- **Redirector.** The default `--redirector auto` reads `/store/user/jschulte/` from Purdue EOS
+  and every other file through `root://cms-xrd-global.cern.ch/`, as the legacy conversion does.
+  `--redirector /eos/purdue` reads through the session mount, for local tests only.
+- **Test runs.** `--max-files N` limits a test run. `--maxchunks` alone still preprocesses every
+  file of the sample.
 
-## Training (XGBoost on GPU via Ray)
+### Skims
 
-The k-fold, mass-decorrelated multiclass BDTs (port of legacy `selections/BDT/train.py`)
-train on the AF Ray cluster, one GPU task per (category, fold). They run in the AF global
-environment, which has Ray, a CUDA build of XGBoost and torch; submit from a session
-without a GPU.
+All of data_2024 skimmed in full would be about 600 GB, so there are two reduced data skims:
+
+- **Fit-region skim (~107 GB).** `--skim-cut configs/training/<config>.json` keeps only the
+  events that can reach a mass-fit histogram: each category's thresholds except the msoftdrop_1
+  window, with msoftdrop_1 inside the mass axis (20-250 GeV). With `--model-dir`, the skim also
+  stores the out-of-fold `proba_<class>` columns.
+- **Plot skim (~15 GB).** `--every-nth-file 40` without the cut, for data/MC plots.
+
+Both are staged on /work and merged onto /depot while the run is going (`scripts/drain_skims.py`).
+`drain_skims.py --check` compares the rows with the cutflow and looks for duplicate events.
+Changing the thresholds or the fit range requires a re-skim.
+
+### Training
+
+The classifiers are k-fold, mass-decorrelated multiclass BDTs, a port of the legacy
+`selections/BDT/train.py`. They train on the AF Ray cluster, one GPU task per (category, fold).
 
 ```bash
 # 1. Training config from the legacy production k-fold configs, with the legacy budgets
@@ -89,63 +140,115 @@ pixi run python scripts/compact_skims.py /work/users/$USER/vvv/skims /depot/cms/
 /work/pixi/global/.pixi/envs/default/bin/python scripts/submit_training.py --logs <job id>
 ```
 
-The models land in the legacy layout (`<output_dir>/<category>/fold<r>/<category>_model.json`,
-`branch.json`, `selection.json`, plus `training_log.json`), so `vvv run --model-dir
-<category>=<output_dir>` uses them directly. Events are assigned to folds by `event % 5`, for
-MC and data alike.
+Models land in the legacy layout: `<output_dir>/<category>/fold<r>/<category>_model.json`,
+`branch.json`, `selection.json`, plus `training_log.json`. `vvv run --model-dir
+<category>=<output_dir>` uses them directly. Events are assigned to folds by `event % 5`, for MC
+and data alike.
 
-Every fold ends with the legacy diagnostic plots (`src/vvv/ml/plots.py`), written into its fold
-directory with the legacy names: `roc_*`, `score_*_vs_*`, `importance`, `decor_corr_{train,test}`,
-`decor_score_vs_branch`, `decor_branch_shapes_by_signal_score` (each `_cls` for stage 1 and
-`_decorr` for the final model), `feature_corr`, `loss_*`, `branches/`, and `plot_summary.json`
-(AUCs and score/mass correlations). A plotting failure is logged and does not fail the fold.
-To (re)make them on CPU, e.g. after a failure or for folds trained before the plots existed
-(their loss curves are recomputed from the model every `--loss-every` rounds):
+Every fold ends with the legacy diagnostic plots (`src/vvv/ml/plots.py`): ROCs, score
+distributions, importances, decorrelation diagnostics, loss curves and `plot_summary.json` (AUCs
+and score/mass correlations). `scripts/plot_training.py` remakes them on CPU.
 
-```bash
-/work/pixi/global/.pixi/envs/default/bin/python scripts/plot_training.py /work/users/$USER/vvv/models/production \
-    [--categories boosted3] [--folds 0 1] [--overwrite]
-```
+What follows legacy exactly:
 
-What follows legacy exactly: features, thresholds, preprocessing, the weight chain
-(sample normalisation, sign-preserving |w|, class balancing after cuts, cap at 20 x the class
-mean), the stage-1 learning-rate schedule and early stopping (checks every 5 rounds), and the
-stage-2 smooth Cramer-von Mises penalty on all six class log-odds against msoftdrop_1,
-log(sphere_mass) and mass_fraction_1 for QCD, with its decor_scale calibration.
+- features, thresholds and preprocessing;
+- the weight chain (sample normalisation, sign-preserving |w|, class balancing after cuts, cap
+  at 20 x the class mean);
+- the stage-1 learning-rate schedule and early stopping;
+- the stage-2 smooth Cramer-von Mises penalty on all six class log-odds against msoftdrop_1,
+  log(sphere_mass) and mass_fraction_1 for QCD, with its decor_scale calibration.
+
 Deliberate differences:
+
 - folds by event number instead of contiguous entry blocks;
 - random instead of contiguous per-sample subsampling;
-- GPU `hist` tree building (legacy XGBoost 1.7.5 ignored `device="cuda"` and ran on CPU).
+- GPU `hist` tree building (legacy XGBoost 1.7.5 ignored `device="cuda"` and ran on CPU);
+- low-HT QCD (HT < 200 GeV) is not used: it reaches the selection only through pileup.
 
-On a T4, one stage-2 objective evaluation for 3M QCD events takes 4.5 s in float64, about
-2 h for 1500 rounds (legacy: 12-72 h per fold on 32 CPUs). `decor_dtype: "float32"` is 4x
-faster but moves the penalty by 14% at that size (`scripts/bench_decor.py`).
+### Signal-region optimisation and QCD estimate
 
-## Validation against legacy
+```bash
+# SR boxes: beam search + branch-and-bound over the 6 class probabilities, Asimov Z with sigma_B
+pixi run python scripts/optimise_signal_regions.py configs/signal_regions/boosted3.json \
+    --skim-dir /depot/cms/users/$USER/VVV/skims_mc_fit --training-config configs/training/legacy_budget.json \
+    --category boosted3 --deterministic --output-dir <dir>
+# QCD mass-fit inputs: fail/SR mass templates, TF_MC fit, sideband transfer factors -> qcd_abcd_yields.root
+pixi run python scripts/estimate_qcd.py <config> --output-dir <dir> [--plots]
+```
 
-| What | Reference | Result |
+Both tools also have a legacy mode, which reads the legacy BDT outputs or histograms and was used
+for the closure tests below.
+
+## Status
+
+### Implemented and validated against legacy
+
+| Stage | Code | Validation |
 |---|---|---|
-| Category assignment, nominal + 8 jet variations | legacy batch `www_0` (WWW, 3 files, 76,712 preselected events) | 100% event-by-event agreement in all 9 configurations (`scripts/sync_legacy.py`) |
-| Corrected AK8 pT/msd, MET, ISR score | same | bit-identical (float32), incl. JER-smeared MC |
-| ~110 classifier/threshold/decorrelation variables, 5 categories | same | all within 1e-5 x max(|ref|, 1); most bit-identical (`scripts/sync_variables.py`) |
-| Metadata: event count, genweight mean, pileup weights and means | legacy sample.json, pileup CSV (all 23 WWW files) | identical; pileup weights to 5e-11 |
-| Per-event pileup weight, genWeight | legacy trees | 2e-7 (float32), exact |
-| Classifier scores, production k-fold boosters | legacy `model_io.predict_model_proba` on legacy trees | 1e-7; 6 of 22k events differ by up to 2e-3 (a float32 ulp in HT/aplanarity crosses a split) |
-| Data: categories and all variables | legacy batch `data_2024_0` (2 files of 2024G, 66,729 golden events) | 100% event-by-event agreement; variables within tolerance (`sync_*.py` without `--mc`) |
+| Schema, samples, file lists, metadata | `schema.py`, `samples.py`, `processors/metadata.py` | event counts, genweight means, pileup weights identical to legacy (pileup to 5e-11) |
+| Objects and the 5 categories (boosted3, boosted2 resolved/unresolved, leptonic 1lep/2lep), nominal + 8 jet variations | `objects.py`, `selection.py` | 100% event-by-event agreement with legacy batch `www_0` (76,712 events) in all 9 configurations, and with 2 files of 2024G data |
+| Jet corrections: JEC, rho recovery, JER, JMS/JMR, Type-1 MET | `corrections/jets.py` | AK8 pT/msd, MET and ISR score bit-identical (float32), incl. JER-smeared MC |
+| Pileup and theory weights | `corrections/pileup.py`, `weights.py` | per-event pileup weight 2e-7, genWeight exact |
+| ~110 classifier/threshold/decorrelation variables | `variables.py` | within 1e-5 x max(\|ref\|, 1), most bit-identical |
+| K-fold inference | `ml/inference.py` | legacy boosters on coffea features reproduce legacy scores to 1e-7 |
+| Analysis processor: skims, scores, SR assignment, mass histograms with jet/pileup/theory variations, blinding | `processors/analysis.py`, `cli.py` | plumbing-tested; per-SR yields not yet synced (see to-do) |
+| K-fold mass-decorrelated BDT training on Ray GPUs, diagnostics | `ml/train.py`, `ml/ray_driver.py`, `ml/plots.py` | AUCs match legacy; QCD score-mass correlation +0.04 vs legacy +0.02 (see to-do) |
+| SR optimisation | `sr/optimise.py`, `scripts/optimise_signal_regions.py` | legacy mode bit-identical to legacy on all production points; deterministic tie-break mode for new SRs |
+| QCD mass-fit inputs (TF_MC fit, templates, transfer factors) | `background/qcd_massfit.py`, `scripts/estimate_qcd.py` | closure with legacy to 2e-12 on all 5 production points |
+| Data skims (fit region and 1/40 plot skim), staged drain to /depot | `scripts/drain_skims.py` | row counts against cutflow, duplicate check |
+
+### Current production (2026-11-06)
+
+- data_2024 fit-region and plot skims: running on Dask Gateway.
+- Legacy-budget BDTs: resolved and unresolved done; boosted3, 1lep and 2lep training.
+- Next: MC fit-region skims with out-of-fold scores from these models.
+
+## To do
+
+Analysis chain:
+
+- [ ] MC fit-region skims with the legacy-budget models (`vvv run --skim-cut ... --model-dir ...`
+      for every sample).
+- [ ] SR optimisation on the coffea skims for all five categories. Unresolved needs ~68 GB in
+      cells mode, so it needs a memory reduction or a large worker.
+- [ ] Recompute the QCD transfer factors on the new SRs with `estimate_qcd.py`, then re-optimise
+      with them (the SRs are currently optimised with the legacy TFs).
+- [ ] Datacard writer in Python, replacing `combine.C` (`writeMassfitCard`). Keep the Combine
+      command structure. Sync target: identical cards and Asimov Z / limits within 1% of legacy
+      (a-priori Z 0.925, r < 2.27 at 255.8 fb^-1).
+- [ ] Adapter from the histograms to the legacy `combine.C` inputs (`*_syst_yields.json` kappas,
+      including the n_eff < 10 fallback rule) and the Phase-5 per-SR yield sync.
+- [ ] Systematics in the cards: jet variations, pileup, theory (scale, PDF, alpha_s, PS).
+
+Physics and validation:
+
+- [ ] ttbar control-region processor and a JMS/JMR refit after the JEC (legacy values are stale).
+- [ ] Data/MC plots from the plot skim.
+- [ ] Remaining decorrelation gap to legacy (QCD p(VVV)-msd1 correlation ~+0.04 vs ~+0.02). The
+      stage-2 penalty is still falling at the 1496-round cap.
+- [ ] Switch from reconstructed rho to the stored branch once the next ScoutingNano production
+      has it.
+
+Infrastructure:
+
+- [ ] Remove the absolute user paths from `configs/training/*.json` (skim and model directories,
+      legacy references).
+- [ ] CI for the unit tests; a 1% smoke production on Dask Gateway.
+- [ ] Cut-over: freeze legacy at a tag and document how each legacy result is reproduced with
+      the `vvv` CLI.
 
 ## Legacy behaviours reproduced on purpose
 
-- Leptons are massless; kinematic cuts use the pT/eta of a `TLorentzVector`
-  rebuilt from (pT, eta, phi, m), which moves stored |eta| = 2.5 values to
-  either side of the cut.
-- Track-less electrons carry charge 2147483647; legacy casts it through float
-  to int (INT_MIN), so they pair "opposite-sign" with any charged electron in
-  the 2-lepton SFOS search. `ObjectConfig.legacy_electron_charge = False`
-  switches to physical charges (95 -> 88 2-lepton WWW events on one file).
-- Inputs are truncated to 30 AK4 / 20 AK8 / 30 leptons, and AK4 jets with
-  raw pT < 19.9 GeV are dropped, before any correction.
-- JMR < 1 gives no smearing, so the JMR variations equal nominal with the
-  current `jms_jmr_results.json`.
+- Leptons are massless. Kinematic cuts use the pT/eta of a `TLorentzVector` rebuilt from (pT,
+  eta, phi, m), which moves stored |eta| = 2.5 values to either side of the cut.
+- Track-less electrons carry charge 2147483647. Legacy casts it through float to int (INT_MIN),
+  so they pair "opposite-sign" with any charged electron in the 2-lepton SFOS search.
+  `ObjectConfig.legacy_electron_charge = False` switches to physical charges (95 -> 88 2-lepton
+  WWW events on one file).
+- Inputs are truncated to 30 AK4 / 20 AK8 / 30 leptons, and AK4 jets with raw pT < 19.9 GeV are
+  dropped, before any correction.
+- JMR < 1 gives no smearing, so the JMR variations equal nominal with the current
+  `jms_jmr_results.json`.
 
 ## Layout
 
@@ -157,8 +260,13 @@ src/vvv/objects.py             objects, ISR score, cleaning, categories
 src/vvv/variables.py           per-category classifier and selection variables
 src/vvv/selection.py           inputs -> corrected objects -> categories, per jet configuration
 src/vvv/weights.py             normalisation, pileup and theory weight variations
-src/vvv/ml/inference.py        K-fold XGBoost inference, BDT thresholds, SR boxes
+src/vvv/ml/                    K-fold inference, training (Ray driver), diagnostic plots
+src/vvv/sr/                    SR box optimisation (inputs from skims or legacy BDT outputs)
+src/vvv/background/            QCD mass-fit transfer factors and templates
 src/vvv/processors/            metadata and analysis processors
 src/vvv/cli.py                 `vvv` command line
-scripts/sync_*.py              event-by-event comparisons with legacy outputs
+configs/                       training, skim prescale and SR configs
+scripts/                       production, training, SR/QCD tools, sync_*.py legacy comparisons
+data/, metadata/               samples, file lists, corrections, derived sample metadata
+tests/                         pytest unit tests
 ```
