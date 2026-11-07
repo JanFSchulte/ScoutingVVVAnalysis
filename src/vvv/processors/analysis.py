@@ -261,6 +261,11 @@ class AnalysisProcessor(processor.ProcessorABC):
 
 def _chunk_id(metadata):
     """Name of a chunk's skim files: fixed by its file and entry range, so a retried or
-    re-run chunk overwrites its own files instead of duplicating its events."""
-    key = f"{metadata.get('fileuuid', metadata.get('filename'))}:{metadata['entrystart']}:{metadata['entrystop']}"
+    re-run chunk overwrites its own files instead of duplicating its events. The file is its
+    /store path (independent of the redirector) and UUID: different files can share a UUID
+    (WWto2L2Nu_powheg scouting_nano_MC_562/563.root), which overwrote chunks when only the UUID
+    was used."""
+    name = metadata.get("filename", "")
+    lfn = name[name.find("/store/"):] if "/store/" in name else name
+    key = f"{lfn}:{metadata.get('fileuuid', '')}:{metadata['entrystart']}:{metadata['entrystop']}"
     return hashlib.sha1(key.encode()).hexdigest()[:16]

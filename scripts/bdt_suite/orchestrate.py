@@ -39,7 +39,9 @@ def main():
     p.add_argument("--max-inflight", type=int, default=30)
     p.add_argument("--attempts", type=int, default=8)
     p.add_argument("--poll", type=int, default=120)
+    p.add_argument("--input-dir", action="append", default=[], help="CATEGORY=DIRNAME under --inputs-root (overrides INPUTS)")
     args = p.parse_args()
+    INPUTS.update(dict(item.split("=", 1) for item in args.input_dir))
     args.output.mkdir(parents=True, exist_ok=True)
     state_file = args.output / "orchestrate_state.json"
     state = json.loads(state_file.read_text()) if state_file.exists() else {}

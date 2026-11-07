@@ -58,9 +58,16 @@ def drain_all(src, dest):
 def event_keys(table):
     """(run, luminosityBlock, event) packed into one uint64 (string keys overflow arrow at ~1e8 rows)."""
     run, lumi, event = (table[c].to_numpy().astype(np.uint64) for c in ("run", "luminosityBlock", "event"))
-    if run.size and (run.min() < 380000 or run.max() >= 380000 + 2**14 or lumi.max() >= 2**14 or event.max() >= 2**36):
+    if not run.size:
+        return run
+    if run.min() >= 380000:  # 2024 data
+        if run.max() >= 380000 + 2**14 or lumi.max() >= 2**14 or event.max() >= 2**36:
+            raise ValueError("run/lumi/event outside the packed key range")
+        return ((run - np.uint64(380000)) << np.uint64(50)) | (lumi << np.uint64(36)) | event
+    # MC: run 1, luminosity blocks up to ~4M
+    if run.max() >= 2**10 or lumi.max() >= 2**22 or event.max() >= 2**32:
         raise ValueError("run/lumi/event outside the packed key range")
-    return ((run - np.uint64(380000)) << np.uint64(50)) | (lumi << np.uint64(36)) | event
+    return (run << np.uint64(54)) | (lumi << np.uint64(32)) | event
 
 
 def first_copies(files):
