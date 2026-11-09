@@ -1,0 +1,1118 @@
+{
+ "kfold": 5,
+ "entries_per_sample": 750000,
+ "eval_entries_per_sample": 500000,
+ "random_state": 42,
+ "decor_lambda": 2,
+ "decor_n_bins": 10,
+ "decor_n_thresholds": 15,
+ "decor_score_tau": 0.2,
+ "decor_bin_tau_scale": 0.25,
+ "decor_msoftdrop_training_max": 250,
+ "decor_tail_min_prob": 0.0002,
+ "decor_tail_n": 10,
+ "metric_eval_every": 5,
+ "skim_dir": "/depot/cms/users/schul105/VVV/skims",
+ "output_dir": "/work/users/schul105/vvv/models/nodecor_lep_nocap",
+ "class_groups": {
+  "VVV": [
+   "www",
+   "wwz",
+   "wzz",
+   "zzz"
+  ],
+  "VH": [
+   "ZH-Zto2Q-Hto2Wto4Q",
+   "ZH-Zto2L-Hto2Wto2L2Nu",
+   "ZH-Zto2L-Hto2Wto4Q",
+   "ZH-Zto2L-Hto2WtoLNu2Q",
+   "ZH-Zto2Q-Hto2Wto2L2Nu",
+   "ZH-Zto2Q-Hto2WtoLNu2Q",
+   "GluGluZH-Zto2Q-Hto2Wto4Q",
+   "GluGluZH-Zto2L-Hto2Wto2L2Nu",
+   "GluGluZH-Zto2L-Hto2Wto4Q",
+   "GluGluZH-Zto2L-Hto2WtoLNu2Q",
+   "GluGluZH-Zto2Q-Hto2Wto2L2Nu",
+   "GluGluZH-Zto2Q-Hto2WtoLNu2Q",
+   "WminusH-Wto2Q-Hto2Wto4Q",
+   "WminusH-Wto2Q-Hto2Wto2L2Nu",
+   "WminusH-Wto2Q-Hto2WtoLNu2Q",
+   "WminusH-WtoLNu-Hto2Wto2L2Nu",
+   "WminusH-WtoLNu-Hto2Wto4Q",
+   "WminusH-WtoLNu-Hto2WtoLNu2Q",
+   "WplusH-Wto2Q-Hto2Wto4Q",
+   "WplusH-Wto2Q-Hto2Wto2L2Nu",
+   "WplusH-Wto2Q-Hto2WtoLNu2Q",
+   "WplusH-WtoLNu-Hto2Wto2L2Nu",
+   "WplusH-WtoLNu-Hto2Wto4Q",
+   "WplusH-WtoLNu-Hto2WtoLNu2Q"
+  ],
+  "Top": [
+   "ttbar_had",
+   "ttbar_semilep",
+   "ttbar_2l2nu",
+   "tbarwplus_had",
+   "twminus_had",
+   "twminus_lnu2q",
+   "tbarwplus_lnu2q"
+  ],
+  "VV": [
+   "WWto2L2Nu_powheg",
+   "WWto4Q_powheg",
+   "WWtoLNu2Q_powheg",
+   "WZto2L2Q_powheg",
+   "WZto2Nu2Q_powheg",
+   "WZto3LNu_powheg",
+   "WZto4Q",
+   "WZtoL3Nu_powheg",
+   "WZtoLNu2Q_powheg",
+   "ZZto2L2Nu_powheg",
+   "ZZto2L2Q_powheg",
+   "ZZto2Nu2Q_powheg",
+   "ZZto4L_powheg",
+   "ZZto4Q"
+  ],
+  "VJets": [
+   "wjets_h100to400",
+   "wjets_h400to800",
+   "wjets_h800to1500",
+   "wjets_h1500to2500",
+   "wjets_h2500",
+   "zjets_h100to400",
+   "zjets_h400to800",
+   "zjets_h800to1500",
+   "zjets_h1500to2500",
+   "zjets_h2500",
+   "wlnu_h100to400_m0to120",
+   "wlnu_h100to400_m120",
+   "wlnu_h1500to2500_m0to120",
+   "wlnu_h1500to2500_m120",
+   "wlnu_h2500_m0to120",
+   "wlnu_h2500_m120",
+   "wlnu_h400to800_m0to120",
+   "wlnu_h400to800_m120",
+   "wlnu_h40to100_m0to120",
+   "wlnu_h800to1500_m0to120",
+   "wlnu_h800to1500_m120",
+   "dy_h1500to2500_m120",
+   "dy_h1500to2500_m4to50",
+   "dy_h1500to2500_m50to120",
+   "dy_h2500_m120",
+   "dy_h2500_m4to50",
+   "dy_h2500_m50to120",
+   "dy_h400to800_m120",
+   "dy_h800to1500_m120",
+   "dy_h800to1500_m4to50",
+   "dy_h800to1500_m50to120",
+   "dy_h40to70_m4to50",
+   "dy_h40to70_m50to120",
+   "dy_h40to70_m120",
+   "dy_h70to100_m4to50",
+   "dy_h70to100_m50to120",
+   "dy_h70to100_m120",
+   "dy_h100to400_m4to50",
+   "dy_h100to400_m50to120",
+   "dy_h100to400_m120",
+   "dy_h400to800_m4to50",
+   "dy_h400to800_m50to120"
+  ],
+  "QCD": [
+   "qcd_ht200to400",
+   "qcd_ht400to600",
+   "qcd_ht600to800",
+   "qcd_ht800to1000",
+   "qcd_ht1000to1200",
+   "qcd_ht1200to1500",
+   "qcd_ht1500to2000",
+   "qcd_ht2000"
+  ]
+ },
+ "categories": {
+  "boosted3": {
+   "n_estimators": 1500,
+   "n_estimators_decorr": 1500,
+   "max_depth": 4,
+   "gamma": 2,
+   "learning_rate": 0.05,
+   "learning_rate_decorr": 0.05,
+   "min_learning_rate": 0.005,
+   "lr_reduce_patience": 4,
+   "reg_lambda": 6,
+   "reg_alpha": 1,
+   "min_child_weight": 50,
+   "subsample": 0.75,
+   "colsample_bytree": 0.9,
+   "colsample_bynode": 0.9,
+   "early_stopping_rounds": 20,
+   "decorrelate": [
+    "ScoutingFatPFJetRecluster_msoftdrop_1",
+    "ScoutingFatPFJetRecluster_sphere_mass",
+    "ScoutingFatPFJetRecluster_mass_fraction_1"
+   ],
+   "training_weight_cap": 20,
+   "features": [
+    "ScoutingFatPFJetRecluster_selected_pt_sum",
+    "ScoutingFatPFJetRecluster_msoftdrop_2",
+    "ScoutingFatPFJetRecluster_msoftdrop_3",
+    "ScoutingFatPFJetRecluster_mass",
+    "ScoutingFatPFJetRecluster_pt",
+    "ScoutingFatPFJetRecluster_mass_fraction_2",
+    "ScoutingFatPFJetRecluster_mass_fraction_3",
+    "ScoutingFatPFJetRecluster_pt_fraction_1",
+    "ScoutingFatPFJetRecluster_pt_fraction_2",
+    "ScoutingFatPFJetRecluster_pt_fraction_3",
+    "ScoutingFatPFJetRecluster_pt_balance",
+    "ScoutingFatPFJetRecluster_deltaR_min",
+    "ScoutingFatPFJetRecluster_deltaR_max",
+    "ScoutingFatPFJetRecluster_deltaPhi_min",
+    "ScoutingFatPFJetRecluster_deltaPhi_max",
+    "SelectedLepton_deltaR_min_ScoutingFatPFJetRecluster",
+    "ScoutingPFJetRecluster2_scoutUParT_bvsall_max_dR0p4",
+    "ScoutingPFJetRecluster2_scoutUParT_probb_second_max_dR0p4",
+    "nScoutingPFJetRecluster2_selected",
+    "ScoutingFatPFJetRecluster_pt_1",
+    "ScoutingFatPFJetRecluster_pt_2",
+    "ScoutingFatPFJetRecluster_pt_3",
+    "ScoutingFatPFJetRecluster_VvsQCD_1",
+    "ScoutingFatPFJetRecluster_VvsQCD_2",
+    "ScoutingFatPFJetRecluster_VvsQCD_3",
+    "ScoutingFatPFJetRecluster_WvsQCD_1",
+    "ScoutingFatPFJetRecluster_WvsQCD_2",
+    "ScoutingFatPFJetRecluster_WvsQCD_3",
+    "ScoutingMET_pt",
+    "ScoutingMET_over_HT",
+    "ScoutingMET_ak4_cosdphi_max",
+    "ScoutingMET_ak8_cosdphi_max",
+    "ScoutingPFJetRecluster2_selected_HT",
+    "nScoutingPFJetRecluster2_btag_loose",
+    "nScoutingPFJetRecluster2_btag_medium",
+    "ScoutingEvent_sphericity",
+    "ScoutingEvent_aplanarity",
+    "ScoutingEvent_planarity",
+    "ScoutingFatPFJetRecluster_prob_Xbb_1",
+    "ScoutingFatPFJetRecluster_prob_Xbb_2",
+    "ScoutingFatPFJetRecluster_prob_Xbb_3",
+    "ScoutingFatPFJetRecluster_prob_Xcc_1",
+    "ScoutingFatPFJetRecluster_prob_Xcc_2",
+    "ScoutingFatPFJetRecluster_prob_Xcc_3",
+    "ScoutingFatPFJetRecluster_prob_Xcs_1",
+    "ScoutingFatPFJetRecluster_prob_Xcs_2",
+    "ScoutingFatPFJetRecluster_prob_Xcs_3",
+    "ScoutingFatPFJetRecluster_prob_Xqq_1",
+    "ScoutingFatPFJetRecluster_prob_Xqq_2",
+    "ScoutingFatPFJetRecluster_prob_Xqq_3",
+    "ScoutingFatPFJetRecluster_prob_Xss_1",
+    "ScoutingFatPFJetRecluster_prob_Xss_2",
+    "ScoutingFatPFJetRecluster_prob_Xss_3",
+    "ScoutingFatPFJetRecluster_prob_Xud_1",
+    "ScoutingFatPFJetRecluster_prob_Xud_2",
+    "ScoutingFatPFJetRecluster_prob_Xud_3",
+    "ScoutingFatPFJetRecluster_ZvsQCD_1",
+    "ScoutingFatPFJetRecluster_ZvsQCD_2",
+    "ScoutingFatPFJetRecluster_ZvsQCD_3"
+   ],
+   "clip_ranges": {
+    "ScoutingFatPFJetRecluster_selected_pt_sum": [
+     0,
+     13600
+    ],
+    "ScoutingFatPFJetRecluster_mass": [
+     0,
+     13600
+    ],
+    "ScoutingFatPFJetRecluster_pt": [
+     0,
+     13600
+    ],
+    "ScoutingFatPFJetRecluster_pt_1": [
+     0,
+     13600
+    ],
+    "ScoutingFatPFJetRecluster_pt_2": [
+     0,
+     13600
+    ],
+    "ScoutingFatPFJetRecluster_pt_3": [
+     0,
+     13600
+    ],
+    "SelectedLepton_pt_1": [
+     0,
+     13600
+    ],
+    "SelectedLepton_pt_2": [
+     0,
+     13600
+    ],
+    "SelectedLepton_pt_3": [
+     0,
+     13600
+    ]
+   },
+   "log_transform": [
+    "ScoutingFatPFJetRecluster_selected_pt_sum",
+    "ScoutingFatPFJetRecluster_sphere_mass",
+    "ScoutingFatPFJetRecluster_msoftdrop_2",
+    "ScoutingFatPFJetRecluster_msoftdrop_3",
+    "ScoutingFatPFJetRecluster_pt_1",
+    "ScoutingFatPFJetRecluster_pt_2",
+    "ScoutingFatPFJetRecluster_pt_3",
+    "ScoutingFatPFJetRecluster_mass",
+    "ScoutingFatPFJetRecluster_pt",
+    "SelectedLepton_pt_1",
+    "SelectedLepton_pt_2",
+    "SelectedLepton_pt_3",
+    "SelectedLepton_ecalIso_1",
+    "SelectedLepton_ecalIso_2",
+    "SelectedLepton_ecalIso_3",
+    "SelectedLepton_hcalIso_1",
+    "SelectedLepton_hcalIso_2",
+    "SelectedLepton_hcalIso_3"
+   ],
+   "thresholds": {
+    "ScoutingFatPFJetRecluster_msoftdrop_1": [
+     50,
+     150
+    ],
+    "ScoutingFatPFJetRecluster_msoftdrop_2": [
+     40,
+     150
+    ],
+    "ScoutingFatPFJetRecluster_msoftdrop_3": [
+     40,
+     150
+    ],
+    "ScoutingFatPFJetRecluster_pt_1": [
+     175,
+     null
+    ],
+    "ScoutingFatPFJetRecluster_pt_2": [
+     175,
+     null
+    ],
+    "ScoutingFatPFJetRecluster_pt_3": [
+     175,
+     null
+    ],
+    "ScoutingFatPFJetRecluster_eta_1": [
+     -2.4,
+     2.4
+    ],
+    "ScoutingFatPFJetRecluster_eta_2": [
+     -2.4,
+     2.4
+    ],
+    "ScoutingFatPFJetRecluster_eta_3": [
+     -2.4,
+     2.4
+    ],
+    "ScoutingPFJetRecluster2_scoutUParT_bvsall_max_dR0p4": [
+     null,
+     0.5
+    ],
+    "nVetoMuon": [
+     null,
+     0.9
+    ],
+    "nVetoElectron": [
+     null,
+     0.9
+    ]
+   },
+   "train_events_per_class": {
+    "VVV": 3000000,
+    "VH": 3000000,
+    "Top": 3000000,
+    "VV": 3000000,
+    "VJets": 3000000,
+    "QCD": 3000000
+   },
+   "exclude_samples": []
+  },
+  "boosted2_resolved": {
+   "n_estimators": 1200,
+   "n_estimators_decorr": 1500,
+   "max_depth": 4,
+   "gamma": 2,
+   "learning_rate": 0.05,
+   "learning_rate_decorr": 0.05,
+   "min_learning_rate": 0.005,
+   "lr_reduce_patience": 4,
+   "reg_lambda": 5,
+   "reg_alpha": 1,
+   "min_child_weight": 50,
+   "subsample": 0.8,
+   "colsample_bytree": 0.9,
+   "colsample_bynode": 0.9,
+   "early_stopping_rounds": 20,
+   "decorrelate": [
+    "ScoutingFatPFJetRecluster_msoftdrop_1",
+    "ScoutingFatPFJetRecluster_sphere_mass",
+    "ScoutingFatPFJetRecluster_mass_fraction_1"
+   ],
+   "training_weight_cap": 20,
+   "features": [
+    "ScoutingFatPFJetRecluster_selected_pt_sum",
+    "ScoutingFatPFJetRecluster_msoftdrop_2",
+    "ScoutingFatPFJetRecluster_mass",
+    "ScoutingFatPFJetReclusterScoutingPFJetRecluster2_mass",
+    "ScoutingFatPFJetReclusterScoutingPFJetRecluster2_pt",
+    "ScoutingFatPFJetRecluster_deltaR",
+    "ScoutingFatPFJetRecluster_mass_fraction_2",
+    "ScoutingFatPFJetReclusterScoutingPFJetRecluster2_pt_fraction_1",
+    "ScoutingFatPFJetReclusterScoutingPFJetRecluster2_pt_fraction_2",
+    "ScoutingFatPFJetReclusterScoutingPFJetRecluster2_pt_balance",
+    "ScoutingPFJetRecluster2_deltaR_min_ScoutingFatPFJetRecluster",
+    "ScoutingPFJetRecluster2_deltaR_min",
+    "SelectedLepton_deltaR_min_ScoutingFatPFJetRecluster",
+    "ScoutingPFJetRecluster2_scoutUParT_bvsall_max_dR0p4",
+    "ScoutingPFJetRecluster2_scoutUParT_probb_second_max_dR0p4",
+    "nScoutingPFJetRecluster2_selected",
+    "ScoutingFatPFJetRecluster_pt_1",
+    "ScoutingFatPFJetRecluster_pt_2",
+    "ScoutingFatPFJetRecluster_VvsQCD_1",
+    "ScoutingFatPFJetRecluster_VvsQCD_2",
+    "ScoutingFatPFJetRecluster_WvsQCD_1",
+    "ScoutingFatPFJetRecluster_WvsQCD_2",
+    "ScoutingPFJetRecluster2_pt_1",
+    "ScoutingPFJetRecluster2_pt_2",
+    "ScoutingPFJetRecluster2_pt_3",
+    "ScoutingPFJetRecluster2_pt_4",
+    "ScoutingPFJetRecluster2_mass_1",
+    "ScoutingPFJetRecluster2_mass_2",
+    "ScoutingPFJetRecluster2_mass_3",
+    "ScoutingPFJetRecluster2_mass_4",
+    "SelectedLepton_pt_1",
+    "SelectedLepton_eta_1",
+    "SelectedLepton_ecalIso_1",
+    "SelectedLepton_hcalIso_1",
+    "ScoutingMET_pt",
+    "ScoutingMET_over_HT",
+    "ScoutingMET_ak4_cosdphi_max",
+    "ScoutingMET_ak8_cosdphi_max",
+    "ScoutingPFJetRecluster2_selected_HT",
+    "nScoutingPFJetRecluster2_btag_loose",
+    "nScoutingPFJetRecluster2_btag_medium",
+    "ScoutingFatPFJetRecluster_deltaEta",
+    "ScoutingEvent_sphericity",
+    "ScoutingEvent_aplanarity",
+    "ScoutingEvent_planarity",
+    "ScoutingFatPFJetRecluster_prob_Xbb_1",
+    "ScoutingFatPFJetRecluster_prob_Xbb_2",
+    "ScoutingFatPFJetRecluster_prob_Xcc_1",
+    "ScoutingFatPFJetRecluster_prob_Xcc_2",
+    "ScoutingFatPFJetRecluster_prob_Xcs_1",
+    "ScoutingFatPFJetRecluster_prob_Xcs_2",
+    "ScoutingFatPFJetRecluster_prob_Xqq_1",
+    "ScoutingFatPFJetRecluster_prob_Xqq_2",
+    "ScoutingFatPFJetRecluster_prob_Xss_1",
+    "ScoutingFatPFJetRecluster_prob_Xss_2",
+    "ScoutingFatPFJetRecluster_prob_Xud_1",
+    "ScoutingFatPFJetRecluster_prob_Xud_2",
+    "ScoutingFatPFJetRecluster_ZvsQCD_1",
+    "ScoutingFatPFJetRecluster_ZvsQCD_2",
+    "ScoutingPFJetRecluster2_dijet_combined_mass",
+    "ScoutingPFJetRecluster2_dijet_combined_pt",
+    "ScoutingPFJetRecluster2_dijet_combined_deltaR_ak8_min",
+    "ScoutingPFJetRecluster2_dijet_combined_deltaR_ak8_max",
+    "ScoutingPFJetRecluster2_dijet_combined_deltaR",
+    "ScoutingPFJetRecluster2_dijet_combined_chi2"
+   ],
+   "clip_ranges": {
+    "ScoutingFatPFJetRecluster_selected_pt_sum": [
+     0,
+     13600
+    ],
+    "ScoutingFatPFJetReclusterScoutingPFJetRecluster2_pt": [
+     0,
+     13600
+    ],
+    "ScoutingFatPFJetRecluster_pt_1": [
+     0,
+     13600
+    ],
+    "ScoutingFatPFJetRecluster_pt_2": [
+     0,
+     13600
+    ],
+    "ScoutingPFJetRecluster2_pt_1": [
+     0,
+     13600
+    ],
+    "ScoutingPFJetRecluster2_pt_2": [
+     0,
+     13600
+    ],
+    "ScoutingPFJetRecluster2_pt_3": [
+     0,
+     13600
+    ],
+    "ScoutingPFJetRecluster2_pt_4": [
+     0,
+     13600
+    ],
+    "SelectedLepton_pt_1": [
+     0,
+     13600
+    ],
+    "SelectedLepton_pt_2": [
+     0,
+     13600
+    ],
+    "SelectedLepton_pt_3": [
+     0,
+     13600
+    ]
+   },
+   "log_transform": [
+    "ScoutingFatPFJetRecluster_selected_pt_sum",
+    "ScoutingFatPFJetRecluster_sphere_mass",
+    "ScoutingFatPFJetRecluster_msoftdrop_2",
+    "ScoutingFatPFJetRecluster_pt_1",
+    "ScoutingFatPFJetRecluster_pt_2",
+    "ScoutingPFJetRecluster2_pt_1",
+    "ScoutingPFJetRecluster2_pt_2",
+    "ScoutingPFJetRecluster2_pt_3",
+    "ScoutingPFJetRecluster2_pt_4",
+    "ScoutingPFJetRecluster2_mass_1",
+    "ScoutingPFJetRecluster2_mass_2",
+    "ScoutingPFJetRecluster2_mass_3",
+    "ScoutingPFJetRecluster2_mass_4",
+    "ScoutingFatPFJetReclusterScoutingPFJetRecluster2_pt",
+    "SelectedLepton_pt_1",
+    "SelectedLepton_pt_2",
+    "SelectedLepton_pt_3",
+    "SelectedLepton_ecalIso_1",
+    "SelectedLepton_ecalIso_2",
+    "SelectedLepton_ecalIso_3",
+    "SelectedLepton_hcalIso_1",
+    "SelectedLepton_hcalIso_2",
+    "SelectedLepton_hcalIso_3"
+   ],
+   "thresholds": {
+    "ScoutingFatPFJetRecluster_msoftdrop_1": [
+     50,
+     150
+    ],
+    "ScoutingFatPFJetRecluster_msoftdrop_2": [
+     40,
+     150
+    ],
+    "ScoutingFatPFJetRecluster_pt_1": [
+     175,
+     null
+    ],
+    "ScoutingFatPFJetRecluster_pt_2": [
+     175,
+     null
+    ],
+    "ScoutingFatPFJetRecluster_eta_1": [
+     -2.4,
+     2.4
+    ],
+    "ScoutingFatPFJetRecluster_eta_2": [
+     -2.4,
+     2.4
+    ],
+    "ScoutingPFJetRecluster2_scoutUParT_bvsall_max_dR0p4": [
+     null,
+     0.5
+    ],
+    "nVetoMuon": [
+     null,
+     0.9
+    ],
+    "nVetoElectron": [
+     null,
+     0.9
+    ]
+   },
+   "train_events_per_class": {
+    "Top": 3000000
+   },
+   "exclude_samples": []
+  },
+  "boosted2_unresolved": {
+   "n_estimators": 1200,
+   "n_estimators_decorr": 1500,
+   "max_depth": 4,
+   "gamma": 2,
+   "learning_rate": 0.05,
+   "learning_rate_decorr": 0.05,
+   "min_learning_rate": 0.005,
+   "lr_reduce_patience": 4,
+   "reg_lambda": 5,
+   "reg_alpha": 1,
+   "min_child_weight": 50,
+   "subsample": 0.8,
+   "colsample_bytree": 0.9,
+   "colsample_bynode": 0.9,
+   "early_stopping_rounds": 20,
+   "decorrelate": [
+    "ScoutingFatPFJetRecluster_msoftdrop_1",
+    "ScoutingFatPFJetRecluster_sphere_mass",
+    "ScoutingFatPFJetRecluster_mass_fraction_1"
+   ],
+   "training_weight_cap": 20,
+   "features": [
+    "ScoutingFatPFJetRecluster_selected_pt_sum",
+    "ScoutingFatPFJetRecluster_msoftdrop_2",
+    "ScoutingFatPFJetRecluster_mass",
+    "ScoutingFatPFJetRecluster_deltaR",
+    "ScoutingFatPFJetRecluster_mass_fraction_2",
+    "ScoutingPFJetRecluster2_deltaR_min_ScoutingFatPFJetRecluster",
+    "ScoutingPFJetRecluster2_deltaR_min",
+    "SelectedLepton_deltaR_min_ScoutingFatPFJetRecluster",
+    "ScoutingPFJetRecluster2_scoutUParT_bvsall_max_dR0p4",
+    "ScoutingPFJetRecluster2_scoutUParT_probb_second_max_dR0p4",
+    "nScoutingPFJetRecluster2_selected",
+    "ScoutingFatPFJetRecluster_pt_1",
+    "ScoutingFatPFJetRecluster_pt_2",
+    "ScoutingFatPFJetRecluster_VvsQCD_1",
+    "ScoutingFatPFJetRecluster_VvsQCD_2",
+    "ScoutingFatPFJetRecluster_WvsQCD_1",
+    "ScoutingFatPFJetRecluster_WvsQCD_2",
+    "ScoutingPFJetRecluster2_pt_1",
+    "ScoutingPFJetRecluster2_pt_2",
+    "ScoutingPFJetRecluster2_pt_3",
+    "ScoutingPFJetRecluster2_pt_4",
+    "ScoutingPFJetRecluster2_mass_1",
+    "ScoutingPFJetRecluster2_mass_2",
+    "ScoutingPFJetRecluster2_mass_3",
+    "ScoutingPFJetRecluster2_mass_4",
+    "SelectedLepton_pt_1",
+    "SelectedLepton_eta_1",
+    "SelectedLepton_ecalIso_1",
+    "SelectedLepton_hcalIso_1",
+    "ScoutingMET_pt",
+    "ScoutingMET_over_HT",
+    "ScoutingMET_ak4_cosdphi_max",
+    "ScoutingMET_ak8_cosdphi_max",
+    "ScoutingPFJetRecluster2_selected_HT",
+    "nScoutingPFJetRecluster2_btag_loose",
+    "nScoutingPFJetRecluster2_btag_medium",
+    "ScoutingFatPFJetRecluster_deltaEta",
+    "ScoutingEvent_sphericity",
+    "ScoutingEvent_aplanarity",
+    "ScoutingEvent_planarity",
+    "ScoutingFatPFJetRecluster_prob_Xbb_1",
+    "ScoutingFatPFJetRecluster_prob_Xbb_2",
+    "ScoutingFatPFJetRecluster_prob_Xcc_1",
+    "ScoutingFatPFJetRecluster_prob_Xcc_2",
+    "ScoutingFatPFJetRecluster_prob_Xcs_1",
+    "ScoutingFatPFJetRecluster_prob_Xcs_2",
+    "ScoutingFatPFJetRecluster_prob_Xqq_1",
+    "ScoutingFatPFJetRecluster_prob_Xqq_2",
+    "ScoutingFatPFJetRecluster_prob_Xss_1",
+    "ScoutingFatPFJetRecluster_prob_Xss_2",
+    "ScoutingFatPFJetRecluster_prob_Xud_1",
+    "ScoutingFatPFJetRecluster_prob_Xud_2",
+    "ScoutingFatPFJetRecluster_ZvsQCD_1",
+    "ScoutingFatPFJetRecluster_ZvsQCD_2",
+    "ScoutingPFJetRecluster2_dijet_combined_mass",
+    "ScoutingPFJetRecluster2_dijet_combined_pt"
+   ],
+   "clip_ranges": {
+    "ScoutingFatPFJetRecluster_selected_pt_sum": [
+     0,
+     13600
+    ],
+    "ScoutingFatPFJetRecluster_pt_1": [
+     0,
+     13600
+    ],
+    "ScoutingFatPFJetRecluster_pt_2": [
+     0,
+     13600
+    ],
+    "ScoutingPFJetRecluster2_pt_1": [
+     0,
+     13600
+    ],
+    "ScoutingPFJetRecluster2_pt_2": [
+     0,
+     13600
+    ],
+    "ScoutingPFJetRecluster2_pt_3": [
+     0,
+     13600
+    ],
+    "ScoutingPFJetRecluster2_pt_4": [
+     0,
+     13600
+    ],
+    "SelectedLepton_pt_1": [
+     0,
+     13600
+    ],
+    "SelectedLepton_pt_2": [
+     0,
+     13600
+    ],
+    "SelectedLepton_pt_3": [
+     0,
+     13600
+    ]
+   },
+   "log_transform": [
+    "ScoutingFatPFJetRecluster_selected_pt_sum",
+    "ScoutingFatPFJetRecluster_sphere_mass",
+    "ScoutingFatPFJetRecluster_msoftdrop_2",
+    "ScoutingFatPFJetRecluster_pt_1",
+    "ScoutingFatPFJetRecluster_pt_2",
+    "ScoutingPFJetRecluster2_pt_1",
+    "ScoutingPFJetRecluster2_pt_2",
+    "ScoutingPFJetRecluster2_pt_3",
+    "ScoutingPFJetRecluster2_pt_4",
+    "ScoutingPFJetRecluster2_mass_1",
+    "ScoutingPFJetRecluster2_mass_2",
+    "ScoutingPFJetRecluster2_mass_3",
+    "ScoutingPFJetRecluster2_mass_4",
+    "SelectedLepton_pt_1",
+    "SelectedLepton_pt_2",
+    "SelectedLepton_pt_3",
+    "SelectedLepton_ecalIso_1",
+    "SelectedLepton_ecalIso_2",
+    "SelectedLepton_ecalIso_3",
+    "SelectedLepton_hcalIso_1",
+    "SelectedLepton_hcalIso_2",
+    "SelectedLepton_hcalIso_3"
+   ],
+   "thresholds": {
+    "ScoutingFatPFJetRecluster_msoftdrop_1": [
+     50,
+     150
+    ],
+    "ScoutingFatPFJetRecluster_msoftdrop_2": [
+     40,
+     150
+    ],
+    "ScoutingFatPFJetRecluster_pt_1": [
+     175,
+     null
+    ],
+    "ScoutingFatPFJetRecluster_pt_2": [
+     175,
+     null
+    ],
+    "ScoutingFatPFJetRecluster_eta_1": [
+     -2.4,
+     2.4
+    ],
+    "ScoutingFatPFJetRecluster_eta_2": [
+     -2.4,
+     2.4
+    ],
+    "ScoutingPFJetRecluster2_scoutUParT_bvsall_max_dR0p4": [
+     null,
+     0.5
+    ],
+    "nVetoMuon": [
+     null,
+     0.9
+    ],
+    "nVetoElectron": [
+     null,
+     0.9
+    ]
+   },
+   "train_events_per_class": {
+    "Top": 3000000
+   },
+   "exclude_samples": []
+  },
+  "boosted2_leptonic_1lep": {
+   "n_estimators": 3000,
+   "n_estimators_decorr": 1500,
+   "max_depth": 4,
+   "gamma": 2,
+   "learning_rate": 0.05,
+   "learning_rate_decorr": 0.05,
+   "min_learning_rate": 0.005,
+   "lr_reduce_patience": 4,
+   "reg_lambda": 5,
+   "reg_alpha": 1,
+   "min_child_weight": 50,
+   "subsample": 0.8,
+   "colsample_bytree": 0.9,
+   "colsample_bynode": 0.9,
+   "early_stopping_rounds": 20,
+   "decorrelate": [
+    "ScoutingFatPFJetRecluster_msoftdrop_1",
+    "ScoutingFatPFJetRecluster_sphere_mass",
+    "ScoutingFatPFJetRecluster_mass_fraction_1"
+   ],
+   "features": [
+    "ScoutingFatPFJetRecluster_selected_pt_sum",
+    "ScoutingFatPFJetRecluster_msoftdrop_2",
+    "ScoutingFatPFJetRecluster_mass",
+    "ScoutingFatPFJetRecluster_deltaR",
+    "ScoutingFatPFJetRecluster_mass_fraction_2",
+    "ScoutingPFJetRecluster2_deltaR_min_ScoutingFatPFJetRecluster",
+    "ScoutingPFJetRecluster2_deltaR_min",
+    "SelectedLepton_deltaR_min_ScoutingFatPFJetRecluster",
+    "ScoutingPFJetRecluster2_scoutUParT_bvsall_max_dR0p4",
+    "ScoutingPFJetRecluster2_scoutUParT_probb_second_max_dR0p4",
+    "nScoutingPFJetRecluster2_selected",
+    "ScoutingFatPFJetRecluster_pt_1",
+    "ScoutingFatPFJetRecluster_pt_2",
+    "ScoutingFatPFJetRecluster_VvsQCD_1",
+    "ScoutingFatPFJetRecluster_VvsQCD_2",
+    "ScoutingFatPFJetRecluster_WvsQCD_1",
+    "ScoutingFatPFJetRecluster_WvsQCD_2",
+    "ScoutingPFJetRecluster2_pt_1",
+    "ScoutingPFJetRecluster2_pt_2",
+    "ScoutingPFJetRecluster2_pt_3",
+    "ScoutingPFJetRecluster2_pt_4",
+    "ScoutingPFJetRecluster2_mass_1",
+    "ScoutingPFJetRecluster2_mass_2",
+    "ScoutingPFJetRecluster2_mass_3",
+    "ScoutingPFJetRecluster2_mass_4",
+    "SelectedLepton_pt_1",
+    "SelectedLepton_eta_1",
+    "SelectedLepton_ecalIso_1",
+    "SelectedLepton_hcalIso_1",
+    "ScoutingMET_pt",
+    "ScoutingMET_over_HT",
+    "ScoutingMET_ak4_cosdphi_max",
+    "ScoutingMET_ak8_cosdphi_max",
+    "ScoutingPFJetRecluster2_selected_HT",
+    "nScoutingPFJetRecluster2_btag_loose",
+    "nScoutingPFJetRecluster2_btag_medium",
+    "ScoutingFatPFJetRecluster_deltaEta",
+    "ScoutingEvent_sphericity",
+    "ScoutingEvent_aplanarity",
+    "ScoutingEvent_planarity",
+    "ScoutingFatPFJetRecluster_prob_Xbb_1",
+    "ScoutingFatPFJetRecluster_prob_Xbb_2",
+    "ScoutingFatPFJetRecluster_prob_Xcc_1",
+    "ScoutingFatPFJetRecluster_prob_Xcc_2",
+    "ScoutingFatPFJetRecluster_prob_Xcs_1",
+    "ScoutingFatPFJetRecluster_prob_Xcs_2",
+    "ScoutingFatPFJetRecluster_prob_Xqq_1",
+    "ScoutingFatPFJetRecluster_prob_Xqq_2",
+    "ScoutingFatPFJetRecluster_prob_Xss_1",
+    "ScoutingFatPFJetRecluster_prob_Xss_2",
+    "ScoutingFatPFJetRecluster_prob_Xud_1",
+    "ScoutingFatPFJetRecluster_prob_Xud_2",
+    "ScoutingFatPFJetRecluster_ZvsQCD_1",
+    "ScoutingFatPFJetRecluster_ZvsQCD_2",
+    "ScoutingPFJetRecluster2_dijet_combined_mass",
+    "ScoutingPFJetRecluster2_dijet_combined_pt",
+    "LeptonicW_mT",
+    "LeptonicW_pt",
+    "SelectedLepton_deltaR_ak8_1",
+    "SelectedLepton_deltaR_ak8_2",
+    "SelectedLepton_deltaR_ak8_max"
+   ],
+   "clip_ranges": {
+    "ScoutingFatPFJetRecluster_selected_pt_sum": [
+     0,
+     13600
+    ],
+    "ScoutingFatPFJetRecluster_pt_1": [
+     0,
+     13600
+    ],
+    "ScoutingFatPFJetRecluster_pt_2": [
+     0,
+     13600
+    ],
+    "ScoutingPFJetRecluster2_pt_1": [
+     0,
+     13600
+    ],
+    "ScoutingPFJetRecluster2_pt_2": [
+     0,
+     13600
+    ],
+    "ScoutingPFJetRecluster2_pt_3": [
+     0,
+     13600
+    ],
+    "ScoutingPFJetRecluster2_pt_4": [
+     0,
+     13600
+    ],
+    "SelectedLepton_pt_1": [
+     0,
+     13600
+    ],
+    "SelectedLepton_pt_2": [
+     0,
+     13600
+    ],
+    "SelectedLepton_pt_3": [
+     0,
+     13600
+    ],
+    "LeptonicW_pt": [
+     0,
+     13600
+    ]
+   },
+   "log_transform": [
+    "ScoutingFatPFJetRecluster_selected_pt_sum",
+    "ScoutingFatPFJetRecluster_sphere_mass",
+    "ScoutingFatPFJetRecluster_msoftdrop_2",
+    "ScoutingFatPFJetRecluster_pt_1",
+    "ScoutingFatPFJetRecluster_pt_2",
+    "ScoutingPFJetRecluster2_pt_1",
+    "ScoutingPFJetRecluster2_pt_2",
+    "ScoutingPFJetRecluster2_pt_3",
+    "ScoutingPFJetRecluster2_pt_4",
+    "ScoutingPFJetRecluster2_mass_1",
+    "ScoutingPFJetRecluster2_mass_2",
+    "ScoutingPFJetRecluster2_mass_3",
+    "ScoutingPFJetRecluster2_mass_4",
+    "SelectedLepton_pt_1",
+    "SelectedLepton_pt_2",
+    "SelectedLepton_pt_3",
+    "SelectedLepton_ecalIso_1",
+    "SelectedLepton_ecalIso_2",
+    "SelectedLepton_ecalIso_3",
+    "SelectedLepton_hcalIso_1",
+    "SelectedLepton_hcalIso_2",
+    "SelectedLepton_hcalIso_3",
+    "LeptonicW_pt"
+   ],
+   "thresholds": {
+    "ScoutingFatPFJetRecluster_msoftdrop_1": [
+     50,
+     150
+    ],
+    "ScoutingFatPFJetRecluster_msoftdrop_2": [
+     40,
+     150
+    ],
+    "ScoutingFatPFJetRecluster_pt_1": [
+     175,
+     null
+    ],
+    "ScoutingFatPFJetRecluster_pt_2": [
+     175,
+     null
+    ],
+    "ScoutingFatPFJetRecluster_eta_1": [
+     -2.4,
+     2.4
+    ],
+    "ScoutingFatPFJetRecluster_eta_2": [
+     -2.4,
+     2.4
+    ],
+    "ScoutingPFJetRecluster2_scoutUParT_bvsall_max_dR0p4": [
+     null,
+     0.5
+    ]
+   },
+   "train_events_per_class": {
+    "Top": 3000000
+   },
+   "exclude_samples": [],
+   "decor_lambda": 0
+  },
+  "boosted2_leptonic_2lep": {
+   "n_estimators": 3000,
+   "n_estimators_decorr": 1500,
+   "max_depth": 4,
+   "gamma": 2,
+   "learning_rate": 0.05,
+   "learning_rate_decorr": 0.05,
+   "min_learning_rate": 0.005,
+   "lr_reduce_patience": 4,
+   "reg_lambda": 5,
+   "reg_alpha": 1,
+   "min_child_weight": 50,
+   "subsample": 0.8,
+   "colsample_bytree": 0.9,
+   "colsample_bynode": 0.9,
+   "early_stopping_rounds": 20,
+   "decorrelate": [
+    "ScoutingFatPFJetRecluster_msoftdrop_1",
+    "ScoutingFatPFJetRecluster_sphere_mass",
+    "ScoutingFatPFJetRecluster_mass_fraction_1"
+   ],
+   "features": [
+    "ScoutingFatPFJetRecluster_selected_pt_sum",
+    "ScoutingFatPFJetRecluster_msoftdrop_2",
+    "ScoutingFatPFJetRecluster_mass",
+    "ScoutingFatPFJetRecluster_deltaR",
+    "ScoutingFatPFJetRecluster_mass_fraction_2",
+    "ScoutingPFJetRecluster2_deltaR_min_ScoutingFatPFJetRecluster",
+    "ScoutingPFJetRecluster2_deltaR_min",
+    "SelectedLepton_deltaR_min_ScoutingFatPFJetRecluster",
+    "ScoutingPFJetRecluster2_scoutUParT_bvsall_max_dR0p4",
+    "ScoutingPFJetRecluster2_scoutUParT_probb_second_max_dR0p4",
+    "nScoutingPFJetRecluster2_selected",
+    "ScoutingFatPFJetRecluster_pt_1",
+    "ScoutingFatPFJetRecluster_pt_2",
+    "ScoutingFatPFJetRecluster_VvsQCD_1",
+    "ScoutingFatPFJetRecluster_VvsQCD_2",
+    "ScoutingFatPFJetRecluster_WvsQCD_1",
+    "ScoutingFatPFJetRecluster_WvsQCD_2",
+    "ScoutingPFJetRecluster2_pt_1",
+    "ScoutingPFJetRecluster2_pt_2",
+    "ScoutingPFJetRecluster2_pt_3",
+    "ScoutingPFJetRecluster2_pt_4",
+    "ScoutingPFJetRecluster2_mass_1",
+    "ScoutingPFJetRecluster2_mass_2",
+    "ScoutingPFJetRecluster2_mass_3",
+    "ScoutingPFJetRecluster2_mass_4",
+    "SelectedLepton_pt_1",
+    "SelectedLepton_eta_1",
+    "SelectedLepton_ecalIso_1",
+    "SelectedLepton_hcalIso_1",
+    "ScoutingMET_pt",
+    "ScoutingMET_over_HT",
+    "ScoutingMET_ak4_cosdphi_max",
+    "ScoutingMET_ak8_cosdphi_max",
+    "ScoutingPFJetRecluster2_selected_HT",
+    "nScoutingPFJetRecluster2_btag_loose",
+    "nScoutingPFJetRecluster2_btag_medium",
+    "ScoutingFatPFJetRecluster_deltaEta",
+    "ScoutingEvent_sphericity",
+    "ScoutingEvent_aplanarity",
+    "ScoutingEvent_planarity",
+    "ScoutingFatPFJetRecluster_prob_Xbb_1",
+    "ScoutingFatPFJetRecluster_prob_Xbb_2",
+    "ScoutingFatPFJetRecluster_prob_Xcc_1",
+    "ScoutingFatPFJetRecluster_prob_Xcc_2",
+    "ScoutingFatPFJetRecluster_prob_Xcs_1",
+    "ScoutingFatPFJetRecluster_prob_Xcs_2",
+    "ScoutingFatPFJetRecluster_prob_Xqq_1",
+    "ScoutingFatPFJetRecluster_prob_Xqq_2",
+    "ScoutingFatPFJetRecluster_prob_Xss_1",
+    "ScoutingFatPFJetRecluster_prob_Xss_2",
+    "ScoutingFatPFJetRecluster_prob_Xud_1",
+    "ScoutingFatPFJetRecluster_prob_Xud_2",
+    "ScoutingFatPFJetRecluster_ZvsQCD_1",
+    "ScoutingFatPFJetRecluster_ZvsQCD_2",
+    "ScoutingPFJetRecluster2_dijet_combined_mass",
+    "ScoutingPFJetRecluster2_dijet_combined_pt",
+    "DileptonZ_mass",
+    "DileptonZ_pt",
+    "DileptonZ_deltaR_ak8_min",
+    "DileptonZ_deltaR_ak8_max"
+   ],
+   "clip_ranges": {
+    "ScoutingFatPFJetRecluster_selected_pt_sum": [
+     0,
+     13600
+    ],
+    "ScoutingFatPFJetRecluster_pt_1": [
+     0,
+     13600
+    ],
+    "ScoutingFatPFJetRecluster_pt_2": [
+     0,
+     13600
+    ],
+    "ScoutingPFJetRecluster2_pt_1": [
+     0,
+     13600
+    ],
+    "ScoutingPFJetRecluster2_pt_2": [
+     0,
+     13600
+    ],
+    "ScoutingPFJetRecluster2_pt_3": [
+     0,
+     13600
+    ],
+    "ScoutingPFJetRecluster2_pt_4": [
+     0,
+     13600
+    ],
+    "SelectedLepton_pt_1": [
+     0,
+     13600
+    ],
+    "SelectedLepton_pt_2": [
+     0,
+     13600
+    ],
+    "SelectedLepton_pt_3": [
+     0,
+     13600
+    ],
+    "DileptonZ_pt": [
+     0,
+     13600
+    ]
+   },
+   "log_transform": [
+    "ScoutingFatPFJetRecluster_selected_pt_sum",
+    "ScoutingFatPFJetRecluster_sphere_mass",
+    "ScoutingFatPFJetRecluster_msoftdrop_2",
+    "ScoutingFatPFJetRecluster_pt_1",
+    "ScoutingFatPFJetRecluster_pt_2",
+    "ScoutingPFJetRecluster2_pt_1",
+    "ScoutingPFJetRecluster2_pt_2",
+    "ScoutingPFJetRecluster2_pt_3",
+    "ScoutingPFJetRecluster2_pt_4",
+    "ScoutingPFJetRecluster2_mass_1",
+    "ScoutingPFJetRecluster2_mass_2",
+    "ScoutingPFJetRecluster2_mass_3",
+    "ScoutingPFJetRecluster2_mass_4",
+    "SelectedLepton_pt_1",
+    "SelectedLepton_pt_2",
+    "SelectedLepton_pt_3",
+    "SelectedLepton_ecalIso_1",
+    "SelectedLepton_ecalIso_2",
+    "SelectedLepton_ecalIso_3",
+    "SelectedLepton_hcalIso_1",
+    "SelectedLepton_hcalIso_2",
+    "SelectedLepton_hcalIso_3",
+    "DileptonZ_pt"
+   ],
+   "thresholds": {
+    "ScoutingFatPFJetRecluster_msoftdrop_1": [
+     50,
+     150
+    ],
+    "ScoutingFatPFJetRecluster_msoftdrop_2": [
+     40,
+     150
+    ],
+    "ScoutingFatPFJetRecluster_pt_1": [
+     175,
+     null
+    ],
+    "ScoutingFatPFJetRecluster_pt_2": [
+     175,
+     null
+    ],
+    "ScoutingFatPFJetRecluster_eta_1": [
+     -2.4,
+     2.4
+    ],
+    "ScoutingFatPFJetRecluster_eta_2": [
+     -2.4,
+     2.4
+    ],
+    "ScoutingPFJetRecluster2_scoutUParT_bvsall_max_dR0p4": [
+     null,
+     0.5
+    ]
+   },
+   "train_events_per_class": {
+    "Top": 3000000
+   },
+   "exclude_samples": [
+    "qcd_ht200to400"
+   ],
+   "decor_lambda": 0
+  }
+ },
+ "source": {
+  "boosted3": "/depot/cms/private/users/schul105/VVV/analysis/CMSSW_16_1_0_pre4/src/ScoutingVVVTools/selections/BDT/study_boosted3/kfold_finedecor_jec_powheg",
+  "boosted2_resolved": "/depot/cms/private/users/schul105/VVV/analysis/CMSSW_16_1_0_pre4/src/ScoutingVVVTools/selections/BDT/study_boosted3/kfold_finedecor_jec_powheg_resolved",
+  "boosted2_unresolved": "/depot/cms/private/users/schul105/VVV/analysis/CMSSW_16_1_0_pre4/src/ScoutingVVVTools/selections/BDT/study_boosted3/kfold_finedecor_jec_powheg_unresolved",
+  "boosted2_leptonic_1lep": "/depot/cms/private/users/schul105/VVV/analysis/CMSSW_16_1_0_pre4/src/ScoutingVVVTools/selections/BDT/study_boosted3/kfold_finedecor_jec_powheg_1lep",
+  "boosted2_leptonic_2lep": "/depot/cms/private/users/schul105/VVV/analysis/CMSSW_16_1_0_pre4/src/ScoutingVVVTools/selections/BDT/study_boosted3/kfold_finedecor_jec_powheg_2lep"
+ },
+ "class_scale": {},
+ "loss_device": "cuda",
+ "note": "legacy_budget for 1lep/2lep without mass decorrelation (decor_lambda 0: QCD from MC there), stage-1 n_estimators 3000, no training weight cap; 2026-11-09"
+}

@@ -548,7 +548,9 @@ def train_fold(cfg, category, fold, device="cuda", data=None, plots=True):
     print(f"{category} fold{fold}: stage 1 {rounds1} rounds, monitor loss {cb1.best:.6g} ({time.time() - t0:.0f} s)", flush=True)
 
     final = stage1
-    if cfg.get("decor_lambda", 0) > 0 and decor and qcd:
+    # decor_lambda per category overrides the global one (0: no stage 2, e.g. where QCD comes from MC)
+    lam = cc.get("decor_lambda", cfg.get("decor_lambda", 0))
+    if lam > 0 and decor and qcd:
         torch_device = "cuda" if device == "cuda" else "cpu"
         dec_tr = DecorState(Ztr, wtr, np.isin(ytr, qcd), cfg, torch_device)
         dec_mo = DecorState(Zmo, wmo, np.isin(ymo, qcd), cfg, torch_device)
@@ -556,7 +558,6 @@ def train_fold(cfg, category, fold, device="cuda", data=None, plots=True):
         reg = _regularisation(stage1, rounds1, rec1["eta"], cc, n_classes)
         raw_tr, _, _ = dec_tr(m_tr, with_grad=False)
         scale = (ce_sum(m_tr, ytr, wtr) + reg) / max(raw_tr, EPS)
-        lam = cfg["decor_lambda"]
         log["decor_scale"] = scale
         print(f"{category} fold{fold}: decorrelation scale {scale:.6g} (raw {raw_tr:.6g}, reg {reg:.6g})", flush=True)
         onehot = np.eye(n_classes)[ytr]
