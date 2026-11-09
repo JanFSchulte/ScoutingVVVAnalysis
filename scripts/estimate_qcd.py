@@ -9,7 +9,14 @@ smooth, data, blinded}) and qcd_est_summary.json (TF_MC fit, n0, per-SR QCD pred
 window / sideband transfer factors, runtime, peak RSS); --plots also qcd_massfit_tf.pdf and
 qcd_massfit_sr<i>.pdf.
 
+With --skim-dir the events come from the coffea MC fit-region skims instead (vvv.background.skims:
+the config supplies only the massfit settings and exclude_samples; --training-config and
+--category the classes and the msoftdrop_1 window, --signal-region-csv the SR boxes, --output-dir
+the output; --data-skim-dir adds data, which needs proba_<class> columns).
+
 Usage: python scripts/estimate_qcd.py CONFIG [--output-dir DIR] [--data-sample NAME] [--no-fingerprint] [--plots]
+       python scripts/estimate_qcd.py CONFIG --skim-dir DIR --training-config JSON --category CAT \
+           --signal-region-csv CSV --output-dir DIR [--data-skim-dir DIR] [--plots]
 """
 
 import argparse
@@ -72,13 +79,26 @@ def main():
     p.add_argument("--data-sample", help="data sample of the data score cache (overrides the config's data_sample)")
     p.add_argument("--no-fingerprint", action="store_true", help="skip the score-cache / model fingerprint check")
     p.add_argument("--plots", action="store_true", help="also the TF_MC and per-SR model plots")
+    p.add_argument("--skim-dir", type=Path, help="coffea MC fit-region skims (instead of the legacy score cache)")
+    p.add_argument("--training-config", type=Path, help="with --skim-dir: class_groups and the msoftdrop_1 window")
+    p.add_argument("--category", help="with --skim-dir")
+    p.add_argument("--signal-region-csv", type=Path, help="with --skim-dir")
+    p.add_argument("--data-skim-dir", type=Path, help="with --skim-dir: data skims with proba_<class> columns")
     args = p.parse_args()
 
     from vvv.background.legacy import LegacySetup
     from vvv.background.qcd_massfit import estimate, sr_csv_hash, summary, write_root
+    from vvv.background.skims import SkimSetup
 
     t0 = time.time()
-    setup = LegacySetup.load(args.config, {"data_sample": args.data_sample} if args.data_sample else None)
+    if args.skim_dir:
+        if not (args.training_config and args.category and args.signal_region_csv and args.output_dir):
+            p.error("--skim-dir needs --training-config, --category, --signal-region-csv and --output-dir")
+        setup = SkimSetup(args.config, args.training_config, args.category, args.skim_dir, args.signal_region_csv,
+                          args.output_dir, data_skim_dir=args.data_skim_dir,
+                          **({"data_sample": args.data_sample} if args.data_sample else {}))
+    else:
+        setup = LegacySetup.load(args.config, {"data_sample": args.data_sample} if args.data_sample else None)
     out_dir = args.output_dir or setup.output_dir
     log(f"QCD mass fit: config={args.config}, tree={setup.tree}, lumi={setup.lumi}, bdt_root={setup.bdt_root}, "
         f"signal_region_csv={setup.signal_region_csv}, qcd_from_mc={setup.massfit.qcd_from_mc}, output_dir={out_dir}")
