@@ -172,6 +172,11 @@ def load_split_data(cfg, category, fold):
         w = w_diag = _balance(w_phys, y, len(classes))
         if split in ("train", "monitor") and cfg["categories"][category].get("training_weight_cap"):
             w = _cap(w, y, len(classes), cfg["categories"][category]["training_weight_cap"])
+        # Optional per-class factors on the fitted and monitored weights, after the cap (e.g. VVV x2
+        # in 1lep, from the BDT configuration study; not a legacy option).
+        for cls_name, factor in cfg["categories"][category].get("class_weight_scale", {}).items():
+            if split in ("train", "monitor"):
+                w = np.where(y == classes.index(cls_name), w * factor, w)
         # w: what the model is fitted and monitored with; w_diag: before the cap (diagnostic plots);
         # w_phys: the physics weight (x lumi, subsampling corrected), before class balancing.
         out[split] = {"X": X, "w": w, "w_diag": w_diag, "w_phys": w_phys, "y": y,
