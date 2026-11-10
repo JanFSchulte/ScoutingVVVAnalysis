@@ -1,0 +1,27 @@
+{
+ "note": "1lep/2lep mass-fit expected sensitivity: BDT with mass decorrelation (legacy_budget) vs without (nodecor_lep)",
+ "legacy_repo": "/depot/cms/private/users/schul105/VVV/analysis/CMSSW_16_1_0_pre4/src/ScoutingVVVTools",
+ "cmssw_src": "/depot/cms/private/users/schul105/VVV/analysis/CMSSW_16_1_0_pre4/src",
+ "categories": ["boosted2_leptonic_1lep", "boosted2_leptonic_2lep"],
+ "combinations": {"leptonic_1lep_2lep": ["boosted2_leptonic_1lep", "boosted2_leptonic_2lep"]},
+ "setups": {
+  "stat": ["lumi", "autoMCStats"],
+  "syst": ["lumi", "trigger", "xsec", "autoMCStats"]
+ },
+ "variants": {
+  "decor": {
+   "training_config": "configs/training/legacy_budget.json",
+   "skim_dir": "/depot/cms/users/schul105/VVV/skims_mc_fit",
+   "sr_dir": "/work/users/schul105/vvv/sr/legacy_budget"
+  },
+  "nodecor": {
+   "training_config": "configs/training/nodecor_lep.json",
+   "skim_dir": "/depot/cms/users/schul105/VVV/skims_mc_fit_nodecor_lep",
+   "sr_dir": "/work/users/schul105/vvv/sr/nodecor_lep"
+  }
+ },
+ "validation": [
+  "/depot/cms/private/users/schul105/VVV/analysis/CMSSW_16_1_0_pre4/src/ScoutingVVVTools/selections/BDT/study_boosted3/sr_granularity/kfold_finedecor_jec_powheg_1lep_massfit_mcqcd/n4_minb0/combine.json",
+  "/depot/cms/private/users/schul105/VVV/analysis/CMSSW_16_1_0_pre4/src/ScoutingVVVTools/selections/BDT/study_boosted3/sr_granularity/kfold_finedecor_jec_powheg_2lep_massfit_nlo/n3_minb0/combine.json"
+ ]
+}
