@@ -161,6 +161,7 @@ def run(
     skim_dir: Path = typer.Option(None, help="write Parquet skims here (e.g. /work/users/$USER/vvv/skims)"),
     skim_prescale: Path = typer.Option(None, help="JSON {sample: {category: P}} from scripts/make_skim_prescales.py"),
     skim_theory: bool = typer.Option(False, help="also write the theory-weight columns to the skims"),
+    skim_variations: bool = typer.Option(False, help="also write skims of the eight jet variations (MC)"),
     skim_cut: Path = typer.Option(None, help="training config (configs/training/*.json): skim only events passing "
                                   "its category thresholds bar the msoftdrop_1 window, with msoftdrop_1 in the "
                                   "mass-fit range (data skims)"),
@@ -170,6 +171,8 @@ def run(
     model_dir: list[str] = typer.Option([], help="CATEGORY=DIR of a legacy-format K-fold training"),
     signal_regions: list[str] = typer.Option([], help="CATEGORY=signal_region.csv"),
     lumi: float = typer.Option(255.8, help="fb^-1 for MC normalisation"),
+    smooth_factor: list[float] = typer.Option([2.0], help="SR-box loosening factor(s) of the mass_smooth "
+                                              "histogram (smoothed mass-fit templates)"),
     workers: int = 8,
     gateway: bool = False,
     chunksize: int = 200_000,
@@ -202,11 +205,15 @@ def run(
     models = dict(item.split("=", 1) for item in model_dir)
     regions = {cat: load_signal_regions(p) for cat, p in (item.split("=", 1) for item in signal_regions)}
     proc = AnalysisProcessor(DEFAULT, catalogue, meta, lumi, models=models, signal_regions=regions,
-                             skim_dir=skim_dir, blind=not unblind,
+                             skim_dir=skim_dir, skim_variations=skim_variations, blind=not unblind,
                              skim_prescale=json.loads(skim_prescale.read_text())["prescale"] if skim_prescale else None,
                              skim_theory=skim_theory,
                              skim_cut={c: v["thresholds"] for c, v in json.loads(skim_cut.read_text())["categories"].items()}
-                             if skim_cut else None, jet_variations=jet_variations)
+                             if skim_cut else None, jet_variations=jet_variations, smooth_factors=smooth_factor)
+    # Provenance in every output pickle: the luminosity and the signal regions of the histograms.
+    provenance = {"lumi_fb": lumi, "signal_regions": {cat: {"csv": str(p), "sha256": _sha256(p)} for cat, p in
+                                                      (item.split("=", 1) for item in signal_regions)},
+                  "models": models}
     if skim_dir is None:
         fileset = {
             name: {"files": {f: "Events" for f in _drop_excluded(name, _load_filelist(name, redirector)[::every_nth_file or 1][:max_files])[0]}}
@@ -217,7 +224,7 @@ def run(
                                   xrootdtimeout=xrootd_timeout)
         out = runner(fileset, proc, treename="Events")
         output = output or _work_dir() / "hists" / f"{samples[0]}.pkl"
-        _dump(out, output)
+        _dump({**out, **provenance}, output)
         return
 
     # Skims: one sample at a time and no skipped files, so every skim covers its whole
@@ -248,7 +255,7 @@ def run(
                 failed.append(name)
                 typer.echo(f"{name}: FAILED {type(err).__name__}: {err}")
                 continue
-            _dump(out, hist_dir / f"{name}.pkl")
+            _dump({**out, **provenance}, hist_dir / f"{name}.pkl")
             if complete:
                 _write_done(done, len(files), chunksize, out["cutflow"][name], **extra)
             typer.echo(f"{name}: {json.dumps(out['cutflow'][name])}")
@@ -267,7 +274,7 @@ def run(
                 n_failed += 1
                 typer.echo(f"{name} batch {i}/{len(batches)}: FAILED {type(err).__name__}: {err}")
                 continue
-            _dump(out, hist_dir / name / f"b{batch_files}_{i:05d}.pkl")
+            _dump({**out, **provenance}, hist_dir / name / f"b{batch_files}_{i:05d}.pkl")
             if complete:
                 marker.parent.mkdir(parents=True, exist_ok=True)
                 marker.write_text(json.dumps({"files": batch, "excluded_files": dropped, "cutflow": out["cutflow"][name]},
@@ -355,6 +362,12 @@ def ttbar_cr(
             out["excluded_files"] = dropped
             _dump(out, path)
             typer.echo(f"{name}{f' batch {i}/{len(batches)}' if batch_files else ''}: {json.dumps(out['cutflow'][name])}")
+
+
+def _sha256(path):
+    import hashlib
+
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
 def _write_done(done: Path, n_files: int, chunksize: int, cutflow: dict, **extra):

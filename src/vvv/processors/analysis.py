@@ -15,7 +15,10 @@ for every category:
   gets its SR bin_index (0 = outside every SR box), and the mass-fit histogram
   (dataset, category, region, syst, mass) is filled for the configuration and,
   at nominal, for every weight variation; theory members fill their own
-  histograms with a member axis.
+  histograms with a member axis. For the smoothed mass-fit templates (legacy qcd_est.py
+  massfit smooth_templates), mass_smooth[dataset, category, factor, region, mass] holds, per SR
+  box loosened by each factor in smooth_factors (lower bounds / f, upper bounds x f capped at 1),
+  the nominal MC events in the loosened box and outside the other boxes.
 """
 
 import hashlib
@@ -28,6 +31,7 @@ import numpy as np
 from coffea import processor
 from coffea.lumi_tools import LumiMask
 
+from vvv.background.qcd_massfit import box_mask
 from vvv.config import AnalysisConfig
 from vvv.ml.inference import CLASSES, CategoryModel, region_index, threshold_mask
 from vvv.objects import CATEGORIES
@@ -48,6 +52,22 @@ def mass_hist(mass_axis):
         mass_axis,
         storage=hist.storage.Weight(),
     )
+
+
+def smooth_hist(mass_axis):
+    return hist.Hist(
+        hist.axis.StrCategory([], name="dataset", growth=True),
+        hist.axis.StrCategory(list(CATEGORIES), name="category"),
+        hist.axis.StrCategory([], name="factor", growth=True),
+        hist.axis.IntCategory([], name="region", growth=True),
+        mass_axis,
+        storage=hist.storage.Weight(),
+    )
+
+
+def factor_label(factor):
+    """Category label of a loosening factor on the mass_smooth factor axis."""
+    return f"{float(factor):g}"
 
 
 def member_hist(mass_axis, n_members):
@@ -88,13 +108,15 @@ class AnalysisProcessor(processor.ProcessorABC):
         jet_variations=True,
         blind=True,
         blind_window=(50.0, 150.0),
+        smooth_factors=(2.0,),
     ):
         """
         samples: {name: Sample}; metadata: {name: metadata record} (MC);
         models: {category: model_dir} of legacy-format K-fold trainings;
         signal_regions: {category: [(bin_index, {class: (lo, hi)})]};
         skim_cut: {category: thresholds}: skim only events passing the thresholds other than
-        the mass-fit branch, with the mass-fit branch inside the mass axis (what _fill keeps).
+        the mass-fit branch, with the mass-fit branch inside the mass axis (what _fill keeps);
+        smooth_factors: SR-box loosening factors of the mass_smooth histogram (legacy default 2).
         """
         self.cfg = cfg
         self.samples = samples
@@ -112,6 +134,7 @@ class AnalysisProcessor(processor.ProcessorABC):
         self.jet_variations = jet_variations
         self.blind = blind
         self.blind_window = blind_window
+        self.smooth_factors = tuple(float(f) for f in smooth_factors)
         self._selection = None
         self._models = None
 
@@ -140,6 +163,7 @@ class AnalysisProcessor(processor.ProcessorABC):
         out = {
             "cutflow": {dataset: {"all": len(events)}},
             "mass": mass_hist(self.mass_axis),
+            "mass_smooth": smooth_hist(self.mass_axis),
             **{name: member_hist(self.mass_axis, n) for name, n in THEORY_SETS.items()},
             "rho_failures": {dataset: 0},
             "rho_consensus": {dataset: 0},
@@ -221,6 +245,13 @@ class AnalysisProcessor(processor.ProcessorABC):
 
         fill = dict(dataset=dataset, category=category, region=region, mass=mass)
         out["mass"].fill(syst=config_name, weight=weight, **fill)
+        if sample.is_mc and config_name == "nominal":
+            for factor in self.smooth_factors:
+                for bin_index, bounds in self.signal_regions.get(category, []):
+                    sel = box_mask(proba, bounds, CLASSES, factor) & ((region == 0) | (region == bin_index))
+                    if sel.any():
+                        out["mass_smooth"].fill(dataset=dataset, category=category, factor=factor_label(factor),
+                                                region=bin_index, mass=mass[sel], weight=weight[sel])
         for name, ratio in w_variations.items():
             ratio = ratio[keep]
             if name in THEORY_SETS:
