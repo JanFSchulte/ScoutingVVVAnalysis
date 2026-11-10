@@ -120,9 +120,16 @@
   ]
  },
  "fit_window": [
-  50,
-  120
+  60,
+  140
  ],
- "n_bins": 17,
- "w_mass_ref": 80.38
+ "n_bins": 16,
+ "w_mass_ref": 80.38,
+ "mu_start": 95.0,
+ "mu_bounds": [
+  70.0,
+  130.0
+ ],
+ "fit_hist": "Probe_msoftdrop_1",
+ "_note_fit": "2026-11-10: W-peak fit window, start and bounds moved with the peak (legacy 50-120 GeV, start 80, bounds 65-100): the AK8 JEC applied to the groomed mass (x~1.13 for uncalibrated scouting jets) puts the MC peak at ~98 GeV. Interim, until scouting-specific JECs fix the jet-mass calibration. fit_hist: the CR control histogram (0-250 GeV, 5 GeV bins, same selection) is used because the production's fit histogram was filled in the legacy window."
 }

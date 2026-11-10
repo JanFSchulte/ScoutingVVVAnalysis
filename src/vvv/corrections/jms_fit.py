@@ -11,7 +11,10 @@ and MC, with a Gaussian on an exponential in the fit window:
     JMS = mu_data / mu_MC,  JMR = sigma_data / sigma_MC
 
 The fit (starting values, bounds, chi2 with bin errors, absolute_sigma) and the
-results JSON are those of legacy; the JSON is what corrections/jets.py reads.
+results JSON are those of legacy; the JSON is what corrections/jets.py reads. The peak
+position's starting value and bounds default to legacy's (80, [65, 100] GeV) and can be set
+with mu_start / mu_bounds in the config: the JEC applied to the groomed mass moves the W
+peak to ~98 GeV, outside legacy's window.
 """
 
 import numpy as np
@@ -33,13 +36,13 @@ def edges(cfg):
     return np.linspace(lo, hi, int(cfg["n_bins"]) + 1)
 
 
-def fit_peak(centers, counts, errors, window, label):
+def fit_peak(centers, counts, errors, window, label, mu_start=80.0, mu_bounds=(65.0, 100.0)):
     """Legacy _fit_peak: m0 is fixed (bounds of +-1e-6) at the window low edge; empty bins get error 1."""
     m0 = window[0]
     peak = max(counts.max(), 1.0)
-    p0 = [peak, 80.0, 9.0, max(counts[0], 1.0), 0.01, m0]
-    lo = [0.0, 65.0, 3.0, 0.0, -0.05, m0 - 1e-6]
-    hi = [10 * peak + 10, 100.0, 25.0, 1e9, 0.2, m0 + 1e-6]
+    p0 = [peak, mu_start, 9.0, max(counts[0], 1.0), 0.01, m0]
+    lo = [0.0, mu_bounds[0], 3.0, 0.0, -0.05, m0 - 1e-6]
+    hi = [10 * peak + 10, mu_bounds[1], 25.0, 1e9, 0.2, m0 + 1e-6]
     sig = np.where(errors > 0, errors, 1.0)
     popt, pcov = curve_fit(model, centers, counts, p0=p0, sigma=sig, absolute_sigma=True, bounds=(lo, hi), maxfev=300000)
     perr = np.sqrt(np.diag(pcov))
@@ -78,7 +81,8 @@ class PassFail:
             self.sumw2[tag] += np.histogram(mass[sel], bins=bins, weights=w[sel] ** 2)[0]
 
     def add_hist(self, h):
-        """A (tag, mass) slice of the processor's fit histogram."""
+        """A (tag, mass) slice of the processor's fit histogram (or of a control histogram, already
+        cut to the fit window)."""
         for tag in ("pass", "fail"):
             view = h[{"tag": tag}].view(flow=False)
             self.sumw[tag] += view.value
@@ -93,8 +97,9 @@ def measure(data: PassFail, mc: PassFail, cfg, lumi_fb):
     bins = edges(cfg)
     centers = 0.5 * (bins[:-1] + bins[1:])
     window = tuple(cfg["fit_window"])
-    data_fit = fit_peak(centers, *data.counts("pass"), window, "Data (Pass)")
-    mc_fit = fit_peak(centers, *mc.counts("pass"), window, "MC (Pass)")
+    peak = {"mu_start": float(cfg.get("mu_start", 80.0)), "mu_bounds": tuple(cfg.get("mu_bounds", (65.0, 100.0)))}
+    data_fit = fit_peak(centers, *data.counts("pass"), window, "Data (Pass)", **peak)
+    mc_fit = fit_peak(centers, *mc.counts("pass"), window, "MC (Pass)", **peak)
     md, sd, md_e, sd_e = data_fit["mu"], data_fit["sigma"], data_fit["mu_err"], data_fit["sigma_err"]
     mm, sm, mm_e, sm_e = mc_fit["mu"], mc_fit["sigma"], mc_fit["mu_err"], mc_fit["sigma_err"]
     jms = md / mm

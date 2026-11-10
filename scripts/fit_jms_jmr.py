@@ -30,11 +30,23 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from vvv.corrections.jms_fit import PassFail, background, edges, measure, model  # noqa: E402
 
 
-def from_hists(paths, data_samples, mc_samples, syst, n_bins):
+def from_hists(paths, data_samples, mc_samples, syst, cfg):
+    """The processor's "fit" histogram, or with fit_hist in the config that control histogram
+    (same selection and pass/fail split) cut to fit_window, whose edges must match its bins."""
+    import hist
+
     files = [f for p in map(Path, paths) for f in (sorted(p.rglob("*.pkl")) if p.is_dir() else [p])]
+    n_bins = int(cfg["n_bins"])
     data, mc = PassFail(n_bins), PassFail(n_bins)
+    name_h = cfg.get("fit_hist", "fit")
+    lo, hi = cfg["fit_window"]
     for f in files:
-        h = pickle.loads(f.read_bytes())["fit"]
+        h = pickle.loads(f.read_bytes())[name_h]
+        if name_h != "fit":
+            axis = h.axes[-1].name
+            h = h[{axis: slice(hist.loc(lo), hist.loc(hi))}]
+            if not np.allclose(h.axes[-1].edges, edges(cfg)):
+                raise ValueError(f"{name_h} bins {h.axes[-1].edges} do not match fit_window/n_bins {edges(cfg)}")
         for name in h.axes["dataset"]:
             target = data if name in data_samples else mc if name in mc_samples else None
             if target is not None and syst in h.axes["syst"]:
@@ -153,7 +165,7 @@ def main():
         catalogue = load_samples()
         lumi = sum(float(catalogue[s].lumi_fb or 0.0) for s in data_samples)
         if args.hists:
-            data, mc = from_hists(args.hists, data_samples, mc_samples, args.syst, int(cfg["n_bins"]))
+            data, mc = from_hists(args.hists, data_samples, mc_samples, args.syst, cfg)
         else:
             data, mc = from_skims(args.skim_dir, data_samples, mc_samples, cfg)
 
