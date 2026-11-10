@@ -26,5 +26,6 @@
   "qcd_ht100to200",
   "qcd_ht200to400"
  ],
- "tie_break": "deterministic"
+ "tie_break": "deterministic",
+ "legacy_point": "kfold_finedecor_jec_powheg_1lep_massfit_mcqcd/n4_minb0"
 }

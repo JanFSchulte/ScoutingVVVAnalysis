@@ -20,5 +20,6 @@
  "branch_bound_time_limit_seconds": 300,
  "max_threads": 8,
  "progress_every_seconds": 15,
- "tie_break": "deterministic"
+ "tie_break": "deterministic",
+ "legacy_point": "kfold_finedecor_jec_powheg_2lep_massfit_nlo/n3_minb0"
 }

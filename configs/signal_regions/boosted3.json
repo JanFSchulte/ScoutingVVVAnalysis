@@ -1,5 +1,5 @@
 {
- "source": "legacy sr_granularity/kfold_finedecor_jec_powheg_massfit/n4_minb0_minc25/sr_config.json",
+ "source": "reference transfer factors: mean of the mass-fit model TFs of the SR boxes of iterations 0-2 loosened x(2, 3) (scripts/reference_tf.py --loosen; half-spread [0.132, 0.301]), replacing [1.52, 2.1]; 2026-11-10",
  "lumi": 255.8,
  "n_signal_regions": 4,
  "score_axes": "all",
@@ -40,10 +40,11 @@
   ],
   "nonclosure": 0.2,
   "transfer_factors": [
-   1.52,
-   2.1
+   1.759,
+   3.196
   ],
   "min_control_weight": 25.0
  },
- "tie_break": "deterministic"
+ "tie_break": "deterministic",
+ "legacy_point": "kfold_finedecor_jec_powheg_massfit/n4_minb0_minc25"
 }
