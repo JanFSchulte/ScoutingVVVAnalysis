@@ -14,9 +14,15 @@ the config supplies only the massfit settings and exclude_samples; --training-co
 --category the classes and the msoftdrop_1 window, --signal-region-csv the SR boxes, --output-dir
 the output; --data-skim-dir adds data, which needs proba_<class> columns).
 
+With --hists the binned sums come from the nominal mass histograms of `vvv run` pickles (files or
+directories; vvv.background.hists), the same pass that feeds scripts/make_syst_yields.py; the other
+options as with --skim-dir. Data is used when the histograms hold data_sample (default data_2024).
+
 Usage: python scripts/estimate_qcd.py CONFIG [--output-dir DIR] [--data-sample NAME] [--no-fingerprint] [--plots]
        python scripts/estimate_qcd.py CONFIG --skim-dir DIR --training-config JSON --category CAT \
            --signal-region-csv CSV --output-dir DIR [--data-skim-dir DIR] [--plots]
+       python scripts/estimate_qcd.py CONFIG --hists PKL_OR_DIR [...] --training-config JSON --category CAT \
+           --signal-region-csv CSV --output-dir DIR [--plots]
 """
 
 import argparse
@@ -84,14 +90,24 @@ def main():
     p.add_argument("--category", help="with --skim-dir")
     p.add_argument("--signal-region-csv", type=Path, help="with --skim-dir")
     p.add_argument("--data-skim-dir", type=Path, help="with --skim-dir: data skims with proba_<class> columns")
+    p.add_argument("--hists", type=Path, nargs="+", help="vvv run histogram pickles or directories (instead of the "
+                   "skims or the legacy score cache)")
     args = p.parse_args()
 
+    from vvv.background.hists import HistSetup
     from vvv.background.legacy import LegacySetup
     from vvv.background.qcd_massfit import estimate, sr_csv_hash, summary, write_root
     from vvv.background.skims import SkimSetup
 
     t0 = time.time()
-    if args.skim_dir:
+    if args.hists:
+        if not (args.training_config and args.category and args.signal_region_csv and args.output_dir):
+            p.error("--hists needs --training-config, --category, --signal-region-csv and --output-dir")
+        if args.skim_dir:
+            p.error("--hists and --skim-dir are exclusive")
+        setup = HistSetup(args.config, args.training_config, args.category, args.hists, args.signal_region_csv,
+                          args.output_dir, **({"data_sample": args.data_sample} if args.data_sample else {}))
+    elif args.skim_dir:
         if not (args.training_config and args.category and args.signal_region_csv and args.output_dir):
             p.error("--skim-dir needs --training-config, --category, --signal-region-csv and --output-dir")
         setup = SkimSetup(args.config, args.training_config, args.category, args.skim_dir, args.signal_region_csv,
@@ -102,12 +118,16 @@ def main():
     out_dir = args.output_dir or setup.output_dir
     log(f"QCD mass fit: config={args.config}, tree={setup.tree}, lumi={setup.lumi}, bdt_root={setup.bdt_root}, "
         f"signal_region_csv={setup.signal_region_csv}, qcd_from_mc={setup.massfit.qcd_from_mc}, output_dir={out_dir}")
-    acc = setup.accumulator(log=log)
-    setup.fill_mc(acc, check_fingerprint=not args.no_fingerprint, log=log)
-    if setup.data_sample:
-        setup.fill_data(acc, check_fingerprint=not args.no_fingerprint, log=log)
+    if args.hists:
+        inputs = setup.inputs(log=log)
+    else:
+        acc = setup.accumulator(log=log)
+        setup.fill_mc(acc, check_fingerprint=not args.no_fingerprint, log=log)
+        if setup.data_sample:
+            setup.fill_data(acc, check_fingerprint=not args.no_fingerprint, log=log)
+        inputs = acc.inputs()
     t_load = time.time() - t0
-    result = estimate(acc.inputs(), setup.massfit, window=setup.window, log=log)
+    result = estimate(inputs, setup.massfit, window=setup.window, log=log)
     for i, sr in enumerate(result["sr_ids"]):
         log(f"  SR{sr}: qcd_true={result['bundles']['qcd_true']['yield'][i]:.6g}, n0={result['n0'][i]:.6g}, "
             f"qcd_predict={result['bundles']['qcd_predict']['yield'][i]:.6g}")

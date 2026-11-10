@@ -188,3 +188,49 @@ def test_legacy_loader(tmp_path):
     sel = (region == 1) & (m32 > 50) & (m32 < 150)
     assert res["bundles"]["qcd_true"]["yield"][0] == pytest.approx(weight[keep][sel].sum(), rel=1e-12)  # x lumi / 2
     assert res["bundles"]["groups/vh"]["yield"].sum() == 0.0 and res["bundles"]["samples/s_VH"]["mean_event_weight"] == 0
+
+
+def test_hist_setup_matches_events(tmp_path):
+    """estimate_qcd.py --hists (HistSetup): the vvv run mass and mass_smooth histograms give the event-level
+    inputs, smoothed templates included."""
+    import pickle
+
+    from vvv.background.hists import HistSetup
+    from vvv.background.qcd_massfit import box_mask
+    from vvv.processors.analysis import factor_label, mass_hist, smooth_hist
+    from vvv.samples import Sample
+
+    events = _events(seed=5, n=4000)
+    events = {s: (c, p[(m >= 20) & (m < 250)], m[(m >= 20) & (m < 250)], w[(m >= 20) & (m < 250)])
+              for s, (c, p, m, w) in events.items()}
+    cat = "boosted3"
+    mf = {"range": [20, 250], "width": 10, "residual_order": 0, "smooth_templates": {"VV": 2.0}}
+    cfg = MassfitConfig.from_dict(mf, default_blind_window=[50, 150])
+    ref = estimate(_accumulate(cfg, events).inputs(), cfg, log=lambda m: None)
+
+    axis = hist.axis.Regular(23, 20.0, 250.0, name="mass")
+    h, hs = mass_hist(axis), smooth_hist(axis)
+    for s, (_, proba, mass, weight) in events.items():
+        region = np.array([0, 1, 2])[assign_regions(proba, BOXES, CLASSES)]
+        h.fill(dataset=s, category=cat, region=region, syst="nominal", mass=mass, weight=weight)
+        for bid, bounds in BOXES:
+            sel = box_mask(proba, bounds, CLASSES, 2.0) & ((region == 0) | (region == bid))
+            hs.fill(dataset=s, category=cat, factor=factor_label(2.0), region=bid, mass=mass[sel], weight=weight[sel])
+    (tmp_path / "sr.csv").write_text("bin_index,VVV_low,VVV_high,VV_low,VV_high\n1,0.5,1.0,0.0,1.0\n2,0.2,0.5,0.3,0.6\n")
+    (tmp_path / "h.pkl").write_bytes(pickle.dumps({"mass": h, "mass_smooth": hs, "lumi_fb": 2.0}))
+    (tmp_path / "train.json").write_text(json.dumps({"class_groups": {c: [f"s_{c}"] for c in CLASSES},
+                                                     "categories": {cat: {"thresholds": {MSD: [50, 150]}}}}))
+    (tmp_path / "qcd_est.json").write_text(json.dumps({"lumi": 2.0, "abcd_mode": "massfit", "massfit": {cat: mf}}))
+    catalogue = {f"s_{c}": Sample(f"s_{c}", (), "signal" if c in ("VVV", "VH") else "background", 1) for c in CLASSES}
+    setup = HistSetup(tmp_path / "qcd_est.json", tmp_path / "train.json", cat, [tmp_path], tmp_path / "sr.csv",
+                      tmp_path / "out", catalogue=catalogue)
+    res = estimate(setup.inputs(log=lambda m: None), setup.massfit, window=setup.window, log=lambda m: None)
+    assert setup.data_sample is None
+    assert np.allclose(res["qcd_true"][0], ref["qcd_true"][0], rtol=1e-12)
+    assert np.allclose(res["tf"]["coefficients"], ref["tf"]["coefficients"], rtol=1e-9)
+    assert np.allclose(res["smooth"]["VV"][0], ref["smooth"]["VV"][0], rtol=1e-12)
+    assert np.allclose(res["smooth"]["VV"][1], ref["smooth"]["VV"][1], rtol=1e-12)
+    assert np.allclose(res["bundles"]["qcd_predict"]["yield"], ref["bundles"]["qcd_predict"]["yield"], rtol=1e-9)
+    write_root(tmp_path / "q.root", res, sr_csv_hash(tmp_path / "sr.csv"), log=lambda m: None)
+    with uproot.open(tmp_path / "q.root") as f:
+        assert f["metadata/signal_regions"].classname == "TTree"
