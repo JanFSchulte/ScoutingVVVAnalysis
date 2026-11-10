@@ -13,7 +13,9 @@ SPEC is a JSON file (example: configs/fitcheck/decor_vs_nodecor_lep.json):
                      qcd_est.json next to the "source" sr_config.json of configs/signal_regions/<category>.json
   variants           {name: {training_config, and either root_files {category: qcd_abcd_yields.root}
                      or skim_dir + sr_dir (<sr_dir>/<category>/signal_region.csv), from which
-                     scripts/estimate_qcd.py --skim-dir makes the inputs}}
+                     scripts/estimate_qcd.py --skim-dir makes the inputs; optionally syst_dir, the
+                     scripts/make_syst_yields.py output whose six *_syst_yields.json the variant's
+                     combine.C configs then read (theory, pileup, jes, jer, jms, jmr nuisances)}}
   validation         optional list of legacy combine.json files (production points): rerun into
                      OUT/validation/<name> and compared with the recorded significance.csv / limits.csv
   combine_overrides  optional keys set on every combine.C config (lumi_unc, trigger_unc, ...)
@@ -22,7 +24,8 @@ combine.C reads its class registry from <bdt_root>/config.json (class_groups, sa
 coffea inputs have no legacy model directory, so every variant gets a stub OUT/registry/<variant>/
 config.json with the training config's class_groups (those that estimate_qcd.py used) and the
 legacy sample.json. Every combine.C config starts from a copy of the legacy combine/config.json
-(OUT/config/legacy_combine_config.json), with the syst-yield JSON keys removed.
+(OUT/config/legacy_combine_config.json), with the syst-yield JSON keys removed unless the variant
+has a syst_dir.
 
 Steps (--steps, default all): build (compile combine.C into OUT/bin), validate, inputs, combine,
 summary. Outputs: OUT/inputs/<variant>/<category>/, OUT/runs/<variant>/<setup>/<scope>/ (combine.json,
@@ -236,6 +239,9 @@ def run_all(spec, binary, out, roots, force, jobs):
                 cfg = dict(base, enabled_nuisances=nuis,
                            channels=[{"name": c, "root_file": str(roots[(variant, c)]), "bdt_root": str(reg)}
                                      for c in cats])
+                if "syst_dir" in spec["variants"][variant]:
+                    sd = Path(spec["variants"][variant]["syst_dir"])
+                    cfg.update({k: str(sd / k.replace("_json", "_yields.json")) for k in SYST_JSON_KEYS})
                 tasks.append((out / "runs" / variant / setup / scope, cfg))
     log(f"{len(tasks)} combine.C runs, {jobs} in parallel")
     with ThreadPoolExecutor(jobs) as pool:
