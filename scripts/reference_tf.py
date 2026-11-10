@@ -41,6 +41,7 @@ def main():
                    help="instead of p(QCD) thresholds: the SR boxes of each --sr-csv loosened by these factors "
                         "(lower edges / f, upper edges x f, the mass fit's box_mask semantics), one pass region per box")
     args = p.parse_args()
+    args.output_dir.mkdir(parents=True, exist_ok=True)
     if args.loosen:
         return loosened(args)
     args.output_dir.mkdir(parents=True, exist_ok=True)
