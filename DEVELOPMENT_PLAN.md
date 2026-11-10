@@ -9,9 +9,12 @@ The guiding rule is **validate against legacy at every stage**. The legacy chain
 - Phase 0: done. Pixi project, schema, samples.yaml, file lists (from legacy snapshots), legacy reference = batch `www_0` of `dataset_hybrid_leptonic_jec_c`.
 - Phases 1-2: done for MC. Categories and corrections agree event by event with legacy for nominal and all 8 jet variations. The smearing turned out bit-reproducible, so MC is synced exactly, not only statistically. Data (2 files of 2024G) is synced exactly too.
 - Phase 3: variables done and synced. Parquet skims are written (nominal by default).
-- Phase 5: the histogram processor is implemented and plumbing-tested. Still open:
-  - the adapter from histograms to the legacy `combine.C` inputs (`*_syst_yields.json`, `qcd_abcd_yields.root` mass-fit directory);
-  - a full-statistics run on Dask Gateway.
+- Phase 5: the histogram processor is implemented and plumbing-tested.
+  - Adapter to the legacy `combine.C` inputs, done 2026-11-10:
+    - `scripts/make_syst_yields.py` (`vvv.stats.systematics`) writes the six `*_syst_yields.json`. On the skims of the same 2-file pass, every field equals what the legacy producers' entry functions give: 1e-15 for jets and pileup, 3e-12 for theory.
+    - `estimate_qcd.py --hists` (`background/hists.py`; the processor now fills `mass_smooth` for the smoothed templates) is identical to `--skim-dir` on the same events.
+    - combine.C reads all nine syst nuisances.
+  - Still open: the full-statistics MC histogram run on Dask Gateway.
 - Phase 2 ttbar CR (2026-11-06): done. `vvv ttbar-cr` (processors/ttbar_cr.py) and the JMS/JMR fit (corrections/jms_fit.py, scripts/fit_jms_jmr.py). Synced event by event with the legacy convert_ttbar_cr conversion: 100% selection agreement and all branches within 1e-5 on 2 ttbar_semilep files and 1 data_2024 file. The fit reproduces the legacy results JSON bit for bit on the same trees. Still open: the full-statistics CR production and the refit.
 - Training (Phase 4, deferred) has a blocker: the production k-fold models were trained on `dataset_hybrid_leptonic_jec` (before the 2026-11-02 cleaning) with contiguous-block folds. Scores for the `_jec_c` selection therefore need a retraining. The event-number fold scheme can be introduced with that retraining.
 
@@ -32,6 +35,12 @@ The guiding rule is **validate against legacy at every stage**. The legacy chain
   - ABCD transfer factors of boosted3/resolved/unresolved from the SR boxes loosened x2-x3 (scripts/reference_tf.py --loosen), fixed for the optimisation: the TFs of the optimised boxes themselves rest on 170-900 QCD MC events and moved by up to 20% with the box choice (resolved oscillated between two SR sets). Closure on the resulting SRs within the x2/x3 spread.
 - JMS/JMR (2026-11-10): refitted in the coffea ttbar CR on data_2024 with the W-peak window moved to 60-140 GeV (the AK8 JEC applied to the groomed mass, x~1.13 for uncalibrated scouting jets, puts the MC peak at ~98 GeV). JMS = 1.049 +- 0.043 adopted; JMR fixed to 1 with the measured uncertainty (0.52) as its variation, the measurement (1.22 +- 0.52) being statistics-limited. Interim: the JES application to the jet mass is to be fixed with proper scouting JECs. MC outputs made before this use the legacy values (JMS 1.071, JMR 0.52).
 - BDT configuration study (2026-11-06/09, scripts/bdt_suite): 21 variants per category (rounds, depth, regularisation, subsampling, decor_lambda, weight cap, signal weights) screened on fold 0 of boosted3, 1lep and 2lep. None beat the legacy-budget configuration beyond the seed noise except 1lep VVV weight x2 (Z_binned +0.54 +- 0.27); its 5-fold training (configs/training/vvvx2_1lep.json) gave a lower 1lep SR Z_comb on the full MC (2.20 vs 2.32), so the production configuration is kept. The 2lep decorrelation stage is unstable (stops after 1-6 rounds; seed spread larger than any variant effect). More stage-2 rounds halve the QCD-mass correlation in boosted3 at a small AUC cost.
+- Systematics inputs (2026-11-10):
+  - Legacy semantics throughout: per-SR lnN kappas from merged process sums, the n_eff >= 10 fallback to the inclusive selection, and the legacy production's SR-window kappa on every mass bin. `--mass-fit` gives per-mass-bin kappas and is not the default.
+  - Deliberate differences, because the histograms keep only sum w and sum w^2:
+    - `n_events` is round(n_eff);
+    - `nom_sum` is lumi-weighted;
+    - the msoftdrop_1 window is whole bins.
 - SR optimisation (2026-11-05): `tie_break: "deterministic"` for new SRs (hardware- and order-independent); `"legacy"` only for closure.
 
 - ttbar CR (2026-11-06):

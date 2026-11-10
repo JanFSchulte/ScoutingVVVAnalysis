@@ -90,7 +90,14 @@ scores, signal-region assignment and mass-fit histograms:
 - `mass[dataset, category, region, syst, mass]`: syst = nominal, jet variations, pileup up/down.
 - `LHEScaleWeight`, `LHEPdfWeight`, `LHEPdfWeightAlphaS`, `PSWeight`
   `[dataset, category, region, member, mass]`: members normalised to their generator-level sums.
-- `cutflow`, `rho_failures`, `rho_consensus`.
+- `mass_smooth[dataset, category, factor, region, mass]`: nominal MC in each SR box loosened by
+  `--smooth-factor` (default 2, the legacy `smooth_templates` value) and outside the other boxes,
+  for the smoothed mass-fit templates.
+- `cutflow`, `rho_failures`, `rho_consensus`, and the provenance `lumi_fb`, `signal_regions`
+  (CSV path and SHA-256 per category) and `models`.
+
+Region 0 is outside every SR box and region i the SR with bin_index i; every filled event passed the
+category thresholds except the msoftdrop_1 window.
 
 Options:
 
@@ -210,7 +217,84 @@ pixi run python scripts/estimate_qcd.py <config> --output-dir <dir> [--plots]
 ```
 
 Both tools also have a legacy mode, which reads the legacy BDT outputs or histograms and was used
-for the closure tests below.
+for the closure tests below. `estimate_qcd.py` takes its events from the legacy score cache, the
+fit-region skims (`--skim-dir`) or the `vvv run` histograms (`--hists`, see below).
+
+### Systematic uncertainties and the combine.C inputs
+
+One `vvv run` pass over all MC with every category's model and SR CSV gives both the mass-fit inputs
+and the six `*_syst_yields.json` files the legacy `combine.C` reads (`theory_syst_json`,
+`pileup_syst_json`, `jes_syst_json`, `jer_syst_json`, `jms_syst_json`, `jmr_syst_json`):
+
+```bash
+M=/work/users/$USER/vvv/models/baseline; S=/work/users/$USER/vvv/sr/baseline
+CATS="boosted3 boosted2_resolved boosted2_unresolved boosted2_leptonic_1lep boosted2_leptonic_2lep"
+ARGS=$(for c in $CATS; do echo --model-dir $c=$M --signal-regions $c=$S/$c/signal_region.csv; done)
+H=/work/users/$USER/vvv/hists/baseline_syst
+SAMPLES=$(python3 -c "import json; print(' '.join(s for v in json.load(open('configs/training/baseline.json'))['class_groups'].values() for s in v))")
+# 1. histograms of all MC, one pickle per sample: a rerun skips the finished samples (one vvv run call
+#    per sample; a single call over all samples would be one Runner without resume)
+for s in $SAMPLES; do
+  [ -f $H/$s.pkl ] || pixi run vvv run $s $ARGS --gateway --output $H/$s.pkl || echo "FAILED $s"
+done
+# 2. the six *_syst_yields.json (+ CSV) for combine.C (a directory: every pickle in it, added up)
+pixi run python scripts/make_syst_yields.py $H \
+    $(for c in $CATS; do echo --signal-regions $c=$S/$c/signal_region.csv; done) \
+    --training-config configs/training/baseline.json --output-dir /work/users/$USER/vvv/syst/baseline
+# 3. qcd_abcd_yields.root from the nominal histograms of the same pass
+pixi run python scripts/estimate_qcd.py <legacy qcd_est.json> --hists $H \
+    --training-config configs/training/baseline.json --category <cat> \
+    --signal-region-csv $S/<cat>/signal_region.csv --output-dir /work/users/$USER/vvv/qcd_est/<run>/<cat>
+# 4. combine.C with every nuisance: a fitcheck spec whose variant has root_files {cat: qcd_abcd_yields.root}
+#    and syst_dir = the step-2 output, setups {"all": []} (an empty enabled_nuisances list = all)
+pixi run python scripts/fitcheck_massfit.py <spec.json> --out <dir> --steps build,combine,summary
+```
+
+In hist mode, `vvv run` skips unreadable files (`skipbadfiles`) while the normalisation uses the sums
+of all files, so check the log for skipped files.
+
+`make_syst_yields.py` (`vvv.stats.systematics`) is the port of the legacy `theory_syst.py`,
+`pileup_syst.py` and `jes/jer/jms/jmr_syst.py`. It writes the legacy JSON layout
+`{sample: {category: entry}}`. An entry has the inclusive ratios and sums at the top level,
+`regions[<bin_index>]`, `sr_csv_hash` and `min_region_events`, and, with `--mass-fit 20,250,10`,
+also per SR `mass_range` and `mass_bins` and `mass_fit`.
+
+The regions:
+
+- **inclusive:** the post-threshold selection, all regions inside the msoftdrop_1 window;
+- **SR:** the SR box inside the window;
+- **mass_range / mass_bins:** the SR box over the fit range and per fit bin.
+
+What every entry holds:
+
+- **Ratios.** Jet variations: `<s>_up/down` = Y(variation, its own selection, scores and mass) / Y(nominal)
+  in the same region. Pileup: `pu_up/down`. Theory:
+  - PDF: Hessian quadrature over the 100 members, with alpha_s (Y_up - Y_down)/2 in quadrature
+    (`hessian_symmetric`; `mc_replica` optional);
+  - scale: the 7-point envelope without the corners 2 and 6;
+  - PS: ISR [2]/[0], FSR [3]/[1].
+- **Sums.** The yields per fb^-1 and their sums of squared weights (`yield`, `sumw2`, `yield_<var>`,
+  `sumw2_<var>`, with the 101/9/4/2 theory members). `combine.C` adds these up per process.
+- **Fallback.** A region whose nominal sum or any varied sum the nuisance uses has
+  n_eff = (sum w)^2 / sum w^2 < 10 takes the ratios of the next coarser region (flag
+  `fallback_to_inclusive` / `fallback_to_mass_range`). `combine.C` applies the same rule again to the
+  merged process sums.
+
+combine.C turns these into lnN rows, one per nuisance and theory_scale per process. Its
+mass-fit cards apply the SR-window kappa to every mass bin of the SR. With `--mass-fit` (bins equal
+to the qcd_est massfit bins) they use per-mass-bin kappas instead. The legacy production used the
+SR-window kappas. `scripts/fitcheck_massfit.py` drives combine.C; a variant with `syst_dir` uses the six files.
+
+Deliberate differences from legacy: `n_events` is round(n_eff) instead of the raw MC count, and
+`nom_sum` is the lumi-weighted sum. combine.C reads neither, because the histograms keep only sum w and
+sum w^2. The msoftdrop_1 window is whole 10 GeV bins: an event exactly at 50.0 or 150.0 GeV is
+counted in the bin whose lower edge it sits on.
+
+`estimate_qcd.py --hists` has the same approximations as `MassfitInputs.from_hist`. `n_entries`
+holds effective counts, `mean_event_weight` holds the effective weight sum w^2 / sum w instead of
+the median |w|, and there are no ABCD totals. The mass-fit cards use none of these. Everything else
+(yields, sumw2, smoothed templates, TF_MC inputs, metadata/signal_regions as a TTree) is the same
+as `--skim-dir` on the same events.
 
 ## Status
 
@@ -230,6 +314,8 @@ for the closure tests below.
 | QCD mass-fit inputs (TF_MC fit, templates, transfer factors) | `background/qcd_massfit.py`, `scripts/estimate_qcd.py` | closure with legacy to 2e-12 on all 5 production points |
 | ttbar CR (probe selection, CR branches, histograms, skims) and JMS/JMR tag-and-probe fit | `processors/ttbar_cr.py`, `corrections/jms_fit.py`, `scripts/fit_jms_jmr.py`, `scripts/sync_ttbar_cr.py` | 100% event-by-event selection agreement with legacy `convert_branch` on 2 ttbar_semilep files (19,521 of 132,677 preselected events) and 1 data_2024 file (400 of 1,118); all 128 (MC) / 100 (data) branches within 1e-5, 115 / 87 bit-identical; the fit reproduces the legacy results JSON bit for bit on the same trees |
 | Data skims (fit region and 1/40 plot skim), staged drain to /depot | `scripts/drain_skims.py` | row counts against cutflow, duplicate check |
+| Systematic inputs of combine.C (theory, pileup, JES/JER/JMS/JMR `*_syst_yields.json`) from the histograms | `stats/systematics.py`, `scripts/make_syst_yields.py`, `scripts/sync_syst_yields.py` | every field (n_events aside) equal to the legacy producers' own entry functions run on the event-level skims of the same pass (2 files each of www, ttbar_semilep; 46 entries per systematic): jets and pileup to 1e-15, theory to 3e-12; read by combine.C with all nuisances enabled |
+| QCD mass-fit inputs from the histograms (`estimate_qcd.py --hists`) | `background/hists.py` | identical to `--skim-dir` on the same events (all yields, sumw2, smoothed templates to 1e-12), all 5 categories; n_entries / mean_event_weight approximated |
 
 ### Current production (2026-11-06)
 
@@ -250,9 +336,14 @@ Analysis chain:
 - [ ] Datacard writer in Python, replacing `combine.C` (`writeMassfitCard`). Keep the Combine
       command structure. Sync target: identical cards and Asimov Z / limits within 1% of legacy
       (a-priori Z 0.925, r < 2.27 at 255.8 fb^-1).
-- [ ] Adapter from the histograms to the legacy `combine.C` inputs (`*_syst_yields.json` kappas,
-      including the n_eff < 10 fallback rule) and the Phase-5 per-SR yield sync.
-- [ ] Systematics in the cards: jet variations, pileup, theory (scale, PDF, alpha_s, PS).
+- [x] Adapter from the histograms to the legacy `combine.C` inputs (`scripts/make_syst_yields.py`:
+      the six `*_syst_yields.json`, n_eff < 10 fallback rule; `estimate_qcd.py --hists`).
+- [ ] Full MC histogram production (`vvv run` with all five models and SR CSVs), then the syst
+      JSONs, `estimate_qcd.py --hists` and the combine.C fit with all nuisances.
+- [ ] Phase-5 per-SR yield sync against a legacy production with the same SRs (the legacy
+      theory/pileup outputs are for older SRs; JES/JER/JMS/JMR were never produced in legacy).
+- [ ] Decide whether the cards use per-mass-bin kappas (`make_syst_yields.py --mass-fit`) or, as the
+      legacy production, the SR-window kappa on every mass bin.
 
 Physics and validation:
 
@@ -311,7 +402,8 @@ src/vvv/selection.py           inputs -> corrected objects -> categories, per je
 src/vvv/weights.py             normalisation, pileup and theory weight variations
 src/vvv/ml/                    K-fold inference, training (Ray driver), diagnostic plots
 src/vvv/sr/                    SR box optimisation (inputs from skims or legacy BDT outputs)
-src/vvv/background/            QCD mass-fit transfer factors and templates
+src/vvv/background/            QCD mass-fit transfer factors and templates (legacy cache, skims, histograms)
+src/vvv/stats/                 systematic yield ratios for combine.C (*_syst_yields.json)
 src/vvv/processors/            metadata, analysis and ttbar CR processors
 src/vvv/cli.py                 `vvv` command line
 configs/                       training, skim prescale, SR and JMS/JMR fit configs
