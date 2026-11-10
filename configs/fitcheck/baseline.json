@@ -1,0 +1,52 @@
+{
+ "note": "baseline: all five categories, coffea histogram pass with jet variations (JMS 1.049, JMR 1 +- 0.52), syst from make_syst_yields.py",
+ "legacy_repo": "/depot/cms/private/users/schul105/VVV/analysis/CMSSW_16_1_0_pre4/src/ScoutingVVVTools",
+ "cmssw_src": "/depot/cms/private/users/schul105/VVV/analysis/CMSSW_16_1_0_pre4/src",
+ "categories": [
+  "boosted3",
+  "boosted2_resolved",
+  "boosted2_unresolved",
+  "boosted2_leptonic_1lep",
+  "boosted2_leptonic_2lep"
+ ],
+ "combinations": {
+  "all5": [
+   "boosted3",
+   "boosted2_resolved",
+   "boosted2_unresolved",
+   "boosted2_leptonic_1lep",
+   "boosted2_leptonic_2lep"
+  ],
+  "hadronic": [
+   "boosted3",
+   "boosted2_resolved",
+   "boosted2_unresolved"
+  ],
+  "leptonic": [
+   "boosted2_leptonic_1lep",
+   "boosted2_leptonic_2lep"
+  ]
+ },
+ "setups": {
+  "syst": [
+   "lumi",
+   "trigger",
+   "xsec",
+   "autoMCStats"
+  ],
+  "all": []
+ },
+ "variants": {
+  "baseline": {
+   "training_config": "configs/training/baseline.json",
+   "root_files": {
+    "boosted3": "/work/users/schul105/vvv/qcd_est/baseline_hists/boosted3/qcd_abcd_yields.root",
+    "boosted2_resolved": "/work/users/schul105/vvv/qcd_est/baseline_hists/boosted2_resolved/qcd_abcd_yields.root",
+    "boosted2_unresolved": "/work/users/schul105/vvv/qcd_est/baseline_hists/boosted2_unresolved/qcd_abcd_yields.root",
+    "boosted2_leptonic_1lep": "/work/users/schul105/vvv/qcd_est/baseline_hists/boosted2_leptonic_1lep/qcd_abcd_yields.root",
+    "boosted2_leptonic_2lep": "/work/users/schul105/vvv/qcd_est/baseline_hists/boosted2_leptonic_2lep/qcd_abcd_yields.root"
+   },
+   "syst_dir": "/work/users/schul105/vvv/syst/baseline"
+  }
+ }
+}
