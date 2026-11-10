@@ -115,6 +115,7 @@ def test_qcd_from_mc_and_data_blinding(tmp_path):
     path = tmp_path / "out.root"
     write_root(path, res, sr_csv_hash(csv), log=lambda m: None)
     with uproot.open(path) as f:
+        assert f.classname_of("metadata/signal_regions") == "TTree"  # combine.C cannot read an RNTuple
         assert f["metadata/signal_regions"]["bin_index"].array(library="np").tolist() == [1, 2]
         assert f["massfit/settings/qcd_from_mc"].values()[0] == 1.0 and "massfit/tfmc" not in f
         assert f["massfit/settings/has_data"].values()[0] == 1.0

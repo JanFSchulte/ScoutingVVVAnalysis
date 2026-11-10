@@ -540,7 +540,9 @@ def write_root(path, result, csv_hash, log=print):
     cfg, edges = result["cfg"], result["edges"]
     sr_edges = np.arange(len(sr_ids) + 1, dtype=float)
     with uproot.recreate(path) as f:
-        f["metadata/signal_regions"] = {"bin_index": sr_ids}
+        # A TTree, as in the legacy file: uproot >= 5.7 writes a dict as an RNTuple, which combine.C
+        # (TFile::Get + dynamic_cast<TTree*>) cannot read (segmentation fault).
+        f.mktree("metadata/signal_regions", {"bin_index": np.int32}).extend({"bin_index": sr_ids})
         f["metadata/sr_csv_hash"] = (np.array([float(csv_hash)]), ONE_BIN)
         for prefix, b in result["bundles"].items():
             vals = np.asarray(b["yield"], dtype=float).copy()
