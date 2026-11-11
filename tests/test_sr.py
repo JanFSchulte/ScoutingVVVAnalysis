@@ -94,10 +94,13 @@ def test_optimise_finds_signal_corner(tmp_path):
     assert best["B"] >= 5.0 and best["S"] / best["B"] > inputs.weight[y == 0].sum() / inputs.weight[y > 0].sum()
     assert not overlap(bins[0]["lo"], bins[0]["hi"], bins[1]["lo"], bins[1]["hi"])
     assert report["Z_comb"] >= report["Z_comb_before_refinement"] - 1e-9
-    # Same result on coarse cells.
-    bins_c, _ = optimise(_cfg(), inputs, cells=True, log=lambda m: None)
-    assert [b["S_entries"] for b in bins_c] == [b["S_entries"] for b in bins]
-    assert [b["significance"] for b in bins_c] == pytest.approx([b["significance"] for b in bins], rel=1e-9)
+    # Same result on coarse cells. Guaranteed only under tie_break = "deterministic": the "legacy"
+    # tie-break uses summation noise, which differs between cells and events and between CPUs.
+    det = _cfg(tie_break="deterministic")
+    bins_d, _ = optimise(det, inputs, log=lambda m: None)
+    bins_c, _ = optimise(det, inputs, cells=True, log=lambda m: None)
+    assert [b["S_entries"] for b in bins_c] == [b["S_entries"] for b in bins_d]
+    assert [b["significance"] for b in bins_c] == pytest.approx([b["significance"] for b in bins_d], rel=1e-9)
     # CSV readable by vvv.ml.inference, the same events in each box.
     path = tmp_path / "signal_region.csv"
     write_csv(path, bins, report["axes"])
@@ -125,16 +128,19 @@ def test_optimise_abcd():
                                     abcd_values=msd, abcd_cond=[50, 150], control_windows=[(20, 50), (150, 250)])
     assert len(inputs.weight) == np.count_nonzero((msd > 50) & (msd < 150))
     assert len(inputs.control["weight"]) == np.count_nonzero((msd < 50) | (msd > 150))
-    cfg = _cfg(abcd_uncertainty={"branch": "msd", "control_window": [[20, 50], [150, 250]], "nonclosure": 0.2,
-                                 "transfer_factors": [0.5, 0.5], "min_control_weight": 5.0})
-    bins, report = optimise(cfg, inputs, log=lambda m: None)
+    abcd = {"branch": "msd", "control_window": [[20, 50], [150, 250]], "nonclosure": 0.2,
+            "transfer_factors": [0.5, 0.5], "min_control_weight": 5.0}
+    bins, report = optimise(_cfg(abcd_uncertainty=abcd), inputs, log=lambda m: None)
     assert report["control_events_per_window"] == [int(np.count_nonzero(msd < 50)), int(np.count_nonzero(msd > 150))]
     for b in bins:
         assert b["control_count"] >= 5.0
         assert b["sigma_B"] ** 2 == pytest.approx(b["sigma_mc_nonqcd"] ** 2 + b["sigma_abcd"] ** 2)
         assert b["sigma_abcd"] ** 2 >= (0.2 * b["QCD"]) ** 2
-    bins_c, _ = optimise(cfg, inputs, cells=True, log=lambda m: None)
-    assert [b["significance"] for b in bins_c] == pytest.approx([b["significance"] for b in bins], rel=1e-9)
+    # Cells vs events: exact under tie_break = "deterministic" only (see test_optimise_finds_signal_corner).
+    det = _cfg(abcd_uncertainty=abcd, tie_break="deterministic")
+    bins_d, _ = optimise(det, inputs, log=lambda m: None)
+    bins_c, _ = optimise(det, inputs, cells=True, log=lambda m: None)
+    assert [b["significance"] for b in bins_c] == pytest.approx([b["significance"] for b in bins_d], rel=1e-9)
 
 
 def test_exclude_samples():
