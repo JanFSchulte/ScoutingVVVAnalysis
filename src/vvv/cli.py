@@ -364,6 +364,51 @@ def ttbar_cr(
             typer.echo(f"{name}{f' batch {i}/{len(batches)}' if batch_files else ''}: {json.dumps(out['cutflow'][name])}")
 
 
+@app.command("trigger-efficiency")
+def trigger_efficiency(
+    samples: list[str] = typer.Argument(..., help="sample names (signal MC and/or data_2024)"),
+    output_dir: Path = typer.Option(..., help="per-sample output pickles <output-dir>/<sample>.pkl"),
+    reference: str = typer.Option("DST_PFScouting_ZeroBias", help="reference path of the data (MC uses every event)"),
+    every_nth_file: int = typer.Option(None, help="use every N-th file of each sample"),
+    max_files: int = typer.Option(None, help="use only the first N files per sample (testing)"),
+    workers: int = 8,
+    chunksize: int = 200_000,
+    redirector: str = typer.Option("auto", help='"auto" (EOS / global), or a prefix such as ' + XCACHE),
+    metadata_dir: Path = METADATA_DIR,
+    xrootd_timeout: int = 300,
+):
+    """Trigger efficiencies after the preselection versus the selected-AK8 HT and the leading
+    muon / electron (vvv.processors.trigger_efficiency); scripts/plot_trigger_efficiency.py plots them.
+
+    Every listed file must be read (no skipbadfiles): a class merged from several MC samples weights
+    them by their normalisation, which assumes all files of each sample.
+    """
+    from coffea import processor
+
+    from vvv.config import DEFAULT
+    from vvv.processors.trigger_efficiency import TriggerEfficiencyProcessor
+    from vvv.samples import load_samples
+    from vvv.schema import VVVScoutingSchema
+
+    catalogue = load_samples()
+    meta = {}
+    for name in samples:
+        if catalogue[name].is_mc:
+            path = metadata_dir / f"{name}.json"
+            if not path.exists():
+                raise typer.BadParameter(f"{name}: run `vvv metadata {name}` first")
+            meta[name] = json.loads(path.read_text())
+    proc = TriggerEfficiencyProcessor(DEFAULT, catalogue, meta, reference=reference)
+    runner = processor.Runner(executor=_executor(workers, False), schema=VVVScoutingSchema, chunksize=chunksize,
+                              xrootdtimeout=xrootd_timeout)
+    for name in samples:
+        files, dropped = _drop_excluded(name, _load_filelist(name, redirector)[::every_nth_file or 1][:max_files])
+        out = runner({name: {"files": {f: "Events" for f in files}}}, proc, treename="Events")
+        out.update(files=files, excluded_files=dropped, reference=reference)
+        _dump(out, output_dir / f"{name}.pkl")
+        typer.echo(f"{name}: {json.dumps(out['cutflow'][name])}")
+
+
 def _sha256(path):
     import hashlib
 

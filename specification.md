@@ -25,7 +25,7 @@ The source of truth for dataset names, cross sections and sample groups is the l
 - Luminosity / certification: `Cert_Collisions2024_378981_386951_Golden.json`.
   - Processed lumi is 54.2056 fb^-1 (brilcalc, normtag_PHYSICS), used for data/MC comparisons.
   - SR yields, datacards and limits are normalised to the 255.8 fb^-1 projection (confirmed).
-- Triggers: `DST_PFScouting_JetHT` for the analysis. `DST_PFScouting_SingleMuon` for the ttbar CR.
+- Triggers: `DST_PFScouting_JetHT` for boosted3 and boosted2 resolved/unresolved; `DST_PFScouting_JetHT` or `DST_PFScouting_SingleMuon` for the 1- and 2-lepton categories (2026-11-10; only paths of the data production filter, JetHT or SingleMuon). `DST_PFScouting_SingleMuon` for the ttbar CR.
 - MC normalisation: `w = L x xsec x genWeight / sum(Runs/genEventSumw) x w_PU / <w_PU>`.
   - xsec comes from sample.json (XSDB, fb). VV is scaled to NNLO (MATRIX, `combine/xsec_unc.json`). V+jets gets per-sample NLO/LO k-factors of 1.41-1.62.
   - Behaviour change, deliberate: the port uses `sum genEventSumw` from the Runs tree directly instead of `raw_entries x genweight_mean`. These are equivalent when all files are read. When files are missing, compute the sum from the files actually processed.
@@ -54,12 +54,14 @@ Every histogram is a single `hist.Hist` with categorical axes `dataset`, `catego
 ## Analysis Steps
 
 1. Event preselection
-   - Golden JSON (data), `DST_PFScouting_JetHT`, `nScoutingFatPFJetRecluster >= 2`. Legacy applies this before the JEC; keep that.
+   - Golden JSON (data), the OR of the categories' trigger paths (each category then requires its own), `nScoutingFatPFJetRecluster >= 2`. Legacy applies this before the JEC; keep that.
 2. Jet corrections
    - Applied before the object selection; see Corrections.
 3. Objects
    - AK8 (`ScoutingFatPFJetRecluster`): pT > 175, |eta| < 2.5, sorted by pT.
-   - AK4 (`ScoutingPFJetRecluster2`): raw pT > 19.9. After corrections: pT > 30, |eta| < 2.5, nConstituents > 1, neHEF < 0.99, neEmEF < 0.90, chHadMultiplicity > 0, muEF < 0.80.
+   - AK4 (`ScoutingPFJetRecluster2`): raw pT > 19.9. After corrections: pT > 30, |eta| < 2.5, and the official 2024 scouting jet ID `ScoutingPFJetRecluster_TightLeptonVeto` (2026-11-10; before: nConstituents > 1, neHEF < 0.99, neEmEF < 0.90, chHadMultiplicity > 0, muEF < 0.80).
+   - Jets are corrected after subtracting the identified leptons inside them (closest AK4 within 0.4, closest AK8 within 0.8; muons only from jets with a muon candidate); the AK8 soft-drop mass is not subtracted.
+   - Jet veto map (Run 3): events with an AK4 jet of corrected pT > 15, passing the jet ID, chEmEF + neEmEF < 0.9, in a vetoed bin of `Summer24Prompt24_RunBCDEFGHI_V1` are rejected (data and MC, also in the ttbar CR).
    - Electron veto: pT > 10, |eta| < 2.5, the legacy cut-based EB/EE ID, (trk + ecal + hcal iso)/pT < 0.20.
    - Muon veto (`ScoutingMuonVtx`): pT > 10, |eta| < 2.4, the legacy ID (chi2 < 3, > 5 tracker layers, >= 1 pixel hit, >= 1 SA hit, >= 2 matched stations, type in {2, 6, 10, 14}), trkIso/pT < 0.15.
 4. Per-AK8 ISR score
@@ -95,7 +97,7 @@ Every histogram is a single `hist.Hist` with categorical axes `dataset`, `catego
   - AK8 is corrected from raw.
 - rho is not stored in the current production. Reconstruct it per event by inverting the AK4 JEC (legacy regula falsi, 1 GeV consistency), vectorised over events.
   - A future ScoutingNano production will store rho. Keep the reconstruction behind a switch (`rho_source: reconstruct | branch`) so the stored branch can be used directly, with the reconstruction kept as a cross-check.
-- JER (MC): `Summer23BPixPrompt23_RunD_JRV1_MC_{PtResolution,ScaleFactor}_AK4PFPuppi` (offline proxy, 2024_Summer24 POG) plus `JERSmear`, GenPt = -1. Applied to AK4 and AK8.
+- JER (MC): hybrid method (scaling with the matched generator jet if dR < R/2 and |pT - pT_gen| < 3 sigma pT, stochastic otherwise; CAT `JERSmear` of 2026-09-18) with the offline `Summer24Prompt24_JRV2_MC` JER, AK4PFPuppi for AK4 and AK8PFPuppi for AK8 (2026-11-10; before: `Summer23BPixPrompt23_RunD_JRV1` AK4PFPuppi for both, stochastic only). AK8 jets have no stored generator jets and are smeared stochastically.
   - Smearing must be statistically equivalent to legacy, not bit-identical: compare the distributions of corrected pT/msd and per-category yields within statistical uncertainty. Use a deterministic per-jet seed built from (run, event, jet index) so results are reproducible.
 - JES: flat +-10% on pT, mass and msd, applied after JER.
 - JMS/JMR: from `jms_jmr_results.json`, fitted in the ttbar CR (Gaussian + exponential W peak). The smearing only needs to be statistically equivalent, so the legacy splitMix64 hash is not ported. The values must be refitted after the JEC with the ported ttbar CR.

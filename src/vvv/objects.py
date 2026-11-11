@@ -5,7 +5,10 @@ selections/convert/selection.json. Collection names in comments are the legacy
 ones (ak8, ak8_sel2, ak4_resolved_c2, lep_veto_c3, ...).
 """
 
+import functools
+
 import awkward as ak
+import correctionlib
 import numpy as np
 
 from vvv.config import W_MASS, Z_MASS, ObjectConfig
@@ -87,15 +90,38 @@ def value_at(array, index, default):
     return ak.fill_none(padded[:, index], default)
 
 
+@functools.lru_cache(maxsize=None)
+def _correction(path, name):
+    return correctionlib.CorrectionSet.from_file(str(path))[name]
+
+
+def scouting_jet_id(jets, cfg: ObjectConfig):
+    """The official 2024 scouting jet ID (cfg.jet_id) of ScoutingPFJetRecluster jets.
+
+    The correctionlib inputs are the stored energy fractions (defined with the raw jet energy) and
+    the PF multiplicities: charged = charged hadrons + electrons + muons, neutral = neutral hadrons
+    + photons + HF hadrons + HF EM, multiplicity = charged + neutral (= nConstituents).
+    """
+    corr = _correction(cfg.jet_id_file, cfg.jet_id)
+    counts = ak.num(jets)
+
+    def flat(values, dtype=np.float64):
+        return ak.to_numpy(ak.flatten(values)).astype(dtype)
+
+    charged = flat(jets.chHadMultiplicity, np.int64) + flat(jets.elMultiplicity, np.int64) + flat(jets.muMultiplicity, np.int64)
+    neutral = (flat(jets.neHadMultiplicity, np.int64) + flat(jets.phMultiplicity, np.int64)
+               + flat(jets.hfHadMultiplicity, np.int64) + flat(jets.hfEMMultiplicity, np.int64))
+    inputs = {
+        "eta": flat(jets.eta), "chHEF": flat(jets.chHEF), "neHEF": flat(jets.neHEF), "chEmEF": flat(jets.chEmEF),
+        "neEmEF": flat(jets.neEmEF), "muEF": flat(jets.muEF),
+        "chMultiplicity": charged, "neMultiplicity": neutral, "multiplicity": charged + neutral,
+    }
+    passed = corr.evaluate(*(inputs[i.name] for i in corr.inputs)) > 0.5
+    return ak.unflatten(passed, counts)
+
+
 def ak4_jet_id(jets, cfg: ObjectConfig):
-    return (
-        kinematic_mask(jets, cfg.ak4_min_pt, cfg.ak4_max_abs_eta)
-        & (jets.nConstituents > 1)
-        & (jets.neHEF < 0.99)
-        & (jets.neEmEF < 0.90)
-        & (jets.chHadMultiplicity > 0)
-        & (jets.muEF < 0.80)
-    )
+    return kinematic_mask(jets, cfg.ak4_min_pt, cfg.ak4_max_abs_eta) & scouting_jet_id(jets, cfg)
 
 
 def electron_veto_id(ele, cfg: ObjectConfig):
@@ -152,16 +178,14 @@ def _opposite_sign(q1, q2, cfg: ObjectConfig):
     return (q1 * q2) < 0
 
 
-def leptons(electrons, muons, clean_against, cfg: ObjectConfig):
-    """Veto leptons (pT-sorted, massless) cleaned against the given AK8 jets."""
-    ele = electrons[
-        kinematic_mask(electrons, cfg.ele_min_pt, cfg.ele_max_abs_eta)
-        & (min_delta_r(electrons, clean_against) > cfg.clean_dr)
-    ]
-    mu = muons[
-        kinematic_mask(muons, cfg.mu_min_pt, cfg.mu_max_abs_eta)
-        & (min_delta_r(muons, clean_against) > cfg.clean_dr)
-    ]
+def identified_leptons(electrons, muons, cfg: ObjectConfig):
+    """Veto-ID and isolated leptons (pT-sorted, massless), before any cleaning against jets.
+
+    These are the prompt leptons subtracted from the jets (corrections.jets.subtract_leptons)
+    and, after cleaning against the V-candidate AK8 jets (leptons), the analysis leptons.
+    """
+    ele = electrons[kinematic_mask(electrons, cfg.ele_min_pt, cfg.ele_max_abs_eta)]
+    mu = muons[kinematic_mask(muons, cfg.mu_min_pt, cfg.mu_max_abs_eta)]
     ele = ele[electron_veto_id(ele, cfg)]
     mu = mu[muon_veto_id(mu, cfg)]
 
@@ -185,6 +209,12 @@ def leptons(electrons, muons, clean_against, cfg: ObjectConfig):
     return sort_by_pt(merged)
 
 
+def leptons(identified, clean_against, cfg: ObjectConfig):
+    """The identified leptons with deltaR > clean_dr to every jet of clean_against (jet priority:
+    a lepton inside a V-candidate AK8 jet is not an analysis lepton)."""
+    return identified[min_delta_r(identified, clean_against) > cfg.clean_dr]
+
+
 def best_sfos_pair(leps, cfg: ObjectConfig):
     """(found, pair p4) of the SFOS pair closest to mZ among the first leptons."""
     first = leps[:, : cfg.sfos_max_leptons]
@@ -199,8 +229,9 @@ def best_sfos_pair(leps, cfg: ObjectConfig):
     return ~ak.is_none(chosen), chosen
 
 
-def build_objects(ak4_in, ak8_in, electrons, muons, cfg: ObjectConfig):
-    """All analysis objects from corrected AK4/AK8 jets and raw leptons."""
+def build_objects(ak4_in, ak8_in, identified, cfg: ObjectConfig):
+    """All analysis objects from corrected (lepton-subtracted) AK4/AK8 jets and the identified
+    leptons (identified_leptons)."""
     ak8 = sort_by_pt(ak8_in)
     ak8 = ak8[kinematic_mask(ak8, cfg.ak8_min_pt, cfg.ak8_max_abs_eta)]
     ak4_nocuts = sort_by_pt(ak4_in)
@@ -236,9 +267,9 @@ def build_objects(ak4_in, ak8_in, electrons, muons, cfg: ObjectConfig):
         "ak4_dR0p4_c2": cleaned(ak8_sel2, cfg.clean_dr_loose),
         "ak4_c3": cleaned(ak8_sel3, cfg.clean_dr),
         "ak4_dR0p4_c3": cleaned(ak8_sel3, cfg.clean_dr_loose),
-        "lep_veto": leptons(electrons, muons, ak8, cfg),
-        "lep_veto_c2": leptons(electrons, muons, ak8_sel2, cfg),
-        "lep_veto_c3": leptons(electrons, muons, ak8_sel3, cfg),
+        "lep_veto": leptons(identified, ak8, cfg),
+        "lep_veto_c2": leptons(identified, ak8_sel2, cfg),
+        "lep_veto_c3": leptons(identified, ak8_sel3, cfg),
         "min_score3": min_score3,
     }
 

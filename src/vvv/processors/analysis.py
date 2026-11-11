@@ -4,8 +4,9 @@ classifier, signal regions and histograms in one pass over NanoEvents.
 Per chunk and jet configuration (nominal + the eight jet variations for MC),
 for every category:
 
-- skim (optional): the category's variables, weights and weight-variation
-  ratios are written to Parquet (<skim_dir>/<dataset>/<category>/<config>/),
+- skim (optional): the category's variables, weights, weight-variation ratios and the
+  decisions of the configured trigger paths are written to Parquet
+  (<skim_dir>/<dataset>/<category>/<config>/),
   the training input and the replacement of the legacy converted trees; with skim_cut
   only the events that can reach a mass-fit histogram are written (the data skims), and
   for categories with a model, their out-of-fold class probabilities proba_<class> (the
@@ -35,7 +36,7 @@ from vvv.background.qcd_massfit import box_mask
 from vvv.config import AnalysisConfig
 from vvv.ml.inference import CLASSES, CategoryModel, region_index, threshold_mask
 from vvv.objects import CATEGORIES
-from vvv.selection import EventSelection, preselection
+from vvv.selection import EventSelection, preselection, trigger_columns
 from vvv.variables import category_variables, passthrough
 from vvv.weights import N_ALPHAS, N_PDF, N_PS, N_SCALE, SampleWeights
 
@@ -185,10 +186,12 @@ class AnalysisProcessor(processor.ProcessorABC):
         out["rho_failures"][dataset] = int((~info["rho_ok"]).sum())
         out["rho_consensus"][dataset] = int(info["n_rho_consensus"])
         event_number = ak.to_numpy(events.event)
-        ids = passthrough(events, sample.is_mc)
+        ids = {**passthrough(events, sample.is_mc), **trigger_columns(events, self.cfg)}
         chunk_id = _chunk_id(events.metadata)
 
         for config_name, obj in selected.items():
+            if config_name == "nominal":
+                out["cutflow"][dataset]["jet_veto_rejected"] = int(obj["jet_veto"].sum())
             for category in CATEGORIES:
                 mask = ak.to_numpy(obj["categories"][category])
                 if config_name == "nominal":

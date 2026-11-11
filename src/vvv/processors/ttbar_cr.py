@@ -9,8 +9,9 @@ branch.json, tree ttbar_cr). Collections, in legacy names:
   (the ID cuts are applied by the fit, on the stored branches);
 - probe: the AK8 jets with |eta| < 2.4 and |dphi(mu_vtx[0])| > 1.5708.
 
-Tree selection: >= 1 mu_vtx, >= 1 ak4, >= 1 ak8. The jet corrections are the
-analysis ones (JEC, rho recovery, JER, Type-1 MET) without JMS/JMR.
+Tree selection: >= 1 mu_vtx, >= 1 ak4, >= 1 ak8, and the jet veto map. The jet
+corrections are the analysis ones (lepton subtraction, JEC, rho recovery, JER, Type-1
+MET) without JMS/JMR.
 
 Per chunk and jet configuration (nominal, and for MC optionally JES/JER up/down):
 
@@ -32,7 +33,8 @@ from vvv.corrections.jets import JetCorrector
 from vvv.ml.inference import threshold_mask
 from vvv.objects import ak4_jet_id, kinematic_mask, min_delta_r, p4_pt_eta, sort_by_pt
 from vvv.processors.analysis import _chunk_id
-from vvv.selection import input_collections, with_kinematics
+from vvv.objects import identified_leptons
+from vvv.selection import JetVetoMap, corrected_collections, input_collections
 from vvv.variables import AK4, AK8, DEF, Kin, _max_value, _nth_max, _safe_div, _slot, _wrap, passthrough
 from vvv.weights import SampleWeights
 
@@ -94,7 +96,8 @@ def cr_objects(ak4_in, ak8_in, muons_in, cfg: TtbarCRConfig):
 
 
 def tree_mask(obj):
-    return (ak.num(obj["mu_vtx"]) >= 1) & (ak.num(obj["ak4"]) >= 1) & (ak.num(obj["ak8"]) >= 1)
+    """>= 1 of each of mu_vtx, ak4 and ak8, in events kept by the jet veto map."""
+    return (ak.num(obj["mu_vtx"]) >= 1) & (ak.num(obj["ak4"]) >= 1) & (ak.num(obj["ak8"]) >= 1) & ~obj["jet_veto"]
 
 
 def _gen_value(gen_values, idx, default):
@@ -207,32 +210,32 @@ def cr_variables(obj, met_pt, met_phi, gen=None):
 
 
 class TtbarCRSelection:
-    """Corrections (no JMS/JMR) + CR objects for every requested jet configuration."""
+    """Corrections (no JMS/JMR) + CR objects for every requested jet configuration, with the
+    analysis lepton subtraction from the jets and the jet veto map."""
 
     def __init__(self, cfg: TtbarCRConfig):
         from dataclasses import replace
 
         self.cfg = cfg
         self.corrector = JetCorrector(replace(cfg.analysis.jets, apply_jms_jmr=False), cfg.analysis.rho)
+        self.jet_veto = JetVetoMap(cfg.analysis)
 
     def __call__(self, events, is_mc, configurations=("nominal",)):
-        ak4, ak8, _, muons = input_collections(events, self.cfg.analysis)
+        ak4, ak8, electrons, muons = input_collections(events, self.cfg.analysis)
+        identified = identified_leptons(electrons, muons, self.cfg.analysis.objects)
         rho = None
         if self.cfg.analysis.jets.rho_source == "branch":
             rho = events[self.cfg.analysis.jets.rho_branch]
-        state = self.corrector.prepare(ak4, ak8, events.ScoutingMET, events.event, is_mc, rho=rho)
+        state = self.corrector.prepare(ak4, ak8, events.ScoutingMET, events.event, is_mc, identified, rho=rho,
+                                       gen_jets=events.GenJet if is_mc else None)
         out = {}
         for name in configurations:
             if name != "nominal" and not is_mc:
                 continue
-            k = self.corrector.apply(state, name)
-            obj = cr_objects(
-                with_kinematics(ak4, k["ak4_pt"], k["ak4_mass"]),
-                with_kinematics(ak8, k["ak8_pt"], k["ak8_mass"], k["ak8_msoftdrop"]),
-                muons,
-                self.cfg,
-            )
+            ak4_c, ak8_c, k = corrected_collections(self.corrector, state, ak4, ak8, name)
+            obj = cr_objects(ak4_c, ak8_c, muons, self.cfg)
             obj["met_pt"], obj["met_phi"] = k["met_pt"], k["met_phi"]
+            obj["jet_veto"] = self.jet_veto(ak4_c)
             out[name] = obj
         return out, {"rho_ok": state.rho_ok}
 
@@ -312,6 +315,7 @@ class TtbarCRProcessor(processor.ProcessorABC):
         for config_name, obj in selected.items():
             mask = ak.to_numpy(tree_mask(obj))
             if config_name == "nominal":
+                out["cutflow"][dataset]["jet_veto_rejected"] = int(obj["jet_veto"].sum())
                 out["cutflow"][dataset][TREE] = int(mask.sum())
             if not mask.any():
                 continue

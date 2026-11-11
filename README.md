@@ -59,7 +59,11 @@ Requirements:
   from the legacy `sample.json`.
 - `data/filelists/`: per-sample file lists, from the legacy conversion snapshots.
 - `data/corrections/`, `data/pileup/`, `data/lumi/`: JEC/JER/JMS/JMR payloads, pileup profiles
-  and the golden JSON / luminosity inputs.
+  and the golden JSON / luminosity inputs. `data/corrections/cat/JME/<campaign>/<date>/` holds copies
+  of dated releases of the CAT JME payloads (`/cvmfs/cms-griddata.cern.ch/cat/metadata/JME/`, with
+  their `changes.md`): the Summer24 JER (`jet_jerc`, `fatJet_jerc`) and jet veto map of
+  2026-07-16, the JER smearing tool of 2026-09-18 and the 2024 scouting jet ID of 2026-09-15. The
+  CVMFS `latest` links move with new releases; these copies keep the results reproducible.
 - `metadata/<sample>.json`: sums of weights, theory-weight sums and pileup profiles, keyed by a
   file-list hash. `vvv metadata` regenerates them.
 
@@ -133,15 +137,18 @@ pixi run python scripts/fit_jms_jmr.py configs/jms_jmr.json \
 ```
 
 `vvv ttbar-cr` is the port of the legacy `convert_ttbar_cr` conversion (tree `ttbar_cr`). It
-applies the SingleMuon trigger, the golden JSON for data, and the analysis jet corrections (JEC,
-rho recovery, JER, Type-1 MET) without JMS/JMR. The collections are:
+applies the SingleMuon trigger, the golden JSON for data, and the analysis jet treatment (lepton
+subtraction, JEC, rho recovery, JER, Type-1 MET, jet veto map) without JMS/JMR. The collections are:
 
 - `ak8`: all AK8 jets, pT-sorted;
 - `ak4`: analysis jet ID and deltaR(ak8) > 0.8;
 - `mu_vtx`: muons with pT > 10 GeV, |eta| < 2.4, deltaR(ak8) > 0.8;
 - `probe`: AK8 jets with |eta| < 2.4 and |dphi(mu_vtx[0])| > 1.5708.
 
-The tree requires >= 1 of each of mu_vtx, ak4 and ak8. The output per sample is a pickle with the
+The tree requires >= 1 of each of mu_vtx, ak4 and ak8, in events kept by the jet veto map. The
+JMS/JMR values in `data/corrections/jms_jmr_results.json` were fitted before the lepton subtraction,
+the new JER and the jet veto map (see [Event and jet treatment](#event-and-jet-treatment)); they
+need a refit with this CR definition. The output per sample is a pickle with the
 cutflow, the pass/fail probe-mass histogram of the fit and the CR control distributions. These
 are filled for the events that pass the fit selection of `configs/jms_jmr.json`, split by the probe
 W tag. With `--skim-dir`, the whole `ttbar_cr` tree (legacy branch names, `weight`, pileup ratios)
@@ -156,6 +163,26 @@ sigma_data/sigma_MC). Its inputs are the skims, the pickles (`--hists`, fixed to
 fit selection), or legacy `convert_ttbar_cr` trees (`--legacy-root`, with the legacy weights, for
 closure). The fit never writes `data/corrections/`; adopting a new fit means copying the file there
 by hand.
+
+### Trigger efficiencies
+
+```bash
+pixi run vvv trigger-efficiency www wwz wzz zzz <VH samples> --output-dir <dir>   # MC: passed / all
+pixi run vvv trigger-efficiency data_2024 --reference DST_PFScouting_ZeroBias --output-dir <dir>
+pixi run python scripts/plot_trigger_efficiency.py <dir> --training-config configs/training/baseline.json \
+    --output-dir <plots>
+```
+
+`vvv trigger-efficiency` (`processors/trigger_efficiency.py`) fills, after the preselection
+without its trigger requirement and the jet veto map, for the preselection and each category
+(without its trigger requirement), the events and those firing JetHT, SingleMuon, JetHT or
+SingleMuon, DoubleMuon, DoubleEG and SinglePhotonEB, versus the selected-AK8 HT and the leading
+muon / electron pT and eta. MC counts every event (efficiency = passed / all, MC weights); data
+counts the events of the reference path. The plotting script merges the samples of each signal
+class (VVV, VH) and draws data with its data/MC ratio. The data efficiency with the scouting
+ZeroBias reference needs a production that keeps ZeroBias events: the current data keep only
+JetHT or SingleMuon events (ZeroBias fires for 1 in ~1e5 stored events). No scale factors are
+applied yet.
 
 ### Training
 
@@ -296,9 +323,86 @@ the median |w|, and there are no ABCD totals. The mass-fit cards use none of the
 (yields, sumw2, smoothed templates, TF_MC inputs, metadata/signal_regions as a TTree) is the same
 as `--skim-dir` on the same events.
 
+## Event and jet treatment
+
+The event-by-event comparison with legacy is frozen at 45bb03e (the validation table below); the
+following changes are deliberate and make the port differ from legacy.
+
+- **Trigger paths per category** (`AnalysisConfig.triggers`). boosted3, boosted2_resolved and
+  boosted2_unresolved: `DST_PFScouting_JetHT`; boosted2_leptonic_1lep and 2lep: JetHT or
+  `DST_PFScouting_SingleMuon`. The preselection takes the OR of all paths, each category then
+  requires its own. Every path must be in `DATA_PRODUCTION_TRIGGERS`, the data production filter
+  (JetHT or SingleMuon, plus >= 1 AK8): MC is produced without a trigger filter, so a path outside
+  it would select MC events that cannot exist in data. The configured trigger decisions are
+  written to the skims. Measured on 2026-11-10 (a few files of www, wwz, ttbar, WZ and data): JetHT
+  fires for >= 99.3 % of the events of every category, and SingleMuon adds <= 0.3 %; the
+  SingleMuon efficiency of 1-lepton muon events is 0.31 in data and 0.39-0.44 in MC. Target for the
+  lepton categories, with a production that keeps their events: JetHT or the single-lepton paths
+  (SingleMuon, SinglePhotonEB) for 1lep, JetHT or the dilepton paths (DoubleMuon, DoubleEG) for 2lep.
+- **Jet ID.** AK4 jets use the official 2024 scouting jet ID `ScoutingPFJetRecluster_TightLeptonVeto`
+  (JMAR; CAT payload), with charged multiplicity = charged hadrons + electrons + muons, neutral =
+  neutral hadrons + photons + HF hadrons + HF EM. Compared with the legacy cuts it counts muons in
+  the charged multiplicity.
+- **Lepton subtraction** (`corrections/jets.py: subtract_leptons`). Following the JERC prescription
+  for jets containing prompt leptons, each identified lepton (veto ID and isolation, before any
+  cleaning) is subtracted from the raw four-momentum of its closest eligible AK4 jet (dR < 0.4) and
+  AK8 jet (dR < 0.8) before JEC and JER, and not added back. Every jet is eligible for an electron;
+  for a muon only jets that contain a muon candidate are, so a muon goes to the closest such jet.
+  Scouting jets contain no electron candidates: the HLT particle flow
+  takes an electron as a charged hadron and photons, which stay in the jet around it (for
+  99.8 % of the identified electrons with pT > 20 GeV an AK4 jet within 0.4 has a raw pT above 0.9 x
+  the electron pT). The JEC of a subtracted AK4 jet is re-evaluated on the remainder; Type-1 MET uses
+  the remainders. A remainder without positive energy or pT, or pointing beyond |eta| = 5.191 (the
+  range of the JME payloads; only remainders of a few GeV get there), is removed. The AK8
+  soft-drop mass is not subtracted: no soft-drop subjets are stored. The categories keep the
+  jet-priority cleaning (leptons within 0.8 of the V-candidate AK8 jets are not counted), with
+  the axes of the subtracted jets: subtraction moves a jet axis away from the lepton (dR grows
+  roughly as dR / (1 - pT(lepton)/pT(jet))), and an AK8 jet that falls below 175 GeV is no V
+  candidate, so some leptons near V candidates now count. Which axes the cleaning uses is to be
+  discussed (to-do).
+- **JER.** The hybrid method of JERC: a generator jet matches if dR < R/2 and
+  |pT - pT_gen| < 3 sigma_JER pT (pT after the nominal JEC), then the jet is scaled, otherwise
+  smeared stochastically (`JERSmear` of 2026-09-18, smeared pT >= 0.01 GeV). No scouting JER exists:
+  AK4 jets use the offline `Summer24Prompt24_JRV2_MC` AK4PFPuppi JER, AK8 jets the AK8PFPuppi one
+  (ScaleFactor and fractional SFUncertainty). AK4 jets are matched to `GenJet` through
+  `genJetIdx`. The productions store no AK8 generator jets (`genJetAK8Idx` points into a collection
+  that is not written), so every AK8 jet is smeared stochastically.
+- **Jet veto map** (`selection.JetVetoMap`, `Summer24Prompt24_RunBCDEFGHI_V1`, key `jetvetomap`).
+  An event is rejected if any AK4 jet with corrected pT > 15 GeV, passing the jet ID and with
+  chEmEF + neEmEF < 0.9 lies in a vetoed (eta, phi) bin; per jet configuration, for data and MC,
+  in the analysis categories and the ttbar CR. The cutflows of `vvv run`, `vvv ttbar-cr` and
+  `vvv trigger-efficiency` record `jet_veto_rejected`. The stored AK4 jets have raw pT >= ~20 GeV
+  (the clustering threshold; the inputs drop raw pT < 19.9 GeV), so the effective veto threshold is
+  the corrected pT of such jets, about 20-30 GeV, not 15 GeV. The map was derived with offline jets;
+  its effect on scouting jets needs the (eta, phi) occupancy check.
+- **K-fold models.** `CategoryModel.load` requires exactly the directories fold0..fold<K-1>, with K
+  the recorded kfold of the training (`config.json` or legacy `test_ranges.json`), and the fold
+  index recorded in each directory.
+
+Products made before these changes (skims, trainings, signal regions, QCD transfer factors,
+systematic yields, the JMS/JMR fit) use the previous jet treatment and selection and have to be
+remade.
+
+Known limitations, kept for later work:
+
+- The AK8 soft-drop mass takes the AK8 jet-level JEC and JER, and the JMS/JMR measured in the ttbar
+  CR. The JMAR recipe (soft-drop subjets with AK4 JEC/JER, no dedicated JMS/JMR, residual JMS 1 %
+  and JMR 2 %) is for offline jets and needs the subjets in the production.
+- JMR: with JMR = 1 the nominal has no extra smearing and `jmr_down` equals the nominal, because
+  smearing can only widen the distribution: the JMR nuisance is one-sided. The latest JMAR
+  recommendation treats JMR as a width variation of the nominal mass templates.
+- MET noise filters cannot be applied: the scouting data store no `Flag_*` (the MC ones come from
+  the offline MiniAOD). There is no unclustered-energy MET uncertainty.
+- The next ScoutingNano production should keep ZeroBias, DoubleMuon, DoubleEG and SinglePhotonEB
+  events in data and store the AK8 generator jets, the soft-drop subjets (reconstructed and
+  generated) and rho.
+
 ## Status
 
 ### Implemented and validated against legacy
+
+The validations below hold for the code at 45bb03e; the later changes of
+[Event and jet treatment](#event-and-jet-treatment) are deliberate differences from legacy.
 
 | Stage | Code | Validation |
 |---|---|---|
@@ -349,7 +453,22 @@ Physics and validation:
 
 - [x] ttbar control-region processor and JMS/JMR fit (`vvv ttbar-cr`, `scripts/fit_jms_jmr.py`).
 - [ ] Full-statistics CR production and JMS/JMR refit after the JEC (the legacy values are stale),
-      then replace `data/corrections/jms_jmr_results.json`.
+      then replace `data/corrections/jms_jmr_results.json`; the refit also needs the lepton
+      subtraction, the Summer24 JER and the jet veto map of the CR.
+- [ ] JMR uncertainty as a width variation of the nominal mass templates (JMAR), instead of the
+      one-sided smearing.
+- [ ] JES: one correlated set of sources for AK4 and AK8 (JERC), the soft-drop mass scale defined
+      together with JMS; 10 % (the HLT-JEC closure of ScoutingPFJetRecluster) until scouting JES
+      sources exist.
+- [ ] Remove the cross-section uncertainty of the signal processes (scaled by r) from the cards.
+- [ ] Jet veto map: (eta, phi) occupancy of scouting AK4 jets before and after the veto, data and MC.
+- [ ] Trigger efficiencies in data with the ZeroBias reference (needs a production that keeps the
+      ZeroBias events) and the data/MC scale factors.
+- [ ] Lepton-jet overlap: lepton priority (categories by the number of identified leptons, jets
+      cleaned against leptons) or the current jet priority, and whether the cleaning uses the
+      stored or the lepton-subtracted jet axes (the subtraction moves ~17-21 % of the hadronic VVV
+      signal out of the hadronic categories, <= 2 % of data).
+- [ ] Unclustered-energy MET uncertainty; a replacement for the offline MET noise filters.
 - [ ] Data/MC plots from the plot skim.
 - [ ] Remaining decorrelation gap to legacy (QCD p(VVV)-msd1 correlation ~+0.04 vs ~+0.02). The
       stage-2 penalty is still falling at the 1496-round cap.
@@ -374,8 +493,8 @@ Infrastructure:
   WWW events on one file).
 - Inputs are truncated to 30 AK4 / 20 AK8 / 30 leptons, and AK4 jets with raw pT < 19.9 GeV are
   dropped, before any correction.
-- JMR < 1 gives no smearing, so the JMR variations equal nominal with the current
-  `jms_jmr_results.json`.
+- JMR <= 1 gives no smearing: with the current `jms_jmr_results.json` (JMR = 1) the nominal and
+  `jmr_down` equal the unsmeared mass and only `jmr_up` smears (see the known limitations above).
 
 ### ttbar CR: deliberate differences from legacy
 
@@ -404,7 +523,7 @@ src/vvv/ml/                    K-fold inference, training (Ray driver), diagnost
 src/vvv/sr/                    SR box optimisation (inputs from skims or legacy BDT outputs)
 src/vvv/background/            QCD mass-fit transfer factors and templates (legacy cache, skims, histograms)
 src/vvv/stats/                 systematic yield ratios for combine.C (*_syst_yields.json)
-src/vvv/processors/            metadata, analysis and ttbar CR processors
+src/vvv/processors/            metadata, analysis, ttbar CR and trigger-efficiency processors
 src/vvv/cli.py                 `vvv` command line
 configs/                       training, skim prescale, SR and JMS/JMR fit configs
 scripts/                       production, training, SR/QCD tools, sync_*.py legacy comparisons
