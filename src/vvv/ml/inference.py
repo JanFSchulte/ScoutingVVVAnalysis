@@ -4,10 +4,12 @@ A model directory (legacy train.py k-fold output, <dir>/<tree>/fold<r>/) holds
 per rotation the booster <tree>_model.json, the feature list branch.json and
 selection.json (clip_ranges, log_transform, thresholds). An event of fold r
 (event number % K, for MC and data alike) is scored with the model of rotation r,
-which neither trained nor monitored on it.
+which neither trained nor monitored on it. K is the kfold the training recorded,
+and the directories must be exactly fold0..fold<K-1> (fold_directories).
 """
 
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -79,6 +81,47 @@ def standardize(columns, features, clip_ranges, log_transform):
     return out
 
 
+FOLD_DIR = re.compile(r"fold(\d+)")
+
+
+def _read_json(path):
+    return json.loads(path.read_text()) if path.exists() else {}
+
+
+def training_kfold(base):
+    """K of the k-fold training under base, from fold0: the kfold of config.json (vvv.ml.train)
+    or of test_ranges.json (legacy train.py); where both record it, they must agree."""
+    recorded = {name: int(meta["kfold"]) for name in ("config.json", "test_ranges.json")
+                if "kfold" in (meta := _read_json(base / "fold0" / name))}
+    if not recorded:
+        raise FileNotFoundError(f"{base}/fold0: no kfold in config.json or test_ranges.json")
+    if len(set(recorded.values())) > 1:
+        raise ValueError(f"{base}/fold0: the recorded kfold differs: {recorded}")
+    return next(iter(recorded.values()))
+
+
+def fold_directories(base):
+    """[fold0, ..., fold<K-1>] of the training under base.
+
+    Events are dispatched by event % K to the model at that position, so the directories must be
+    exactly those K rotations (a missing or extra one would score events with a model that
+    trained on them), and a rotation index recorded in a fold (training_log.json of vvv.ml.train,
+    test_ranges.json of legacy train.py) must match its directory.
+    """
+    k = training_kfold(base)
+    found = sorted((p.name for p in base.iterdir() if p.is_dir() and FOLD_DIR.fullmatch(p.name)),
+                   key=lambda name: int(name[4:]))
+    expected = [f"fold{r}" for r in range(k)]
+    if found != expected:
+        raise ValueError(f"{base}: fold directories {found}, a {k}-fold training needs exactly {expected}")
+    for r, name in enumerate(expected):
+        for meta_name in ("training_log.json", "test_ranges.json"):
+            meta = _read_json(base / name / meta_name)
+            if "fold" in meta and int(meta["fold"]) != r:
+                raise ValueError(f"{base / name / meta_name}: records fold {meta['fold']}, expected {r}")
+    return [base / name for name in expected]
+
+
 def softmax(margins):
     m = margins - margins.max(axis=1, keepdims=True)
     e = np.exp(m)
@@ -97,9 +140,7 @@ class CategoryModel:
     @classmethod
     def load(cls, model_dir, tree):
         base = Path(model_dir) / tree
-        folds = sorted(base.glob("fold*"), key=lambda p: int(p.name[4:]))
-        if not folds:
-            raise FileNotFoundError(f"no fold<r> directories under {base}")
+        folds = fold_directories(base)
         branch = json.loads((folds[0] / "branch.json").read_text())[tree]
         selection = json.loads((folds[0] / "selection.json").read_text())[tree]
         boosters = []
