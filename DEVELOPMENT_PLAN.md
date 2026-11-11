@@ -50,6 +50,17 @@ The guiding rule is **validate against legacy at every stage**. The legacy chain
   - Jet variations in the CR: JES/JER up/down, optional (`--jet-variations`). The CR has no JMS/JMR to vary.
   - The refit replaces `data/corrections/jms_jmr_results.json` only by hand, after review.
 
+- Event and jet treatment (2026-11-10; README "Event and jet treatment"). The event-by-event legacy comparison is frozen at 45bb03e; these are deliberate differences:
+  - Trigger paths per category: JetHT for the hadronic categories, JetHT or SingleMuon for the lepton categories, only paths of the data production filter. Target with a new production: JetHT or the single-lepton paths (SingleMuon, SinglePhotonEB) for 1lep, JetHT or the dilepton paths (DoubleMuon, DoubleEG) for 2lep.
+  - Official scouting jet ID (ScoutingPFJetRecluster_TightLeptonVeto) for AK4 jets and the jet veto map.
+  - Identified electrons and muons subtracted from the raw AK4/AK8 jets before JEC/JER (JERC prescription); remainders without positive energy or beyond |eta| 5.191 are removed; categories keep the jet-priority lepton cleaning, with the subtracted jet axes (to be discussed: these axes or the stored ones, and lepton priority as in the Run 2 boosted VVV search).
+  - Hybrid JER with the Summer24Prompt24_JRV2_MC AK4PFPuppi / AK8PFPuppi payloads; AK8 stochastic until generator AK8 jets are stored.
+  - Jet veto map in the categories and the ttbar CR; the JMS/JMR refit has to use it.
+  - Strict k-fold model directories.
+  - The unit tests compare cells and events of the SR optimiser under the deterministic tie-break only (the legacy tie-break depends on the CPU).
+- Kept for later (2026-11-10): JMS/JMR stay the ttbar-CR measurement (the JMAR subjet recipe is for offline jets and needs stored subjets); JMR uncertainty as a width variation of the nominal mass templates; JES as one AK4/AK8-correlated source set with 10 %; no signal cross-section rows; trigger efficiencies in data with the ZeroBias reference and scale factors; MET noise filters and the unclustered-energy MET uncertainty.
+- Next ScoutingNano production (2026-11-10): keep ZeroBias, DoubleMuon, DoubleEG and SinglePhotonEB events in data; store the AK8 generator jets, the reconstructed and generated soft-drop subjets, and rho.
+
 ## Architecture
 
 ```

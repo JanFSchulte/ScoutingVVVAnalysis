@@ -2,7 +2,9 @@
 
 Values follow the legacy ScoutingVVVTools configuration at git 421d4d7:
 selections/convert/{config,selection,branch}.json and the constants at the top
-of selections/convert/convert_branch.C.
+of selections/convert/convert_branch.C, except the deliberate differences listed in
+README.md (trigger paths per category, the JER payloads and hybrid smearing, the official
+scouting jet ID, the jet veto map and the lepton subtraction from jets).
 """
 
 from dataclasses import dataclass, field
@@ -10,7 +12,11 @@ from pathlib import Path
 
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 CORRECTIONS_DIR = DATA_DIR / "corrections"
-JME_POG_DIR = Path("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/JME")
+# Copies of dated releases of the CAT JME payloads (/cvmfs/cms-griddata.cern.ch/cat/metadata/JME/
+# <campaign>/<date>/), kept with their changes.md: the CVMFS "latest" links move with new releases.
+CAT_JME_DIR = CORRECTIONS_DIR / "cat" / "JME"
+JME_2024 = CAT_JME_DIR / "Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15" / "2026-07-16"
+JME_2024_SCOUTING = CAT_JME_DIR / "Run3-24Scouting-Summer24-ScoutingNanoAODv15" / "2026-09-15"
 
 W_MASS = 80.4
 Z_MASS = 91.2
@@ -35,12 +41,21 @@ class JetCorrectionConfig:
     jec_ak8: str = "Winter24HLT_V1_MC_L1L2L3Res_AK8PFHLT"
     jec_ak4_l1: str = "Winter24HLT_V1_MC_L1FastJet_AK4PFHLT"
     jec_ak8_l1: str = "Winter24HLT_V1_MC_L1FastJet_AK8PFHLT"
-    jer_file: Path = JME_POG_DIR / "2024_Summer24" / "jet_jerc.json.gz"
-    jer_smear_file: Path = JME_POG_DIR / "jer_smear.json.gz"
-    jer_resolution: str = "Summer23BPixPrompt23_RunD_JRV1_MC_PtResolution_AK4PFPuppi"
-    jer_scale_factor: str = "Summer23BPixPrompt23_RunD_JRV1_MC_ScaleFactor_AK4PFPuppi"
-    # The PtResolution Rho axis ends here and returns 1.0 beyond it.
-    jer_rho_upper_edge: float = 52.05
+    # JER: no scouting JER exists; the offline PUPPI JER of the Summer24 MC campaign, AK4 for AK4
+    # and AK8 for AK8 (ScaleFactor with a fractional SFUncertainty: SF x (1 +- unc)).
+    jer_ak4_file: Path = JME_2024 / "jet_jerc.json.gz"
+    jer_ak8_file: Path = JME_2024 / "fatJet_jerc.json.gz"
+    jer_tag: str = "Summer24Prompt24_JRV2_MC"
+    jer_ak4_collection: str = "AK4PFPuppi"
+    jer_ak8_collection: str = "AK8PFPuppi"
+    jer_smear_file: Path = CAT_JME_DIR / "JER-Smearing" / "2026-09-18" / "jer_smear.json.gz"
+    # Hybrid smearing: a generator jet matches if dR < R/2 and |pT - pT_gen| < 3 sigma_JER pT.
+    ak4_radius: float = 0.4
+    ak8_radius: float = 0.8
+    jer_match_max_sigma: float = 3.0
+    # The |eta| range of the JME payloads (JER, jet veto map): a lepton-subtraction remainder
+    # pointing beyond it is no physical jet and is removed.
+    jme_max_abs_eta: float = 5.191
     jes_shift: float = 0.1
     jms_jmr_file: Path = CORRECTIONS_DIR / "jms_jmr_results.json"
     apply_jms_jmr: bool = True
@@ -69,6 +84,9 @@ class ObjectConfig:
     ak8_max_abs_eta: float = 2.5
     ak4_min_pt: float = 30.0
     ak4_max_abs_eta: float = 2.5
+    # Official 2024 scouting jet ID (JMAR; CAT Run3-24Scouting payload).
+    jet_id_file: Path = JME_2024_SCOUTING / "jetid.json.gz"
+    jet_id: str = "ScoutingPFJetRecluster_TightLeptonVeto"
     clean_dr: float = 0.8
     clean_dr_loose: float = 0.4
     ele_min_pt: float = 10.0
@@ -93,14 +111,50 @@ class ObjectConfig:
     legacy_electron_charge: bool = True
 
 
+# Scouting paths of the data production filter (ScoutingNanoProduction, data config: a
+# TriggerResultsFilter on DST_PFScouting_JetHT_v* OR DST_PFScouting_SingleMuon_v*, then >= 1 AK8
+# jet). MC is produced without a trigger filter. A category may therefore require only these
+# paths: an event that passes only another path is in the MC but can never be in the data.
+DATA_PRODUCTION_TRIGGERS = ("DST_PFScouting_JetHT", "DST_PFScouting_SingleMuon")
+
+JETHT = ("DST_PFScouting_JetHT",)
+JETHT_OR_SINGLEMUON = ("DST_PFScouting_JetHT", "DST_PFScouting_SingleMuon")
+
+
+def _category_triggers():
+    """Trigger paths per category (an event passes if any of them fired).
+
+    The lepton categories take JetHT or the lepton paths the data production keeps. Their
+    target is JetHT or the single-lepton paths (1lep: SingleMuon and SinglePhotonEB, the single-EG
+    scouting path) and JetHT or the dilepton paths (2lep: DoubleMuon, DoubleEG); the paths missing
+    here need a production that keeps their events (DATA_PRODUCTION_TRIGGERS).
+    """
+    return {
+        "boosted3": JETHT,
+        "boosted2_resolved": JETHT,
+        "boosted2_unresolved": JETHT,
+        "boosted2_leptonic_1lep": JETHT_OR_SINGLEMUON,
+        "boosted2_leptonic_2lep": JETHT_OR_SINGLEMUON,
+    }
+
+
 @dataclass(frozen=True)
 class AnalysisConfig:
     inputs: InputConfig = field(default_factory=InputConfig)
     jets: JetCorrectionConfig = field(default_factory=JetCorrectionConfig)
     rho: RhoRecoveryConfig = field(default_factory=RhoRecoveryConfig)
     objects: ObjectConfig = field(default_factory=ObjectConfig)
-    trigger: str = "DST_PFScouting_JetHT"  # NanoEvents: events.DST.PFScouting_JetHT
+    # {category: trigger paths}; NanoEvents reads DST_PFScouting_JetHT as events.DST.PFScouting_JetHT.
+    triggers: dict = field(default_factory=_category_triggers)
     lumi_mask: Path = DATA_DIR / "lumi" / "Cert_Collisions2024_378981_386951_Golden.json"
+    # Jet veto map (JERC, Run 3): the event is rejected if any AK4 jet with corrected pT above
+    # jet_veto_min_pt, passing the jet ID and with (chEmEF + neEmEF) below jet_veto_max_em_fraction,
+    # lies in a vetoed (eta, phi) bin. Data and MC alike.
+    jet_veto_file: Path = JME_2024 / "jetvetomaps.json.gz"
+    jet_veto_map: str = "Summer24Prompt24_RunBCDEFGHI_V1"
+    jet_veto_type: str = "jetvetomap"
+    jet_veto_min_pt: float = 15.0
+    jet_veto_max_em_fraction: float = 0.9
     jet_variations: tuple[str, ...] = (
         "jes_up",
         "jes_down",
@@ -111,6 +165,17 @@ class AnalysisConfig:
         "jmr_up",
         "jmr_down",
     )
+
+    def __post_init__(self):
+        for category, paths in self.triggers.items():
+            if not paths:
+                raise ValueError(f"category {category!r} has no trigger path")
+            outside = [p for p in paths if p not in DATA_PRODUCTION_TRIGGERS]
+            if outside:
+                raise ValueError(
+                    f"category {category!r} requires {outside}, which the data production does not keep "
+                    f"(its filter is {' OR '.join(DATA_PRODUCTION_TRIGGERS)}): those events exist only in the MC"
+                )
 
 
 DEFAULT = AnalysisConfig()

@@ -9,7 +9,10 @@ from vvv.processors.ttbar_cr import MU_INT_FIELDS, PROBS, _gen_value, cr_objects
 
 ak.behavior.update(candidate.behavior)
 
-AK4_ID = {"nConstituents": 10, "neHEF": 0.1, "neEmEF": 0.1, "chHadMultiplicity": 5, "muEF": 0.0, "scoutUParT_probb": 0.9}
+# Inputs of the official scouting jet ID (passing), plus the b score.
+AK4_ID = {"chHEF": 0.6, "neHEF": 0.1, "chEmEF": 0.0, "neEmEF": 0.1, "muEF": 0.0, "chHadMultiplicity": 5,
+          "elMultiplicity": 0, "muMultiplicity": 0, "neHadMultiplicity": 3, "phMultiplicity": 2,
+          "hfHadMultiplicity": 0, "hfEMMultiplicity": 0, "scoutUParT_probb": 0.9}
 AK8_EXTRA = {"msoftdrop": 80.0, **{f"scoutGlobalParT_prob_{p}": 0.1 for p in PROBS}}
 MU_EXTRA = {"trackIso": 1.0, "ecalIso": 0.5, "hcalIso": 0.5, "normchi2": 1.0, "trk_dxy": 0.01, "trk_dz": 0.02,
             **{f: 8 for f in MU_INT_FIELDS}}
@@ -42,7 +45,10 @@ def test_cr_collections_and_probe():
     assert ak.num(obj["mu_vtx"]).tolist() == [1, 0]
     assert obj["probe"].pt.tolist() == [[300.0], []]
     assert obj["probe_dphi"].tolist()[0] == pytest.approx([3.0])
+    obj["jet_veto"] = np.array([False, False])
     assert tree_mask(obj).tolist() == [True, False]
+    obj["jet_veto"] = np.array([True, False])  # rejected by the jet veto map
+    assert tree_mask(obj).tolist() == [False, False]
 
 
 def test_cr_variables_slots_and_leptonic_w():
